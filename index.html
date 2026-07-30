@@ -567,14 +567,21 @@
                     <span>📅 Interactive Schedule & WBS Gantt Chart</span>
                     <span class="section-subtitle">
                         Select Project Context:
-                        <select onchange="updateGantt(this.value)" style="padding: 4px; border-radius: 4px; border: 1px solid var(--border-color); outline: none;">
+                        <select id="gantt-proj-select" onchange="updateGantt(this.value)" style="padding: 4px; border-radius: 4px; border: 1px solid var(--border-color); outline: none; margin-right: 12px;">
                             <option value="PRJ-001">PRJ-001 (Composite Vessel)</option>
                             <option value="PRJ-002">PRJ-002 (Patrol Vessel)</option>
                             <option value="ALL">Multi-Project Portfolio View</option>
                         </select>
+                        Deviation Focus:
+                        <select id="gantt-metric-select" onchange="updateGantt(document.getElementById('gantt-proj-select').value)" style="padding: 4px; border-radius: 4px; border: 1px solid var(--border-color); outline: none;">
+                            <option value="Schedule">Schedule Progress %</option>
+                            <option value="Cost">Cost Deviation (BAC vs AC)</option>
+                            <option value="Hours">Hours Deviation (Plan vs Actual)</option>
+                        </select>
                         <div style="font-size: 11px; margin-top: 6px; text-align: right; font-weight: normal; color: var(--text-secondary);">
+                            <span style="color: #cbd5e1; font-size: 12px; margin-right: 2px;">■</span> Planned Baseline &nbsp;&nbsp;&nbsp;&nbsp;
                             <span style="color: var(--color-slate); font-size: 12px; margin-right: 2px;">■</span> On Track &nbsp;&nbsp;&nbsp;&nbsp;
-                            <span style="color: var(--color-crimson); font-size: 12px; margin-right: 2px;">■</span> Cost Overrun
+                            <span style="color: var(--color-crimson); font-size: 12px; margin-right: 2px;">■</span> Overrun/Deviation
                         </div>
                     </span>
                 </h2>
@@ -3998,24 +4005,83 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // 3. Gantt Chart Context Data
+        // 3. Gantt Chart Context Data & Timeline Math
+        const projectTimelines = {
+            'PRJ-001': { start: new Date('2026-01-01'), end: new Date('2026-06-30') },
+            'PRJ-002': { start: new Date('2026-05-01'), end: new Date('2026-12-15') },
+            'ALL': { start: new Date('2026-01-01'), end: new Date('2026-12-15') }
+        };
+
         const ganttData = {
             'PRJ-001': [
-                { task: '1.0 PM & Engineering', start: '2026-01-01', finish: '2026-06-30', progress: 97.5, status: 'Over Budget' },
-                { task: '2.0 Hull Fabrication', start: '2026-02-01', finish: '2026-04-20', progress: 100.0, status: 'On Track' },
-                { task: '3.0 Outfitting & Integration', start: '2026-04-01', finish: '2026-05-25', progress: 100.0, status: 'Over Budget' },
-                { task: '4.0 Sea Trials & Handover', start: '2026-06-01', finish: '2026-06-30', progress: 100.0, status: 'Over Budget' }
+                { 
+                    task: '1.0 PM & Engineering', 
+                    plannedStart: '2026-01-01', plannedFinish: '2026-06-30', 
+                    actualStart: '2026-01-01', actualFinish: '2026-06-30', 
+                    progress: 97.5, status: 'Red',
+                    bac: 300000, ac: 419230,
+                    plannedHours: 400.0, actualHours: 440.8
+                },
+                { 
+                    task: '2.0 Hull Fabrication', 
+                    plannedStart: '2026-02-01', plannedFinish: '2026-04-30', 
+                    actualStart: '2026-02-01', actualFinish: '2026-04-20', 
+                    progress: 100.0, status: 'Green',
+                    bac: 600000, ac: 620450,
+                    plannedHours: 1200.0, actualHours: 513.5
+                },
+                { 
+                    task: '3.0 Outfitting & Integration', 
+                    plannedStart: '2026-04-01', plannedFinish: '2026-05-30', 
+                    actualStart: '2026-04-01', actualFinish: '2026-05-25', 
+                    progress: 100.0, status: 'Red',
+                    bac: 400000, ac: 540445,
+                    plannedHours: 800.0, actualHours: 401.1
+                },
+                { 
+                    task: '4.0 Sea Trials & Handover', 
+                    plannedStart: '2026-06-01', plannedFinish: '2026-06-20', 
+                    actualStart: '2026-06-01', actualFinish: '2026-06-30', 
+                    progress: 100.0, status: 'Red',
+                    bac: 200000, ac: 268685,
+                    plannedHours: 300.0, actualHours: 280.5
+                }
             ],
             'PRJ-002': [
-                { task: '1.0 Hull Design & CFD', start: '2026-05-01', finish: '2026-08-15', progress: 75.0, status: 'On Track' },
-                { task: '2.0 Carbon Fiber Molding', start: '2026-07-01', finish: '2026-10-30', progress: 20.0, status: 'On Track' },
-                { task: '3.0 Autonomous Avionics', start: '2026-09-01', finish: '2026-12-15', progress: 0.0, status: 'On Track' }
+                { 
+                    task: '1.0 Hull Design & CFD', 
+                    plannedStart: '2026-05-01', plannedFinish: '2026-08-15', 
+                    actualStart: '2026-05-01', actualFinish: '2026-08-15', 
+                    progress: 75.0, status: 'Green',
+                    bac: 450000, ac: 320000,
+                    plannedHours: 500.0, actualHours: 380.0
+                },
+                { 
+                    task: '2.0 Carbon Fiber Molding', 
+                    plannedStart: '2026-07-01', plannedFinish: '2026-10-30', 
+                    actualStart: '2026-07-01', actualFinish: '2026-10-30', 
+                    progress: 20.0, status: 'Green',
+                    bac: 850000, ac: 170000,
+                    plannedHours: 1000.0, actualHours: 210.0
+                },
+                { 
+                    task: '3.0 Autonomous Avionics', 
+                    plannedStart: '2026-09-01', plannedFinish: '2026-12-15', 
+                    actualStart: '2026-09-01', actualFinish: '2026-12-15', 
+                    progress: 0.0, status: 'Green',
+                    bac: 650000, ac: 0,
+                    plannedHours: 800.0, actualHours: 0.0
+                }
             ]
         };
 
         function updateGantt(proj) {
             const container = document.getElementById('gantt-chart');
             container.innerHTML = '';
+            
+            const metric = document.getElementById('gantt-metric-select').value;
+            const timeline = projectTimelines[proj] || projectTimelines['PRJ-001'];
+            const totalMs = timeline.end.getTime() - timeline.start.getTime();
             
             let tasks = [];
             if(proj === 'ALL') {
@@ -4034,13 +4100,66 @@
                 
                 const track = document.createElement('div');
                 track.className = 'gantt-bar-track';
+                track.style.position = 'relative';
+                track.style.height = '48px';
+                track.style.background = '#f8f9fa';
+                track.style.borderBottom = '1px solid #e2e8f0';
                 
-                const fill = document.createElement('div');
-                fill.className = 'gantt-bar-fill' + (t.status === 'Over Budget' ? ' over-budget' : '');
-                fill.style.width = t.progress + '%';
-                fill.textContent = t.progress.toFixed(1) + '%';
+                // 1. Calculate Offsets
+                const pStart = new Date(t.plannedStart);
+                const pEnd = new Date(t.plannedFinish);
+                const aStart = new Date(t.actualStart);
+                const aEnd = new Date(t.actualFinish);
                 
-                track.appendChild(fill);
+                const plannedLeft = Math.max(0, (pStart - timeline.start) / totalMs * 100);
+                const plannedWidth = Math.max(2, (pEnd - pStart) / totalMs * 100);
+                
+                const actualLeft = Math.max(0, (aStart - timeline.start) / totalMs * 100);
+                const actualWidth = Math.max(2, (aEnd - aStart) / totalMs * 100);
+                
+                // 2. Set Labels & Colors
+                let plannedLabel = 'Planned Baseline';
+                let actualLabel = '';
+                let actualColorClass = '';
+                
+                if (metric === 'Schedule') {
+                    plannedLabel = 'Plan';
+                    actualLabel = `${t.progress.toFixed(1)}%`;
+                    actualColorClass = t.status === 'Red' ? 'over-budget' : '';
+                } else if (metric === 'Cost') {
+                    plannedLabel = `BAC: ${(t.bac/1000).toFixed(0)}k`;
+                    const diff = t.ac - t.bac;
+                    if (diff > 0) {
+                        actualLabel = `+${(diff/1000).toFixed(1)}k NOK Overrun`;
+                        actualColorClass = 'over-budget';
+                    } else {
+                        actualLabel = `-${(Math.abs(diff)/1000).toFixed(1)}k NOK Under`;
+                        actualColorClass = '';
+                    }
+                } else if (metric === 'Hours') {
+                    plannedLabel = `Plan: ${t.plannedHours.toFixed(0)}h`;
+                    const diff = t.actualHours - t.plannedHours;
+                    if (diff > 0) {
+                        actualLabel = `+${diff.toFixed(1)}h Over`;
+                        actualColorClass = 'over-budget';
+                    } else {
+                        actualLabel = `${diff.toFixed(1)}h Under`;
+                        actualColorClass = '';
+                    }
+                }
+                
+                // 3. Render HTML
+                track.innerHTML = `
+                    <!-- Planned Bar -->
+                    <div style="position: absolute; left: ${plannedLeft}%; width: ${plannedWidth}%; height: 16px; top: 4px; background-color: #cbd5e1; color: #475569; font-size: 10px; font-weight: 500; display: flex; align-items: center; padding-left: 6px; border-radius: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${plannedLabel}
+                    </div>
+                    <!-- Actual Bar -->
+                    <div class="gantt-bar-fill ${actualColorClass}" style="position: absolute; left: ${actualLeft}%; width: ${actualWidth}%; height: 20px; bottom: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; border-radius: 2px; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${actualLabel}
+                    </div>
+                `;
+                
                 row.appendChild(label);
                 row.appendChild(track);
                 container.appendChild(row);

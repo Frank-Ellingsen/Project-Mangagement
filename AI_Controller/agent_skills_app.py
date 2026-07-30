@@ -261,46 +261,102 @@ AGENT_SKILLS = {
 # ==========================================
 # INTERACTIVE GANTT CHART GENERATOR
 # ==========================================
-def render_tufte_gantt_chart(project_selection="PRJ-001 (Composite Vessel)"):
-    # Generate schedule datasets
+# ==========================================
+# INTERACTIVE GANTT CHART GENERATOR
+# ==========================================
+def render_tufte_gantt_chart(project_selection="PRJ-001 (Composite Vessel)", metric_focus="Schedule Progress %"):
+    # Generate schedule datasets (Planned vs Actual/Forecast)
     tasks_prj001 = [
-        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "1.0", "Task": "1.0 PM & Engineering", "Start": "2026-01-01", "Finish": "2026-06-30", "Type": "Actual Schedule", "Status": "⚠️ Over Budget", "Progress": 97.5, "BAC": 300000, "AC": 419230},
-        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "2.0", "Task": "2.0 Hull Fabrication", "Start": "2026-02-01", "Finish": "2026-04-20", "Type": "Actual Schedule", "Status": "✅ On Track", "Progress": 100.0, "BAC": 600000, "AC": 620450},
-        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "3.0", "Task": "3.0 Outfitting & Integration", "Start": "2026-04-01", "Finish": "2026-05-25", "Type": "Actual Schedule", "Status": "⚠️ Over Budget", "Progress": 100.0, "BAC": 400000, "AC": 540445},
-        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "4.0", "Task": "4.0 Sea Trials & Handover", "Start": "2026-06-01", "Finish": "2026-06-30", "Type": "Actual Schedule", "Status": "⚠️ Over Budget", "Progress": 100.0, "BAC": 200000, "AC": 268685},
+        # Planned
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "1.0", "Task": "1.0 PM & Engineering", "Start": "2026-01-01", "Finish": "2026-06-30", "ScheduleType": "Planned", "Progress": 100.0, "BAC": 300000, "AC": 300000, "PlannedHours": 400.0, "ActualHours": 400.0, "Status": "Planned"},
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "2.0", "Task": "2.0 Hull Fabrication", "Start": "2026-02-01", "Finish": "2026-04-30", "ScheduleType": "Planned", "Progress": 100.0, "BAC": 600000, "AC": 600000, "PlannedHours": 1200.0, "ActualHours": 1200.0, "Status": "Planned"},
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "3.0", "Task": "3.0 Outfitting & Integration", "Start": "2026-04-01", "Finish": "2026-05-30", "ScheduleType": "Planned", "Progress": 100.0, "BAC": 400000, "AC": 400000, "PlannedHours": 800.0, "ActualHours": 800.0, "Status": "Planned"},
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "4.0", "Task": "4.0 Sea Trials & Handover", "Start": "2026-06-01", "Finish": "2026-06-20", "ScheduleType": "Planned", "Progress": 100.0, "BAC": 200000, "AC": 200000, "PlannedHours": 300.0, "ActualHours": 300.0, "Status": "Planned"},
+        # Actual
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "1.0", "Task": "1.0 PM & Engineering", "Start": "2026-01-01", "Finish": "2026-06-30", "ScheduleType": "Actual/Forecast", "Progress": 97.5, "BAC": 300000, "AC": 419230, "PlannedHours": 400.0, "ActualHours": 440.8, "Status": "🔴 Red (Overrun)"},
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "2.0", "Task": "2.0 Hull Fabrication", "Start": "2026-02-01", "Finish": "2026-04-20", "ScheduleType": "Actual/Forecast", "Progress": 100.0, "BAC": 600000, "AC": 620450, "PlannedHours": 1200.0, "ActualHours": 513.5, "Status": "🟢 Green (On Track)"},
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "3.0", "Task": "3.0 Outfitting & Integration", "Start": "2026-04-01", "Finish": "2026-05-25", "ScheduleType": "Actual/Forecast", "Progress": 100.0, "BAC": 400000, "AC": 540445, "PlannedHours": 800.0, "ActualHours": 401.1, "Status": "🔴 Red (Overrun)"},
+        {"Project": "PRJ-001 (Vessel Construction)", "WBS": "4.0", "Task": "4.0 Sea Trials & Handover", "Start": "2026-06-01", "Finish": "2026-06-30", "ScheduleType": "Actual/Forecast", "Progress": 100.0, "BAC": 200000, "AC": 268685, "PlannedHours": 300.0, "ActualHours": 280.5, "Status": "🔴 Red (Overrun)"},
     ]
     
     tasks_prj002 = [
-        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "1.0", "Task": "1.0 Hull Design & CFD", "Start": "2026-05-01", "Finish": "2026-08-15", "Type": "Actual Schedule", "Status": "✅ On Track", "Progress": 75.0, "BAC": 450000, "AC": 320000},
-        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "2.0", "Task": "2.0 Carbon Fiber Molding", "Start": "2026-07-01", "Finish": "2026-10-30", "Type": "Actual Schedule", "Status": "✅ On Track", "Progress": 20.0, "BAC": 850000, "AC": 170000},
-        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "3.0", "Task": "3.0 Autonomous Avionics", "Start": "2026-09-01", "Finish": "2026-12-15", "Type": "Planned Schedule", "Status": "✅ On Track", "Progress": 0.0, "BAC": 650000, "AC": 0},
+        # Planned
+        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "1.0", "Task": "1.0 Hull Design & CFD", "Start": "2026-05-01", "Finish": "2026-08-15", "ScheduleType": "Planned", "Progress": 100.0, "BAC": 450000, "AC": 450000, "PlannedHours": 500.0, "ActualHours": 500.0, "Status": "Planned"},
+        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "2.0", "Task": "2.0 Carbon Fiber Molding", "Start": "2026-07-01", "Finish": "2026-10-30", "ScheduleType": "Planned", "Progress": 100.0, "BAC": 850000, "AC": 850000, "PlannedHours": 1000.0, "ActualHours": 1000.0, "Status": "Planned"},
+        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "3.0", "Task": "3.0 Autonomous Avionics", "Start": "2026-09-01", "Finish": "2026-12-15", "ScheduleType": "Planned", "Progress": 100.0, "BAC": 650000, "AC": 650000, "PlannedHours": 800.0, "ActualHours": 800.0, "Status": "Planned"},
+        # Actual
+        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "1.0", "Task": "1.0 Hull Design & CFD", "Start": "2026-05-01", "Finish": "2026-08-15", "ScheduleType": "Actual/Forecast", "Progress": 75.0, "BAC": 450000, "AC": 320000, "PlannedHours": 500.0, "ActualHours": 380.0, "Status": "🟢 Green (On Track)"},
+        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "2.0", "Task": "2.0 Carbon Fiber Molding", "Start": "2026-07-01", "Finish": "2026-10-30", "ScheduleType": "Actual/Forecast", "Progress": 20.0, "BAC": 850000, "AC": 170000, "PlannedHours": 1000.0, "ActualHours": 210.0, "Status": "🟢 Green (On Track)"},
+        {"Project": "PRJ-002 (Autonomous Patrol Vessel)", "WBS": "3.0", "Task": "3.0 Autonomous Avionics", "Start": "2026-09-01", "Finish": "2026-12-15", "ScheduleType": "Actual/Forecast", "Progress": 0.0, "BAC": 650000, "AC": 0, "PlannedHours": 800.0, "ActualHours": 0.0, "Status": "🟢 Green (On Track)"},
     ]
     
     if "PRJ-001" in project_selection:
-        df_gantt = pd.DataFrame(tasks_prj001)
+        tasks = tasks_prj001
     elif "PRJ-002" in project_selection:
-        df_gantt = pd.DataFrame(tasks_prj002)
+        tasks = tasks_prj002
     else:
-        df_gantt = pd.DataFrame(tasks_prj001 + tasks_prj002)
+        tasks = tasks_prj001 + tasks_prj002
         
+    df_gantt = pd.DataFrame(tasks)
     df_gantt["Start"] = pd.to_datetime(df_gantt["Start"])
     df_gantt["Finish"] = pd.to_datetime(df_gantt["Finish"])
     
-    # Plotly Timeline Gantt adhering to Tufte Principles:
-    # - No vertical gridlines (showgrid=False)
-    # - High-contrast clean color palette (#2c3e50 for On Track, #e74c3c for Over Budget)
-    # - Direct labeling showing physical progress % on bars
+    # Calculate Labels & Colors based on Metric Focus
+    labels = []
+    colors = []
+    
+    for idx, r in df_gantt.iterrows():
+        is_planned = r["ScheduleType"] == "Planned"
+        
+        if metric_focus == "Schedule Progress %":
+            if is_planned:
+                labels.append("Planned Baseline")
+                colors.append("Planned")
+            else:
+                labels.append(f"{r['Progress']:.1f}%")
+                colors.append(r["Status"])
+                
+        elif metric_focus == "Cost Deviation (BAC vs AC)":
+            if is_planned:
+                labels.append(f"BAC: {r['BAC']/1000:.0f}k NOK")
+                colors.append("Planned")
+            else:
+                diff = r["AC"] - r["BAC"]
+                if diff > 0:
+                    labels.append(f"+{diff/1000:.1f}k NOK Overrun")
+                    colors.append("🔴 Red (Overrun)")
+                else:
+                    labels.append(f"-{abs(diff)/1000:.1f}k NOK Under")
+                    colors.append("🟢 Green (On Track)")
+                    
+        elif metric_focus == "Hours Deviation (Plan vs Actual)":
+            if is_planned:
+                labels.append(f"Plan: {r['PlannedHours']:.0f}h")
+                colors.append("Planned")
+            else:
+                diff = r["ActualHours"] - r["PlannedHours"]
+                if diff > 0:
+                    labels.append(f"+{diff:.1f}h Over")
+                    colors.append("🔴 Red (Overrun)")
+                else:
+                    labels.append(f"{diff:.1f}h Under")
+                    colors.append("🟢 Green (On Track)")
+                    
+    df_gantt["DisplayLabel"] = labels
+    df_gantt["ColorCategory"] = colors
+    
     fig_gantt = px.timeline(
         df_gantt,
         x_start="Start",
         x_end="Finish",
         y="Task",
-        color="Status",
-        text=df_gantt["Progress"].apply(lambda x: f"{x:.1f}%"),
-        hover_data=["Project", "BAC", "AC", "Progress"],
+        color="ColorCategory",
+        text="DisplayLabel",
+        hover_data=["Project", "BAC", "AC", "PlannedHours", "ActualHours", "Progress", "ScheduleType"],
         color_discrete_map={
-            "✅ On Track": "#2c3e50",
-            "⚠️ Over Budget": "#e74c3c"
+            "Planned": "#cbd5e1",
+            "🟢 Green (On Track)": "#2c3e50",
+            "🔴 Red (Overrun)": "#e74c3c"
         }
     )
     
@@ -312,7 +368,8 @@ def render_tufte_gantt_chart(project_selection="PRJ-001 (Composite Vessel)"):
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        barmode="group"
     )
     
     # REMOVE VERTICAL GRIDLINES (Tufte Data-Ink Rule)
@@ -386,11 +443,15 @@ if view_mode == "Agent Control Tower":
             "Select Project Context",
             ["PRJ-001 (Composite Vessel)", "PRJ-002 (Patrol Vessel)", "Multi-Project Portfolio View"]
         )
-        st.caption("🔍 **Tufte Rule Check:** Vertical gridlines removed for maximum data-ink ratio. Progress percentages displayed directly on bars.")
-        st.markdown("<div style='font-size:12px; margin-top:8px;'><span style='color:#2c3e50; font-size:14px;'>■</span> <strong>On Track</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#e74c3c; font-size:14px;'>■</span> <strong>Cost Overrun</strong></div>", unsafe_allow_html=True)
+        gantt_metric = st.radio(
+            "Deviation Metric Focus",
+            ["Schedule Progress %", "Cost Deviation (BAC vs AC)", "Hours Deviation (Plan vs Actual)"]
+        )
+        st.caption("🔍 **Tufte Rule Check:** Vertical gridlines removed. Planned bars shown in light gray. Actual bars colored by status.")
+        st.markdown("<div style='font-size:12px; margin-top:8px;'><span style='color:#cbd5e1; font-size:14px;'>■</span> <strong>Planned</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#2c3e50; font-size:14px;'>■</span> <strong>On Track</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#e74c3c; font-size:14px;'>■</span> <strong>Deviation/Overrun</strong></div>", unsafe_allow_html=True)
         
     with gantt_col1:
-        fig_gantt = render_tufte_gantt_chart(project_select)
+        fig_gantt = render_tufte_gantt_chart(project_select, gantt_metric)
         st.plotly_chart(fig_gantt, use_container_width=True)
 
     st.write("---")
