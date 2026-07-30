@@ -457,11 +457,12 @@ if view_mode == "Agent Control Tower":
     st.write("---")
 
     # --- Agent Domains Tabs ---
-    tab1, tab2, tab3, tab4 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📊 Project Controller (EVM & Forecasts)",
         "💼 CFO & Profitability Audit",
         "📜 Contract, Risk & Anomaly Audit",
-        "🏗️ Production & Quality Control"
+        "🏗️ Production & Quality Control",
+        "💡 Recommendation Agent"
     ])
     
     with tab1:
@@ -548,6 +549,47 @@ if view_mode == "Agent Control Tower":
         fig_bar = px.bar(progress_by_wbs, x='PercentComplete', y='ElementName', orientation='h', color_discrete_sequence=['#2c3e50'])
         fig_bar.update_layout(margin=dict(l=20, r=20, t=30, b=20), height=280, xaxis=dict(range=[0, 105], showgrid=True, gridcolor="#f0f0f0"), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
         st.plotly_chart(fig_bar, use_container_width=True)
+
+    with tab5:
+        st.subheader("💡 AI Recommendation Agent & Corrective Action Simulator")
+        st.caption("Active recommendations generated dynamically based on Project EVM indices (CPI/SPI).")
+        
+        rec_col1, rec_col2 = st.columns([1, 1])
+        with rec_col1:
+            st.markdown("### 📋 Active Action Items")
+            if cpi < 0.95:
+                st.error("🔴 **Audit Materials & Rates (WBS 1.0 & 3.0)**\n\n* **Priority:** Critical\n* **Reason:** Cost overrun of 119k NOK in PM & Eng and 140k NOK in Outfitting.\n* **Action:** Renegotiate contractor rates, enforce strict scope controls on drawings, and freeze non-essential variation orders.")
+                st.warning("🟡 **Yard Resource Optimization (WBS 2.0)**\n\n* **Priority:** Medium\n* **Reason:** Fabricated 10 days early but slightly exceeded BAC.\n* **Action:** Review labor efficiency; shift excess yard operators to outfitting tasks.")
+            if progress < 100.0 and cpi < 0.90:
+                st.error("🔴 **Accelerate Sea Trials Handover (WBS 4.0)**\n\n* **Priority:** High\n* **Reason:** Schedule slipped by 10 days.\n* **Action:** Deploy overlapping shifts for final testing and pre-commissioning checks.")
+            else:
+                st.success("🟢 **Project on Track**: No critical corrective actions needed at this time.")
+                
+        with rec_col2:
+            st.markdown("### 🎛️ What-If Corrective Simulator")
+            st.write("Simulate the financial impact of implementing corrective controlling actions in real time:")
+            
+            labor_saving = st.slider("Simulated Labor Rate Savings (%)", 0.0, 30.0, 0.0, step=1.0)
+            material_saving = st.slider("Simulated Material Price Reduction (%)", 0.0, 30.0, 0.0, step=1.0)
+            schedule_crash = st.selectbox("Crash WBS 4.0 Schedule (Add Overtime Shifts)", ["No (Normal)", "Yes (5% extra cost, 5 days saved)", "Yes (10% extra cost, 10 days saved)"])
+            
+            # Original BAC = 1,300,000. Original AC = 1,848,810.
+            sim_ac = 1848810 * (1 - (labor_saving / 100) * 0.7 - (material_saving / 100) * 0.3)
+            
+            crash_pct = 0.0
+            if "5%" in schedule_crash:
+                crash_pct = 0.05
+            elif "10%" in schedule_crash:
+                crash_pct = 0.10
+                
+            sim_ac += 200000 * crash_pct
+            sim_cpi = ev / sim_ac if sim_ac > 0 else cpi
+            sim_eac = bac / sim_cpi if sim_cpi > 0 else 1859559
+            
+            st.write("---")
+            st.markdown("#### 📊 Simulation Results")
+            st.metric("Simulated CPI", f"{sim_cpi:.2f}", delta=f"{sim_cpi - cpi:+.2f} Improvement" if sim_cpi > cpi else None)
+            st.metric("Simulated EAC", f"{sim_eac:,.0f} NOK", delta=f"{sim_eac - 1859559:,.0f} NOK vs Current Forecast" if sim_eac != 1859559 else None)
 
 # ==========================================
 # 2. STAKEHOLDER REPORTS VIEW

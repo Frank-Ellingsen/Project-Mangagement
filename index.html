@@ -596,6 +596,7 @@
                 <button class="tab-btn" onclick="switchTab('tab-cfo', this)">💼 CFO & Profitability Audit</button>
                 <button class="tab-btn" onclick="switchTab('tab-contract', this)">📜 Contract & Risk Audit</button>
                 <button class="tab-btn" onclick="switchTab('tab-production', this)">🏗️ Production & Assembly</button>
+                <button class="tab-btn" onclick="switchTab('tab-recommendations', this)">💡 Recommendations</button>
             </div>
 
             <!-- TAB PANEL: CONTROLLER -->
@@ -758,6 +759,82 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- TAB PANEL: RECOMMENDATIONS -->
+            <div id="tab-recommendations" class="tab-panel">
+                <div class="flex-container">
+                    <!-- Left: Recommendations List -->
+                    <div class="flex-child" style="flex: 1; padding-right: 20px;">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 14px; margin-bottom: 8px;">📋 Active Corrective Action Items</h3>
+                        
+                        <div id="rec-cost-alert" class="terminal-box" style="background-color: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; height: auto; padding: 16px; margin-bottom: 12px;">
+                            <strong style="font-size: 13px;">🔴 Audit Materials & Labor Rates (WBS 1.0 & 3.0)</strong>
+                            <p style="margin: 6px 0 0 0; font-size: 12px; font-family: sans-serif; color: #7f1d1d;">
+                                <strong>Priority:</strong> Critical<br>
+                                <strong>Reason:</strong> Cost overrun of 119k NOK in PM & Eng and 140k NOK in Outfitting.<br>
+                                <strong>Action:</strong> Renegotiate contractor rates, freeze non-essential variation orders, and restrict scope expansion.
+                            </p>
+                        </div>
+
+                        <div id="rec-schedule-alert" class="terminal-box" style="background-color: #fffbeb; border: 1px solid #fef3c7; color: #92400e; height: auto; padding: 16px; margin-bottom: 12px;">
+                            <strong style="font-size: 13px;">🟡 Yard Resource Optimization (WBS 2.0)</strong>
+                            <p style="margin: 6px 0 0 0; font-size: 12px; font-family: sans-serif; color: #78350f;">
+                                <strong>Priority:</strong> Medium<br>
+                                <strong>Reason:</strong> Fabricated 10 days early but slightly exceeded BAC.<br>
+                                <strong>Action:</strong> Shift excess structural labor to delayed outfitting tasks to optimize yard-wide capacity.
+                            </p>
+                        </div>
+
+                        <div id="rec-trials-alert" class="terminal-box" style="background-color: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; height: auto; padding: 16px;">
+                            <strong style="font-size: 13px;">🔴 Accelerate Sea Trials Handover (WBS 4.0)</strong>
+                            <p style="margin: 6px 0 0 0; font-size: 12px; font-family: sans-serif; color: #7f1d1d;">
+                                <strong>Priority:</strong> High<br>
+                                <strong>Reason:</strong> Sea trials schedule slipped by 10 days.<br>
+                                <strong>Action:</strong> Enforce double-shift schedules for final testing, pre-commissioning checkouts, and DNV witness surveys.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: What-If Corrective Simulator -->
+                    <div class="flex-child" style="flex: 1; border-left: 1px solid #e2e8f0; padding-left: 20px;">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 14px; margin-bottom: 8px;">🎛️ What-If Corrective Simulator</h3>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
+                            Simulate the financial impact of implementing corrective controlling actions in real time:
+                        </p>
+
+                        <div style="margin-bottom: 14px;">
+                            <label style="font-size: 12px; font-weight: 500;">Simulated Labor Savings (%): <span id="sim-labor-val">0</span>%</label><br>
+                            <input type="range" id="sim-labor-range" min="0" max="30" value="0" style="width: 100%; margin-top: 4px;" oninput="runHtmlSimulation()">
+                        </div>
+
+                        <div style="margin-bottom: 14px;">
+                            <label style="font-size: 12px; font-weight: 500;">Simulated Material Savings (%): <span id="sim-material-val">0</span>%</label><br>
+                            <input type="range" id="sim-material-range" min="0" max="30" value="0" style="width: 100%; margin-top: 4px;" oninput="runHtmlSimulation()">
+                        </div>
+
+                        <div style="margin-bottom: 18px;">
+                            <label style="font-size: 12px; font-weight: 500;">Crash WBS 4.0 Schedule (Add Overtime Shifts)</label><br>
+                            <select id="sim-crash-select" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); margin-top: 4px;" onchange="runHtmlSimulation()">
+                                <option value="0">No (Normal)</option>
+                                <option value="0.05">Yes (5% extra cost, 5 days saved)</option>
+                                <option value="0.10">Yes (10% extra cost, 10 days saved)</option>
+                            </select>
+                        </div>
+
+                        <div style="background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 4px; padding: 14px;">
+                            <h4 style="margin: 0 0 10px 0; font-family: 'Outfit', sans-serif; font-size: 13px;">📊 Simulated Results</h4>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 12px; color: var(--text-secondary);">Simulated CPI</span>
+                                <strong id="sim-cpi-val" style="font-size: 13px;">0.81</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="font-size: 12px; color: var(--text-secondary);">Simulated EAC</span>
+                                <strong id="sim-eac-val" style="font-size: 13px;">1,859,559 NOK</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -4164,6 +4241,28 @@
                 row.appendChild(track);
                 container.appendChild(row);
             });
+        }
+
+        function runHtmlSimulation() {
+            const laborPct = parseFloat(document.getElementById('sim-labor-range').value);
+            const materialPct = parseFloat(document.getElementById('sim-material-range').value);
+            const crashPct = parseFloat(document.getElementById('sim-crash-select').value);
+            
+            document.getElementById('sim-labor-val').textContent = laborPct;
+            document.getElementById('sim-material-val').textContent = materialPct;
+            
+            const originalBac = 1500000;
+            const originalAc = 1848810;
+            const originalEv = 1500000;
+            
+            let simAc = originalAc * (1 - (laborPct / 100) * 0.7 - (materialPct / 100) * 0.3);
+            simAc += 200000 * crashPct;
+            
+            const simCpi = simAc > 0 ? (originalEv / simAc) : 0.81;
+            const simEac = simCpi > 0 ? (originalBac / simCpi) : 1859559;
+            
+            document.getElementById('sim-cpi-val').textContent = simCpi.toFixed(2);
+            document.getElementById('sim-eac-val').textContent = Math.round(simEac).toLocaleString() + ' NOK';
         }
 
         // Initialize Gantt Chart
