@@ -1,0 +1,4331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚓ Project Control Tower Dashboard</title>
+    <!-- Outfit & Inter Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for beautiful Tufte-compliant visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #1a252f;
+            --text-secondary: #555555;
+            --border-color: #e2e8f0;
+            --color-slate: #2c3e50;
+            --color-crimson: #e74c3c;
+            --color-amber: #f39c12;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR NAV --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #1a252f;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+
+        .nav-section {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .nav-title {
+            padding: 0 24px 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item.active {
+            border-left: 4px solid var(--color-slate);
+            padding-left: 20px;
+        }
+
+        .sidebar-select-wrapper {
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-select-wrapper label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .sidebar-select {
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            outline: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .sidebar-select option {
+            background-color: #1a252f;
+            color: #ffffff;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            background-color: var(--bg-primary);
+        }
+
+        .content-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        .content-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .content-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .view-panel {
+            display: none;
+            padding: 32px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        /* --- TUFTE KPI CARDS --- */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card .value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .kpi-card .delta {
+            font-size: 12px;
+            text-align: right;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .delta.negative { color: var(--color-crimson); }
+        .delta.positive { color: #2ecc71; }
+        .delta.neutral { color: var(--text-secondary); }
+
+        /* --- SECTIONS & CARDS --- */
+        .section-card {
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-card h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: normal;
+        }
+
+        /* --- STAKEHOLDER CARDS --- */
+        .stakeholder-card {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--color-slate);
+            padding: 20px;
+            margin-bottom: 24px;
+            border-radius: 2px;
+        }
+
+        .stakeholder-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .stakeholder-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* --- INTERACTIVE TUFTE GANTT CHART --- */
+        .gantt-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .gantt-row {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 8px 0;
+        }
+
+        .gantt-task-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .gantt-bar-track {
+            background-color: #f1f5f9;
+            height: 24px;
+            position: relative;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .gantt-bar-fill {
+            background-color: var(--color-slate);
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            transition: width 0.4s ease;
+        }
+
+        .gantt-bar-fill.over-budget {
+            background-color: var(--color-crimson);
+        }
+
+        /* --- TUFTE TABS --- */
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--color-slate);
+            border-bottom-color: var(--color-slate);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* --- CLEAN TUFTE TABLES --- */
+        .tufte-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .tufte-table th {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-weight: 600;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+            padding: 10px 12px;
+        }
+
+        .tufte-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tufte-table tr:hover {
+            background-color: #fafbfc;
+        }
+
+        /* Tufte Alignment Rules */
+        .tufte-table th.align-right,
+        .tufte-table td.align-right {
+            text-align: right;
+        }
+
+        .text-danger {
+            color: var(--color-crimson);
+            font-weight: 600;
+        }
+
+        .text-success {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        /* --- EXECUTION TERMINAL SIMULATOR --- */
+        .terminal-box {
+            background-color: #0f172a;
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            padding: 20px;
+            border-radius: 4px;
+            height: 380px;
+            overflow-y: auto;
+            border: 1px solid #1e293b;
+            margin-top: 16px;
+        }
+
+        .terminal-line {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .terminal-btn {
+            background-color: var(--color-slate);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .terminal-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* --- MARKDOWN RENDER --- */
+        .markdown-body {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333333;
+        }
+
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            margin: 20px 0 10px;
+            font-weight: 600;
+        }
+
+        .markdown-body h1 { font-size: 22px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px;}
+        .markdown-body h2 { font-size: 18px; }
+        .markdown-body h3 { font-size: 15px; }
+
+        .markdown-body ul, .markdown-body ol {
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .markdown-body li {
+            margin-bottom: 4px;
+        }
+
+        .markdown-body code {
+            font-family: monospace;
+            background-color: var(--bg-secondary);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .markdown-body pre {
+            background-color: var(--bg-secondary);
+            padding: 14px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+
+        .markdown-body pre code {
+            padding: 0;
+            background: none;
+        }
+        
+        .flex-container {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .flex-child {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>⚓ Agent Control Tower</h2>
+            <p>PRJ-001 | Vessel Construction Controller</p>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-title">Navigation</div>
+            <div class="nav-item active" onclick="switchView('dashboard', this)">📊 Control Tower Dashboard</div>
+            <div class="nav-item" onclick="switchView('stakeholders', this)">👥 Stakeholder Reports</div>
+            <div class="nav-item" onclick="switchView('skills', this)">⚙️ Skill Inspector</div>
+            <div class="nav-item" onclick="switchView('execution', this)">🤖 Live Crew Execution</div>
+        </div>
+
+        <div class="sidebar-select-wrapper">
+            <label for="focus-skill-select">Focus Agent Skill</label>
+            <select id="focus-skill-select" class="sidebar-select" onchange="loadFocusedSkill(this.value)">
+                <!-- populated by JS -->
+            </select>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <div class="content-header">
+            <div>
+                <h1 id="view-title">Project Control Tower Dashboard</h1>
+                <p id="view-caption">Integrated Earned Value Management & Agent Intelligence System</p>
+            </div>
+        </div>
+
+        <!-- VIEW PANEL: DASHBOARD -->
+        <div id="panel-dashboard" class="view-panel active">
+            <!-- KPI ROW -->
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <span class="label">Budget at Completion (BAC)</span>
+                    <span class="value">1,500,000 NOK</span>
+                    <span class="delta neutral">Baseline budget</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="label">Actual Cost (AC)</span>
+                    <span class="value">1,848,810 NOK</span>
+                    <span class="delta negative">+348,810 NOK over BAC</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="label">Earned Value (EV)</span>
+                    <span class="value">1,492,500 NOK</span>
+                    <span class="delta neutral">99.5% work complete</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="label">Project CPI</span>
+                    <span class="value text-danger">0.81</span>
+                    <span class="delta negative">COST OVERRUN</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="label">Physical Progress</span>
+                    <span class="value">99.5%</span>
+                    <span class="delta neutral">0.5% remaining</span>
+                </div>
+            </div>
+
+            <!-- GANTT CHART -->
+            <div class="section-card">
+                <h2>
+                    <span>📅 Interactive Schedule & WBS Gantt Chart</span>
+                    <span class="section-subtitle">
+                        Select Project Context:
+                        <select onchange="updateGantt(this.value)" style="padding: 4px; border-radius: 4px; border: 1px solid var(--border-color); outline: none;">
+                            <option value="PRJ-001">PRJ-001 (Composite Vessel)</option>
+                            <option value="PRJ-002">PRJ-002 (Patrol Vessel)</option>
+                            <option value="ALL">Multi-Project Portfolio View</option>
+                        </select>
+                    </span>
+                </h2>
+                <div id="gantt-chart" class="gantt-container">
+                    <!-- dynamically populated -->
+                </div>
+            </div>
+
+            <!-- DOMAIN TABS -->
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('tab-controller', this)">📊 Project Controller (EVM & Forecasts)</button>
+                <button class="tab-btn" onclick="switchTab('tab-cfo', this)">💼 CFO & Profitability Audit</button>
+                <button class="tab-btn" onclick="switchTab('tab-contract', this)">📜 Contract & Risk Audit</button>
+                <button class="tab-btn" onclick="switchTab('tab-production', this)">🏗️ Production & Assembly</button>
+            </div>
+
+            <!-- TAB PANEL: CONTROLLER -->
+            <div id="tab-controller" class="tab-panel active">
+                <table class="tufte-table" id="wbs-table">
+                    <thead>
+                        <tr>
+                            <th>WBS Code</th>
+                            <th>Element Name</th>
+                            <th class="align-right">BAC (NOK)</th>
+                            <th class="align-right">AC (NOK)</th>
+                            <th class="align-right">EV (NOK)</th>
+                            <th class="align-right">CPI</th>
+                            <th class="align-right">Percent Complete</th>
+                            <th class="align-right">EAC Typical (NOK)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TAB PANEL: CFO -->
+            <div id="tab-cfo" class="tab-panel">
+                <div class="flex-container">
+                    <div class="flex-child" style="flex: 2;">
+                        <table class="tufte-table">
+                            <thead>
+                                <tr>
+                                    <th>Audit Indicator</th>
+                                    <th class="align-right">Value / Metric</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Projected Margin Variance (VAC)</td>
+                                    <td class="align-right text-danger">-359,559 NOK</td>
+                                    <td class="text-danger">Macro Risk</td>
+                                </tr>
+                                <tr>
+                                    <td>Typical Estimate at Completion (EAC)</td>
+                                    <td class="align-right">1,859,559 NOK</td>
+                                    <td>Forecasted</td>
+                                </tr>
+                                <tr>
+                                    <td>Labor Costs Allocation</td>
+                                    <td class="align-right">1,326,810 NOK</td>
+                                    <td>71.8% Share</td>
+                                </tr>
+                                <tr>
+                                    <td>Materials & Procurement Costs</td>
+                                    <td class="align-right">522,000 NOK</td>
+                                    <td>28.2% Share</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex-child" style="flex: 1; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); border-radius: 4px; padding: 20px;">
+                        <div style="width: 100%; max-width: 220px;">
+                            <canvas id="cfoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB PANEL: CONTRACT -->
+            <div id="tab-contract" class="tab-panel">
+                <div class="flex-container">
+                    <div class="flex-child">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 14px; margin-bottom: 8px;">🚨 Overtime Anomaly Audit (>45 hrs/week)</h3>
+                        <table class="tufte-table" id="overtime-table">
+                            <thead>
+                                <tr>
+                                    <th>Work Week</th>
+                                    <th>Resource</th>
+                                    <th>Role</th>
+                                    <th class="align-right">Total Hours</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="flex-child">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 14px; margin-bottom: 8px;">💳 Large Procurement Audit (>50,000 NOK)</h3>
+                        <table class="tufte-table" id="procurement-table">
+                            <thead>
+                                <tr>
+                                    <th>Purchase Date</th>
+                                    <th>Invoice #</th>
+                                    <th>Item Description</th>
+                                    <th class="align-right">Cost (NOK)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 14px; margin: 16px 0 8px;">📋 Active RAID Log Register</h3>
+                <table class="tufte-table" id="raid-table">
+                    <thead>
+                        <tr>
+                            <th>RAID ID</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Impact</th>
+                            <th>Probability</th>
+                            <th>Owner</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TAB PANEL: PRODUCTION -->
+            <div id="tab-production" class="tab-panel">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 14px; margin-bottom: 8px;">Structural Assembly Progress & Physical Milestones</h3>
+                <table class="tufte-table" id="production-table">
+                    <thead>
+                        <tr>
+                            <th>WBS Code</th>
+                            <th>Structural Element</th>
+                            <th>Physical Progress</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1.0</td>
+                            <td>Project Management & Engineering</td>
+                            <td>97.5%</td>
+                            <td>Design Verification Phase</td>
+                        </tr>
+                        <tr>
+                            <td>2.0</td>
+                            <td>Hull Fabrication & Assembly</td>
+                            <td>100.0%</td>
+                            <td class="text-success">Structural Assembly Certified</td>
+                        </tr>
+                        <tr>
+                            <td>3.0</td>
+                            <td>Outfitting & Integration</td>
+                            <td>100.0%</td>
+                            <td class="text-success">System Integration Complete</td>
+                        </tr>
+                        <tr>
+                            <td>4.0</td>
+                            <td>Sea Trials & Handover</td>
+                            <td>100.0%</td>
+                            <td class="text-success">Maritime Readiness Verified</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VIEW PANEL: STAKEHOLDERS -->
+        <div id="panel-stakeholders" class="view-panel">
+            <div style="margin-bottom: 24px;">
+                <label for="stakeholder-select" style="font-size: 13px; font-weight: 600; margin-right: 12px;">Select Stakeholder Persona:</label>
+                <select id="stakeholder-select" class="sidebar-select" style="max-width: 400px; display: inline-block; color: var(--text-primary); border-color: var(--border-color); background-color: #ffffff;" onchange="loadStakeholder(this.value)">
+                    <option value="steering">👑 Executive Steering Committee (CFO & Board)</option>
+                    <option value="pm">🎯 Project Manager (Operational Control & Schedule)</option>
+                    <option value="eng">📐 Engineering Lead (Design & Technical Hours)</option>
+                    <option value="yard">🏗️ Yard & Production Manager (Shop-Floor & Assembly)</option>
+                    <option value="proc">📦 Procurement & Supply Chain Manager</option>
+                    <option value="quality">🛡️ Quality & Class Inspector (DNV Certification)</option>
+                </select>
+            </div>
+            
+            <div id="stakeholder-brief-card" class="stakeholder-card">
+                <!-- populated dynamically -->
+            </div>
+
+            <div id="stakeholder-metrics-row" class="kpi-row" style="margin-bottom: 24px;">
+                <!-- populated dynamically -->
+            </div>
+
+            <div id="stakeholder-details-section">
+                <!-- populated dynamically -->
+            </div>
+        </div>
+
+        <!-- VIEW PANEL: SKILLS -->
+        <div id="panel-skills" class="view-panel">
+            <div class="section-card">
+                <div class="markdown-body" id="skill-content-area">
+                    <!-- markdown code printed here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW PANEL: EXECUTION -->
+        <div id="panel-execution" class="view-panel">
+            <div class="section-card">
+                <h2>🤖 Multi-Agent Crew Audit Console</h2>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                    Simulates active auditing from the project controller, CFO, contract, and production agents checking DuckDB views and SQLite transactions.
+                </p>
+                <button class="terminal-btn" onclick="runSimulatedAudits()">🚀 Run All 4 Agent Audits</button>
+                <div class="terminal-box" id="terminal-screen">
+                    <div class="terminal-line">Console idle. Click button to begin audit execution loop...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INJECT JS APP DATA -->
+    <script>
+        const APP_DATA = {
+  "db": {
+    "summary": {
+      "Total_BAC": 1500000.0,
+      "Total_AC": 1848810.0,
+      "Total_EV": 1492500.0,
+      "Total_CV": -356310.0,
+      "Project_CPI": 0.8072760316095218,
+      "Total_EAC_Typical": 1859559.4871794872,
+      "Total_VAC": -359559.48717948725,
+      "Overall_Progress_Pct": 99.5
+    },
+    "wbs": [
+      {
+        "WBS_Code": 1.0,
+        "ElementName": "Project Management & Engineering",
+        "BAC": 300000.0,
+        "AC": 419230.0,
+        "EV": 292500.0,
+        "CPI": 0.6977077022159673,
+        "PercentComplete": 0.975,
+        "EAC_Typical": 429979.4871794872
+      },
+      {
+        "WBS_Code": 2.0,
+        "ElementName": "Hull Fabrication & Assembly",
+        "BAC": 600000.0,
+        "AC": 620450.0,
+        "EV": 600000.0,
+        "CPI": 0.9670400515754695,
+        "PercentComplete": 1.0,
+        "EAC_Typical": 620450.0
+      },
+      {
+        "WBS_Code": 3.0,
+        "ElementName": "Outfitting & Integration",
+        "BAC": 400000.0,
+        "AC": 540445.0,
+        "EV": 400000.0,
+        "CPI": 0.7401308181221031,
+        "PercentComplete": 1.0,
+        "EAC_Typical": 540445.0
+      },
+      {
+        "WBS_Code": 4.0,
+        "ElementName": "Sea Trials & Handover",
+        "BAC": 200000.0,
+        "AC": 268685.0,
+        "EV": 200000.0,
+        "CPI": 0.7443660792377691,
+        "PercentComplete": 1.0,
+        "EAC_Typical": 268685.0
+      }
+    ],
+    "timesheets": [
+      {
+        "WorkDate": "2026-01-01",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2660.0
+      },
+      {
+        "WorkDate": "2026-01-02",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 3484.9999999999995
+      },
+      {
+        "WorkDate": "2026-01-02",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.4,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-01-05",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 7600.0
+      },
+      {
+        "WorkDate": "2026-01-05",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.1,
+        "LaborCost": 2945.0
+      },
+      {
+        "WorkDate": "2026-01-06",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.1,
+        "LaborCost": 2945.0
+      },
+      {
+        "WorkDate": "2026-01-07",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.7,
+        "LaborCost": 2565.0
+      },
+      {
+        "WorkDate": "2026-01-08",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.2,
+        "LaborCost": 3040.0
+      },
+      {
+        "WorkDate": "2026-01-09",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.5,
+        "LaborCost": 2975.0
+      },
+      {
+        "WorkDate": "2026-01-09",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.7,
+        "LaborCost": 2565.0
+      },
+      {
+        "WorkDate": "2026-01-12",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 7600.0
+      },
+      {
+        "WorkDate": "2026-01-12",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.9,
+        "LaborCost": 2755.0
+      },
+      {
+        "WorkDate": "2026-01-13",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.5,
+        "LaborCost": 3325.0
+      },
+      {
+        "WorkDate": "2026-01-14",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.1,
+        "LaborCost": 2945.0
+      },
+      {
+        "WorkDate": "2026-01-15",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.1,
+        "LaborCost": 2945.0
+      },
+      {
+        "WorkDate": "2026-01-16",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.8,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-01-16",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.2,
+        "LaborCost": 3040.0
+      },
+      {
+        "WorkDate": "2026-01-19",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.8,
+        "LaborCost": 8800.0
+      },
+      {
+        "WorkDate": "2026-01-19",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.3,
+        "LaborCost": 3135.0
+      },
+      {
+        "WorkDate": "2026-01-20",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.3,
+        "LaborCost": 3135.0
+      },
+      {
+        "WorkDate": "2026-01-21",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.7,
+        "LaborCost": 2565.0
+      },
+      {
+        "WorkDate": "2026-01-22",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.5,
+        "LaborCost": 2375.0
+      },
+      {
+        "WorkDate": "2026-01-23",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3145.0
+      },
+      {
+        "WorkDate": "2026-01-23",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2660.0
+      },
+      {
+        "WorkDate": "2026-01-26",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.4,
+        "LaborCost": 8400.0
+      },
+      {
+        "WorkDate": "2026-01-26",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2660.0
+      },
+      {
+        "WorkDate": "2026-01-27",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.7,
+        "LaborCost": 2565.0
+      },
+      {
+        "WorkDate": "2026-01-28",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.4,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-01-29",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.4,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-01-30",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.2,
+        "LaborCost": 3570.0
+      },
+      {
+        "WorkDate": "2026-01-30",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2660.0
+      },
+      {
+        "WorkDate": "2026-02-02",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.7,
+        "LaborCost": 8700.0
+      },
+      {
+        "WorkDate": "2026-02-02",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.2,
+        "LaborCost": 3040.0
+      },
+      {
+        "WorkDate": "2026-02-02",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 5670.0
+      },
+      {
+        "WorkDate": "2026-02-02",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.2,
+        "LaborCost": 2090.0
+      },
+      {
+        "WorkDate": "2026-02-03",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.9,
+        "LaborCost": 2755.0
+      },
+      {
+        "WorkDate": "2026-02-03",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.4,
+        "LaborCost": 5880.0
+      },
+      {
+        "WorkDate": "2026-02-04",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.4,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-02-04",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 9.0,
+        "LaborCost": 6300.0
+      },
+      {
+        "WorkDate": "2026-02-04",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-02-05",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.0,
+        "LaborCost": 2850.0
+      },
+      {
+        "WorkDate": "2026-02-05",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-02-06",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.2,
+        "LaborCost": 3570.0
+      },
+      {
+        "WorkDate": "2026-02-06",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2660.0
+      },
+      {
+        "WorkDate": "2026-02-06",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 9.0,
+        "LaborCost": 6300.0
+      },
+      {
+        "WorkDate": "2026-02-06",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.8,
+        "LaborCost": 1710.0
+      },
+      {
+        "WorkDate": "2026-02-09",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.6,
+        "LaborCost": 8600.0
+      },
+      {
+        "WorkDate": "2026-02-09",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.7,
+        "LaborCost": 2565.0
+      },
+      {
+        "WorkDate": "2026-02-09",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-02-09",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.5,
+        "LaborCost": 2375.0
+      },
+      {
+        "WorkDate": "2026-02-10",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.1,
+        "LaborCost": 2945.0
+      },
+      {
+        "WorkDate": "2026-02-10",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 5600.0
+      },
+      {
+        "WorkDate": "2026-02-11",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2660.0
+      },
+      {
+        "WorkDate": "2026-02-11",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.7,
+        "LaborCost": 6089.999999999999
+      },
+      {
+        "WorkDate": "2026-02-11",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.1,
+        "LaborCost": 1995.0
+      },
+      {
+        "WorkDate": "2026-02-12",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.1,
+        "LaborCost": 2945.0
+      },
+      {
+        "WorkDate": "2026-02-12",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.7,
+        "LaborCost": 6089.999999999999
+      },
+      {
+        "WorkDate": "2026-02-13",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.4,
+        "LaborCost": 3740.0000000000005
+      },
+      {
+        "WorkDate": "2026-02-13",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.4,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-02-13",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-02-13",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.9,
+        "LaborCost": 1805.0
+      },
+      {
+        "WorkDate": "2026-02-16",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 8300.0
+      },
+      {
+        "WorkDate": "2026-02-16",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.9,
+        "LaborCost": 2755.0
+      },
+      {
+        "WorkDate": "2026-02-16",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 5810.000000000001
+      },
+      {
+        "WorkDate": "2026-02-16",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.0,
+        "LaborCost": 1900.0
+      },
+      {
+        "WorkDate": "2026-02-17",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.7,
+        "LaborCost": 2565.0
+      },
+      {
+        "WorkDate": "2026-02-17",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.6,
+        "LaborCost": 6020.0
+      },
+      {
+        "WorkDate": "2026-02-18",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.5,
+        "LaborCost": 3325.0
+      },
+      {
+        "WorkDate": "2026-02-18",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 5670.0
+      },
+      {
+        "WorkDate": "2026-02-18",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.6,
+        "LaborCost": 1520.0
+      },
+      {
+        "WorkDate": "2026-02-19",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.0,
+        "LaborCost": 2850.0
+      },
+      {
+        "WorkDate": "2026-02-19",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.4,
+        "LaborCost": 5880.0
+      },
+      {
+        "WorkDate": "2026-02-20",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.6,
+        "LaborCost": 3060.0
+      },
+      {
+        "WorkDate": "2026-02-20",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.6,
+        "LaborCost": 2470.0
+      },
+      {
+        "WorkDate": "2026-02-20",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-02-20",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-02-23",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 9.0,
+        "LaborCost": 9000.0
+      },
+      {
+        "WorkDate": "2026-02-23",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.5,
+        "LaborCost": 2375.0
+      },
+      {
+        "WorkDate": "2026-02-23",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 9.0,
+        "LaborCost": 6300.0
+      },
+      {
+        "WorkDate": "2026-02-23",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.8,
+        "LaborCost": 1710.0
+      },
+      {
+        "WorkDate": "2026-02-24",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.6,
+        "LaborCost": 2470.0
+      },
+      {
+        "WorkDate": "2026-02-24",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-02-25",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.1,
+        "LaborCost": 2945.0
+      },
+      {
+        "WorkDate": "2026-02-25",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 5810.000000000001
+      },
+      {
+        "WorkDate": "2026-02-25",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.1,
+        "LaborCost": 1995.0
+      },
+      {
+        "WorkDate": "2026-02-26",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 3.3,
+        "LaborCost": 3135.0
+      },
+      {
+        "WorkDate": "2026-02-26",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-02-27",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.9,
+        "LaborCost": 3315.0
+      },
+      {
+        "WorkDate": "2026-02-27",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.9,
+        "LaborCost": 2755.0
+      },
+      {
+        "WorkDate": "2026-02-27",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 5739.999999999999
+      },
+      {
+        "WorkDate": "2026-02-27",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-03-02",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 8100.0
+      },
+      {
+        "WorkDate": "2026-03-02",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-03-02",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-03-03",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-03-04",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 5810.000000000001
+      },
+      {
+        "WorkDate": "2026-03-04",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.6,
+        "LaborCost": 1520.0
+      },
+      {
+        "WorkDate": "2026-03-05",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.6,
+        "LaborCost": 6020.0
+      },
+      {
+        "WorkDate": "2026-03-06",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.5,
+        "LaborCost": 2975.0
+      },
+      {
+        "WorkDate": "2026-03-06",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.6,
+        "LaborCost": 6020.0
+      },
+      {
+        "WorkDate": "2026-03-06",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.1,
+        "LaborCost": 1995.0
+      },
+      {
+        "WorkDate": "2026-03-09",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 8300.0
+      },
+      {
+        "WorkDate": "2026-03-09",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 5739.999999999999
+      },
+      {
+        "WorkDate": "2026-03-09",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-03-10",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.8,
+        "LaborCost": 6160.000000000001
+      },
+      {
+        "WorkDate": "2026-03-11",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-03-11",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.4,
+        "LaborCost": 2280.0
+      },
+      {
+        "WorkDate": "2026-03-12",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.8,
+        "LaborCost": 6160.000000000001
+      },
+      {
+        "WorkDate": "2026-03-13",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3145.0
+      },
+      {
+        "WorkDate": "2026-03-13",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-03-13",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.4,
+        "LaborCost": 2280.0
+      },
+      {
+        "WorkDate": "2026-03-16",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.7,
+        "LaborCost": 8700.0
+      },
+      {
+        "WorkDate": "2026-03-16",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 5600.0
+      },
+      {
+        "WorkDate": "2026-03-16",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.6,
+        "LaborCost": 1520.0
+      },
+      {
+        "WorkDate": "2026-03-17",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 5810.000000000001
+      },
+      {
+        "WorkDate": "2026-03-18",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 5600.0
+      },
+      {
+        "WorkDate": "2026-03-18",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-03-19",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-03-20",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.0,
+        "LaborCost": 3400.0
+      },
+      {
+        "WorkDate": "2026-03-20",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-03-20",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.2,
+        "LaborCost": 2090.0
+      },
+      {
+        "WorkDate": "2026-03-23",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.4,
+        "LaborCost": 8400.0
+      },
+      {
+        "WorkDate": "2026-03-23",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.8,
+        "LaborCost": 6160.000000000001
+      },
+      {
+        "WorkDate": "2026-03-23",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-03-24",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 5810.000000000001
+      },
+      {
+        "WorkDate": "2026-03-25",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 5670.0
+      },
+      {
+        "WorkDate": "2026-03-25",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.6,
+        "LaborCost": 1520.0
+      },
+      {
+        "WorkDate": "2026-03-26",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-03-27",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.5,
+        "LaborCost": 2975.0
+      },
+      {
+        "WorkDate": "2026-03-27",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-03-27",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.4,
+        "LaborCost": 2280.0
+      },
+      {
+        "WorkDate": "2026-03-30",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.8,
+        "LaborCost": 8800.0
+      },
+      {
+        "WorkDate": "2026-03-30",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 5670.0
+      },
+      {
+        "WorkDate": "2026-03-30",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.1,
+        "LaborCost": 1995.0
+      },
+      {
+        "WorkDate": "2026-03-31",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-04-01",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 5670.0
+      },
+      {
+        "WorkDate": "2026-04-01",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.0,
+        "LaborCost": 1900.0
+      },
+      {
+        "WorkDate": "2026-04-01",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 5775.0
+      },
+      {
+        "WorkDate": "2026-04-02",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.8,
+        "LaborCost": 6160.000000000001
+      },
+      {
+        "WorkDate": "2026-04-02",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.9,
+        "LaborCost": 5925.0
+      },
+      {
+        "WorkDate": "2026-04-02",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.0,
+        "LaborCost": 2800.0
+      },
+      {
+        "WorkDate": "2026-04-03",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3145.0
+      },
+      {
+        "WorkDate": "2026-04-03",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.8,
+        "LaborCost": 6160.000000000001
+      },
+      {
+        "WorkDate": "2026-04-03",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.3,
+        "LaborCost": 2185.0
+      },
+      {
+        "WorkDate": "2026-04-03",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.9,
+        "LaborCost": 5925.0
+      },
+      {
+        "WorkDate": "2026-04-06",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.4,
+        "LaborCost": 8400.0
+      },
+      {
+        "WorkDate": "2026-04-06",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 5670.0
+      },
+      {
+        "WorkDate": "2026-04-06",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 2.3,
+        "LaborCost": 2185.0
+      },
+      {
+        "WorkDate": "2026-04-06",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 6149.999999999999
+      },
+      {
+        "WorkDate": "2026-04-07",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-04-07",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.3,
+        "LaborCost": 5475.0
+      },
+      {
+        "WorkDate": "2026-04-07",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.2,
+        "LaborCost": 2940.0
+      },
+      {
+        "WorkDate": "2026-04-08",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-04-08",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.7,
+        "LaborCost": 1615.0
+      },
+      {
+        "WorkDate": "2026-04-08",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-04-09",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.3,
+        "LaborCost": 5810.000000000001
+      },
+      {
+        "WorkDate": "2026-04-09",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.5,
+        "LaborCost": 5625.0
+      },
+      {
+        "WorkDate": "2026-04-09",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 3.6,
+        "LaborCost": 2520.0
+      },
+      {
+        "WorkDate": "2026-04-10",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 3484.9999999999995
+      },
+      {
+        "WorkDate": "2026-04-10",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.9,
+        "LaborCost": 6230.0
+      },
+      {
+        "WorkDate": "2026-04-10",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.6,
+        "LaborCost": 1520.0
+      },
+      {
+        "WorkDate": "2026-04-10",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 6075.0
+      },
+      {
+        "WorkDate": "2026-04-13",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.6,
+        "LaborCost": 8600.0
+      },
+      {
+        "WorkDate": "2026-04-13",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.4,
+        "LaborCost": 5880.0
+      },
+      {
+        "WorkDate": "2026-04-13",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.9,
+        "LaborCost": 1805.0
+      },
+      {
+        "WorkDate": "2026-04-13",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.4,
+        "LaborCost": 5550.0
+      },
+      {
+        "WorkDate": "2026-04-14",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 5739.999999999999
+      },
+      {
+        "WorkDate": "2026-04-14",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.4,
+        "LaborCost": 5550.0
+      },
+      {
+        "WorkDate": "2026-04-14",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 2869.9999999999995
+      },
+      {
+        "WorkDate": "2026-04-15",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 5950.0
+      },
+      {
+        "WorkDate": "2026-04-15",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ResourceName": "Erik Johansen",
+        "Role": "Senior Design Engineer",
+        "HourlyRate": 950.0,
+        "HoursWorked": 1.9,
+        "LaborCost": 1805.0
+      },
+      {
+        "WorkDate": "2026-04-15",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-04-16",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-04-16",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.0,
+        "LaborCost": 2800.0
+      },
+      {
+        "WorkDate": "2026-04-17",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.0,
+        "LaborCost": 3400.0
+      },
+      {
+        "WorkDate": "2026-04-17",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.5,
+        "LaborCost": 5625.0
+      },
+      {
+        "WorkDate": "2026-04-20",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 7600.0
+      },
+      {
+        "WorkDate": "2026-04-20",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.4,
+        "LaborCost": 5550.0
+      },
+      {
+        "WorkDate": "2026-04-21",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 6075.0
+      },
+      {
+        "WorkDate": "2026-04-21",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.4,
+        "LaborCost": 3080.0000000000005
+      },
+      {
+        "WorkDate": "2026-04-22",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-04-23",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 6075.0
+      },
+      {
+        "WorkDate": "2026-04-23",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 2590.0
+      },
+      {
+        "WorkDate": "2026-04-24",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3145.0
+      },
+      {
+        "WorkDate": "2026-04-24",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 5850.0
+      },
+      {
+        "WorkDate": "2026-04-27",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 7800.0
+      },
+      {
+        "WorkDate": "2026-04-27",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.3,
+        "LaborCost": 5475.0
+      },
+      {
+        "WorkDate": "2026-04-28",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 6149.999999999999
+      },
+      {
+        "WorkDate": "2026-04-28",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.5,
+        "LaborCost": 3150.0
+      },
+      {
+        "WorkDate": "2026-04-29",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 6000.0
+      },
+      {
+        "WorkDate": "2026-04-30",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 6149.999999999999
+      },
+      {
+        "WorkDate": "2026-04-30",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 3.6,
+        "LaborCost": 2520.0
+      },
+      {
+        "WorkDate": "2026-05-01",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 3484.9999999999995
+      },
+      {
+        "WorkDate": "2026-05-01",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 6075.0
+      },
+      {
+        "WorkDate": "2026-05-04",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.9,
+        "LaborCost": 7900.0
+      },
+      {
+        "WorkDate": "2026-05-04",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 6000.0
+      },
+      {
+        "WorkDate": "2026-05-05",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.4,
+        "LaborCost": 5550.0
+      },
+      {
+        "WorkDate": "2026-05-05",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 2590.0
+      },
+      {
+        "WorkDate": "2026-05-06",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 5775.0
+      },
+      {
+        "WorkDate": "2026-05-07",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.4,
+        "LaborCost": 5550.0
+      },
+      {
+        "WorkDate": "2026-05-07",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 2869.9999999999995
+      },
+      {
+        "WorkDate": "2026-05-08",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.3,
+        "LaborCost": 3655.0
+      },
+      {
+        "WorkDate": "2026-05-08",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-05-11",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 7600.0
+      },
+      {
+        "WorkDate": "2026-05-11",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.3,
+        "LaborCost": 5475.0
+      },
+      {
+        "WorkDate": "2026-05-12",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-05-12",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.2,
+        "LaborCost": 2940.0
+      },
+      {
+        "WorkDate": "2026-05-13",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 6149.999999999999
+      },
+      {
+        "WorkDate": "2026-05-14",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.5,
+        "LaborCost": 5625.0
+      },
+      {
+        "WorkDate": "2026-05-14",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 2590.0
+      },
+      {
+        "WorkDate": "2026-05-15",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.5,
+        "LaborCost": 2975.0
+      },
+      {
+        "WorkDate": "2026-05-15",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 6000.0
+      },
+      {
+        "WorkDate": "2026-05-18",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 7800.0
+      },
+      {
+        "WorkDate": "2026-05-18",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 5775.0
+      },
+      {
+        "WorkDate": "2026-05-19",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-05-19",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 3.6,
+        "LaborCost": 2520.0
+      },
+      {
+        "WorkDate": "2026-05-20",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 6149.999999999999
+      },
+      {
+        "WorkDate": "2026-05-21",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 6149.999999999999
+      },
+      {
+        "WorkDate": "2026-05-21",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.4,
+        "LaborCost": 3080.0000000000005
+      },
+      {
+        "WorkDate": "2026-05-22",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.3,
+        "LaborCost": 3655.0
+      },
+      {
+        "WorkDate": "2026-05-22",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 5850.0
+      },
+      {
+        "WorkDate": "2026-05-25",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 7700.0
+      },
+      {
+        "WorkDate": "2026-05-25",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.9,
+        "LaborCost": 5925.0
+      },
+      {
+        "WorkDate": "2026-05-26",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.4,
+        "LaborCost": 5550.0
+      },
+      {
+        "WorkDate": "2026-05-26",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 2590.0
+      },
+      {
+        "WorkDate": "2026-05-27",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.5,
+        "LaborCost": 5625.0
+      },
+      {
+        "WorkDate": "2026-05-28",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.2,
+        "LaborCost": 6149.999999999999
+      },
+      {
+        "WorkDate": "2026-05-28",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "HourlyRate": 700.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 2869.9999999999995
+      },
+      {
+        "WorkDate": "2026-05-29",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.2,
+        "LaborCost": 3570.0
+      },
+      {
+        "WorkDate": "2026-05-29",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 5850.0
+      },
+      {
+        "WorkDate": "2026-06-01",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.9,
+        "LaborCost": 7900.0
+      },
+      {
+        "WorkDate": "2026-06-01",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 4100.0
+      },
+      {
+        "WorkDate": "2026-06-01",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.9,
+        "LaborCost": 5925.0
+      },
+      {
+        "WorkDate": "2026-06-02",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.9,
+        "LaborCost": 3900.0
+      },
+      {
+        "WorkDate": "2026-06-02",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2380.0
+      },
+      {
+        "WorkDate": "2026-06-02",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.4,
+        "LaborCost": 5550.0
+      },
+      {
+        "WorkDate": "2026-06-03",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.1,
+        "LaborCost": 4100.0
+      },
+      {
+        "WorkDate": "2026-06-03",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.2,
+        "LaborCost": 5400.0
+      },
+      {
+        "WorkDate": "2026-06-04",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.0,
+        "LaborCost": 4000.0
+      },
+      {
+        "WorkDate": "2026-06-04",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 5850.0
+      },
+      {
+        "WorkDate": "2026-06-04",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.0,
+        "LaborCost": 2550.0
+      },
+      {
+        "WorkDate": "2026-06-05",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.8,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-06-05",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.4,
+        "LaborCost": 4400.0
+      },
+      {
+        "WorkDate": "2026-06-05",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 5775.0
+      },
+      {
+        "WorkDate": "2026-06-08",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.5,
+        "LaborCost": 8500.0
+      },
+      {
+        "WorkDate": "2026-06-08",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3700.0
+      },
+      {
+        "WorkDate": "2026-06-08",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-06-09",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.2,
+        "LaborCost": 4200.0
+      },
+      {
+        "WorkDate": "2026-06-09",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 6000.0
+      },
+      {
+        "WorkDate": "2026-06-09",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.4,
+        "LaborCost": 2890.0
+      },
+      {
+        "WorkDate": "2026-06-10",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3700.0
+      },
+      {
+        "WorkDate": "2026-06-10",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 5775.0
+      },
+      {
+        "WorkDate": "2026-06-11",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.9,
+        "LaborCost": 3900.0
+      },
+      {
+        "WorkDate": "2026-06-11",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.0,
+        "LaborCost": 5250.0
+      },
+      {
+        "WorkDate": "2026-06-11",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.3,
+        "LaborCost": 2805.0
+      },
+      {
+        "WorkDate": "2026-06-12",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3145.0
+      },
+      {
+        "WorkDate": "2026-06-12",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.2,
+        "LaborCost": 4200.0
+      },
+      {
+        "WorkDate": "2026-06-12",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 5850.0
+      },
+      {
+        "WorkDate": "2026-06-15",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.0,
+        "LaborCost": 8000.0
+      },
+      {
+        "WorkDate": "2026-06-15",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.8,
+        "LaborCost": 3800.0
+      },
+      {
+        "WorkDate": "2026-06-15",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.3,
+        "LaborCost": 5475.0
+      },
+      {
+        "WorkDate": "2026-06-16",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.8,
+        "LaborCost": 3800.0
+      },
+      {
+        "WorkDate": "2026-06-16",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 5775.0
+      },
+      {
+        "WorkDate": "2026-06-16",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 2.6,
+        "LaborCost": 2210.0
+      },
+      {
+        "WorkDate": "2026-06-17",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.3,
+        "LaborCost": 4300.0
+      },
+      {
+        "WorkDate": "2026-06-17",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.9,
+        "LaborCost": 5925.0
+      },
+      {
+        "WorkDate": "2026-06-18",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.6,
+        "LaborCost": 3600.0
+      },
+      {
+        "WorkDate": "2026-06-18",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.1,
+        "LaborCost": 5325.0
+      },
+      {
+        "WorkDate": "2026-06-18",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 2.9,
+        "LaborCost": 2465.0
+      },
+      {
+        "WorkDate": "2026-06-19",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 4.5,
+        "LaborCost": 3825.0
+      },
+      {
+        "WorkDate": "2026-06-19",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.0,
+        "LaborCost": 4000.0
+      },
+      {
+        "WorkDate": "2026-06-19",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.1,
+        "LaborCost": 5325.0
+      },
+      {
+        "WorkDate": "2026-06-22",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 8.1,
+        "LaborCost": 8100.0
+      },
+      {
+        "WorkDate": "2026-06-22",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.5,
+        "LaborCost": 4500.0
+      },
+      {
+        "WorkDate": "2026-06-22",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.1,
+        "LaborCost": 5325.0
+      },
+      {
+        "WorkDate": "2026-06-23",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.5,
+        "LaborCost": 4500.0
+      },
+      {
+        "WorkDate": "2026-06-23",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-06-23",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 2.8,
+        "LaborCost": 2380.0
+      },
+      {
+        "WorkDate": "2026-06-24",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.6,
+        "LaborCost": 3600.0
+      },
+      {
+        "WorkDate": "2026-06-24",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.3,
+        "LaborCost": 5475.0
+      },
+      {
+        "WorkDate": "2026-06-25",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.7,
+        "LaborCost": 3700.0
+      },
+      {
+        "WorkDate": "2026-06-25",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-06-25",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 2.5,
+        "LaborCost": 2125.0
+      },
+      {
+        "WorkDate": "2026-06-26",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.8,
+        "LaborCost": 3230.0
+      },
+      {
+        "WorkDate": "2026-06-26",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 3.8,
+        "LaborCost": 3800.0
+      },
+      {
+        "WorkDate": "2026-06-26",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.7,
+        "LaborCost": 5775.0
+      },
+      {
+        "WorkDate": "2026-06-29",
+        "WBS_ID": "WBS-001",
+        "ElementName": "Project Management & Engineering",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 7.8,
+        "LaborCost": 7800.0
+      },
+      {
+        "WorkDate": "2026-06-29",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.4,
+        "LaborCost": 4400.0
+      },
+      {
+        "WorkDate": "2026-06-29",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.2,
+        "LaborCost": 5400.0
+      },
+      {
+        "WorkDate": "2026-06-30",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Morten Hansen",
+        "Role": "Project Manager",
+        "HourlyRate": 1000.0,
+        "HoursWorked": 4.4,
+        "LaborCost": 4400.0
+      },
+      {
+        "WorkDate": "2026-06-30",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Lars Olsen",
+        "Role": "Marine Electrician",
+        "HourlyRate": 750.0,
+        "HoursWorked": 7.6,
+        "LaborCost": 5700.0
+      },
+      {
+        "WorkDate": "2026-06-30",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ResourceName": "Frank Ellingsen",
+        "Role": "Project Controller",
+        "HourlyRate": 850.0,
+        "HoursWorked": 3.3,
+        "LaborCost": 2805.0
+      }
+    ],
+    "materials": [
+      {
+        "PurchaseDate": "2026-02-05",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ItemDescription": "Structural Composite Carbon Sheets",
+        "InvoiceNumber": "INV-001",
+        "TotalActualCost": 150000.0
+      },
+      {
+        "PurchaseDate": "2026-02-12",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ItemDescription": "Epoxy Resin Infusion Kit",
+        "InvoiceNumber": "INV-002",
+        "TotalActualCost": 50000.0
+      },
+      {
+        "PurchaseDate": "2026-02-28",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ItemDescription": "Steel Support Beam Frames",
+        "InvoiceNumber": "INV-003",
+        "TotalActualCost": 32000.0
+      },
+      {
+        "PurchaseDate": "2026-03-10",
+        "WBS_ID": "WBS-002",
+        "ElementName": "Hull Fabrication & Assembly",
+        "ItemDescription": "Additional Epoxies (Overrun material)",
+        "InvoiceNumber": "INV-004",
+        "TotalActualCost": 13500.0
+      },
+      {
+        "PurchaseDate": "2026-04-05",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ItemDescription": "Marine Cabin Electrical Wiring",
+        "InvoiceNumber": "INV-005",
+        "TotalActualCost": 24000.0
+      },
+      {
+        "PurchaseDate": "2026-04-20",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ItemDescription": "Simrad Integrated Marine Dashboard",
+        "InvoiceNumber": "INV-006",
+        "TotalActualCost": 45000.0
+      },
+      {
+        "PurchaseDate": "2026-05-02",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ItemDescription": "Twin Electric Inboard Engines",
+        "InvoiceNumber": "INV-007",
+        "TotalActualCost": 130000.0
+      },
+      {
+        "PurchaseDate": "2026-05-18",
+        "WBS_ID": "WBS-003",
+        "ElementName": "Outfitting & Integration",
+        "ItemDescription": "Battery Storage Bank Lithium 10kWh",
+        "InvoiceNumber": "INV-008",
+        "TotalActualCost": 44000.0
+      },
+      {
+        "PurchaseDate": "2026-06-05",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ItemDescription": "DNV Safety & Compliance Certification",
+        "InvoiceNumber": "INV-009",
+        "TotalActualCost": 25000.0
+      },
+      {
+        "PurchaseDate": "2026-06-15",
+        "WBS_ID": "WBS-004",
+        "ElementName": "Sea Trials & Handover",
+        "ItemDescription": "Test Trial Bio-Fuel & Supplies",
+        "InvoiceNumber": "INV-010",
+        "TotalActualCost": 8500.0
+      }
+    ],
+    "raid": [
+      {
+        "RAID_ID": "R-001",
+        "Category": "Risk",
+        "Description": "Delay in composite carbon sheet deliveries from overseas supplier",
+        "Impact": "High",
+        "Probability": "Medium",
+        "MitigationStrategy": "Pre-order early or source alternative local supplier",
+        "Owner": "Morten Hansen",
+        "Status": "Active"
+      },
+      {
+        "RAID_ID": "I-001",
+        "Category": "Issue",
+        "Description": "Astrid Nilsen welder overtime limit breached due to recovery fabrication schedule",
+        "Impact": "Medium",
+        "Probability": "High",
+        "MitigationStrategy": "Allocate junior welder to assist with low-priority tasks",
+        "Owner": "Morten Hansen",
+        "Status": "Active"
+      },
+      {
+        "RAID_ID": "D-001",
+        "Category": "Dependency",
+        "Description": "Sea trials (WBS 4.0) depend on DNV safety and compliance certification approval",
+        "Impact": "High",
+        "Probability": "High",
+        "MitigationStrategy": "Submit compliance paperwork 2 weeks in advance of handover date",
+        "Owner": "Frank Ellingsen",
+        "Status": "Active"
+      },
+      {
+        "RAID_ID": "A-001",
+        "Category": "Assumption",
+        "Description": "Subcontractor electrician rates remain fixed under contract",
+        "Impact": "Medium",
+        "Probability": "Low",
+        "MitigationStrategy": "Keep signed SLA agreements as references",
+        "Owner": "Frank Ellingsen",
+        "Status": "Closed"
+      }
+    ],
+    "overtime": [
+      {
+        "WorkWeek": "2026-14",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "TotalHours": 50.1
+      },
+      {
+        "WorkWeek": "2026-13",
+        "ResourceName": "Astrid Nilsen",
+        "Role": "Structural Welder",
+        "TotalHours": 46.3
+      }
+    ]
+  },
+  "skills": {
+    "developing-with-streamlit": "---\nname: developing-with-streamlit\ndescription: \"**[REQUIRED]** Use for ALL Streamlit tasks: creating, editing, debugging, beautifying, styling, theming, or optimizing Streamlit applications. Also required for building custom components (inline or packaged), using st.components.v2, or any HTML/JS/CSS component work. Triggers: streamlit, st., dashboard, app.py, beautify, style, CSS, color, background, theme, button, widget styling, custom component, st.components, packaged component, pyproject.toml, asset_dir, CCv2, HTML/JS component.\"\n---\n\n# Developing with Streamlit\n\nThis is a **routing skill** that directs you to specialized references for Streamlit development.\n\n## When to Use\n\nInvoke this skill when the user's request involves:\n- Creating a new Streamlit app\n- Editing or modifying an existing Streamlit app\n- Debugging Streamlit issues (errors, session state bugs, performance problems)\n- Beautifying or improving the visual design of a Streamlit app\n- Optimizing Streamlit performance (caching, fragments, reruns)\n- Building and running Streamlit apps\n- Styling widgets (button colors, backgrounds, CSS customization)\n- Advanced server configuration with `st.App`, ASGI, Starlette, FastAPI integration, custom routes, middleware, or lifespan hooks\n- Any question about Streamlit widgets, layouts, or components\n\n**Trigger phrases:** \"streamlit\", \"st.\", \"st.App\", \"dashboard\", \"app.py\", \"beautify app\", \"make it look better\", \"style\", \"CSS\", \"color\", \"background\", \"theme\", \"button\", \"slow rerun\", \"session state\", \"performance\", \"faster\", \"cache\"\n\n## Workflow\n\n```\nStep 1: Locate the Streamlit source code\n    \u2193\nStep 2: Identify task type and load appropriate reference(s)\n    \u2193\nStep 3: Apply guidance from reference to edit code\n    \u2193\nStep 4: Check if app is running and offer to run it\n```\n\n### Step 1: Locate the Streamlit Source Code (if needed)\n\n**Goal:** Identify the app file(s) to edit. **Skip this step if already clear from context.**\n\n**When to skip:**\n- User mentioned a specific file path (e.g., \"edit `src/app.py`\")\n- User has file(s) already in conversation context\n- Working directory has an obvious single entry point (`app.py`, `streamlit_app.py`)\n\n**When to search:**\n- User says \"my streamlit app\" without specifying which file\n- Multiple Python files exist and it's unclear which is the entry point\n\n**If searching is needed:**\n\n1. **Quick scan** for Streamlit files:\n   ```bash\n   grep -rl 'import streamlit\\|from streamlit' --include='*.py' . 2>/dev/null | head -10\n   ```\n\n2. **Apply entry point heuristics** (in priority order):\n   - `streamlit_app.py` at root \u2192 **this is the entry point** (canonical name)\n   - `app.py` at root \u2192 likely entry point\n   - File using `st.navigation` \u2192 entry point for multi-page apps\n   - Single `.py` file at root with streamlit import \u2192 entry point\n   - Files in `pages/` or `app_pages/` subdirectory \u2192 **NOT entry points** (these are sub-pages)\n\n3. **If entry point is obvious** \u2192 use it, no confirmation needed\n\n   Example: Found `streamlit_app.py` and `pages/metrics.py` \u2192 use `streamlit_app.py`\n\n4. **Only ask if genuinely ambiguous** (e.g., multiple root-level candidates, none named `streamlit_app.py`):\n   ```\n   Found multiple potential entry points:\n   - dashboard.py\n   - main.py\n\n   Which is your main app?\n   ```\n\n**Output:** Path to the main Streamlit source file(s)\n\n### Step 2: Identify Task Type and Route to Reference\n\n**Goal:** Determine what the user needs and load the appropriate guidance.\n\n**IMPORTANT \u2014 `use_container_width` is deprecated.** Never add `use_container_width` to new code. Streamlit elements now stretch to fill their container by default. Use `width=\"stretch\"` or `width=\"content\"` instead. Remove `use_container_width` when you encounter it.\n\n### Proactively Look Up API Details\n\nWhen selecting a Streamlit command, discovering functionality that may be newer than the agent's knowledge cutoff, validating available functionality, or using unfamiliar parameters, proactively look up the relevant local docs before coding:\n\n```bash\nstreamlit docs st.<command>\n```\n\nRun this with the Streamlit installation relevant to the app being edited. Use `references/api-reference.md` to discover available public `st` commands and namespaces, then use `streamlit docs st.<command>` for exact signatures, parameters, and docstrings.\n\n### Best practices quick reference\n\nApply these defaults unless the user's app or request clearly needs a different approach. For examples, read `references/best-practices.md`.\n- Do not use `use_container_width`; use `width=\"stretch\"` or `width=\"content\"` instead.\n- Prefer native Streamlit elements over recreating UI with custom HTML. This includes UI created with `st.html`, `st.markdown(..., unsafe_allow_html=True)`, or `st.components.v1.html`. Use custom HTML only when no native element provides the required UI or behavior.\n- Do not use the deprecated `st.components.v1.html` or `st.components.v1.iframe` commands. Use `st.iframe` for iframe-based rendering of URLs or HTML, and use `st.html` for HTML/CSS that should render directly in the app; `st.html` ignores JavaScript by default unless `unsafe_allow_javascript=True`.\n- Do not apply CSS to style the app unless the user actively requests it. Use native Streamlit features and `.streamlit/config.toml` to customize the appearance; see the [theming reference](references/theme.md).\n- Prefer Material Symbols icons (`:material/icon_name:`) over emojis for navigation, buttons, and labels. Use emojis sparingly, only when they add a special touch.\n- Prefer sentence casing over title casing, including titles and widget labels.\n- Do not use empty widget labels; use `label_visibility=\"collapsed\"` or `label_visibility=\"hidden\"` when a visible label is not desired.\n- Use `st.container(border=True)` for simple visual grouping. Prefer `st.container(horizontal=True)` over `st.columns` for responsive row layouts; use `st.columns` only for fixed grids or precise width ratios.\n- Prefer `st.navigation` and `st.Page` with an `app_pages/` folder over the legacy `pages/` directory, `st.page_link`, or other multipage-app v1 patterns.\n- Always cache compute-intensive or expensive data-loading code. Use `st.cache_data` for serializable data and `st.cache_resource` for shared resources like API clients, raw connectors, and models; do not wrap `st.connection`, which is already cached. Include appropriate `ttl` and/or `max_entries` limits to prevent unbounded growth. Cache the expensive source data, then apply cheap interactive filters outside the cached function.\n- Order scripts so fast UI (titles, layout, widgets) renders before slow computation. Streamlit streams elements top to bottom and temporarily greys out (marks stale) not-yet-redrawn elements from the previous run while a slow step is in progress, clearing each as the new run recreates it; put slow work last, reserve output slots with `st.container()`, or isolate slow sections in fragments.\n- Use `st.fragment` for independent sections that should rerun separately from the rest of the app, such as auto-refreshing charts or controls that do not need to rerun the full page.\n- Use `st.form` to batch related inputs and rerun only on submit, especially when intermediate widget changes would trigger expensive work.\n- Do not put expensive work unguarded inside `st.tabs` or `st.expander`; hidden or collapsed content still computes unless you use dynamic open-state gating or an explicit conditional.\n- Use `st.secrets` for credentials. Never hard-code secrets in app code, never commit `.streamlit/secrets.toml`, and use parameterized queries for user-provided values.\n- Prefer Vega-based charts (`st.altair_chart`, `st.line_chart`, `st.area_chart`, `st.scatter_chart`, `st.bar_chart`, `st.vega_lite_chart`) over `st.pyplot` and Plotly.\n- Prefer `st.segmented_control` over `st.radio(..., horizontal=True)`.\n- Use `st.pills` for a multiselect with a small number of options that fit on one line.\n- Initialize `st.session_state` in one clear place, avoid module-level mutable state for per-user data, and set widget `key` values when widgets repeat, parameters change dynamically, or code needs programmatic access.\n- Keep page files as direct scripts; do not wrap page bodies in functions. Move shared business logic into modules.\n\n### Reference routing table\n\nUse this routing table to select reference(s). **Always read the reference file** before making changes.\n\n> All file paths below are relative to this skill's directory (`streamlit/.agents/skills/developing-with-streamlit/`).\n\n| User Need | Reference to Read |\n|-----------|-------------------|\n| **General Streamlit best practices, app code review, or examples for recommended patterns and anti-patterns** \u2014 styling, layout, navigation, caching, fragments, forms, charts, widgets, session state, secrets, and page organization | read `references/best-practices.md` |\n| **App is slow, reruns take too long, data loads repeatedly, or work is recomputed unnecessarily** \u2014 caching strategies (`st.cache_data`, `st.cache_resource`), `st.fragment` for partial reruns, and (optionally) `parallel=True` when independent fragments can run concurrently | read `references/performance.md` |\n| **Building a dashboard with KPIs, metrics, and charts** \u2014 composing `st.metric`, charts, and data tables into clean dashboard layouts with columns and containers | read `references/dashboards.md` |\n| **Making an app look polished** \u2014 icons (Material Symbols), spacing, color accents, visual hierarchy, and small design touches that elevate quality | read `references/design.md` |\n| **Choosing the right selection widget** \u2014 when to use `st.selectbox` vs `st.radio` vs `st.pills` vs `st.segmented_control` vs `st.multiselect`, including modern replacements for deprecated patterns | read `references/selection-widgets.md` |\n| **Custom themes, colors, or styling requests** \u2014 configuring colors in `.streamlit/config.toml`, reading the active theme at runtime via `st.context.theme`, and targeting widgets with `st.markdown` CSS injection | read `references/theme.md` |\n| **Page structure and layout** \u2014 `st.columns`, `st.tabs`, `st.sidebar`, `st.container`, `st.expander`, responsive layout patterns, and when to use each container type | read `references/layouts.md` |\n| **Displaying or editing tabular data** \u2014 `st.dataframe` column configuration, `st.data_editor` for editable tables, chart selection, and best practices for large datasets | read `references/data-display.md` |\n| **Multi-page app architecture** \u2014 `st.navigation`, `st.Page`, page routing, shared state across pages, and structuring apps with multiple views | read `references/multipage-apps.md` |\n| **Persisting values across reruns** \u2014 `st.session_state`, widget keys, callbacks (`on_change`, `on_click`), and patterns for stateful interactions | read `references/session-state.md` |\n| **Discovering available Streamlit public APIs, looking up `st.<command>` commands, exact parameters, docstrings, signatures, or choosing the right top-level command** \u2014 quick table of public `st` commands and related public objects plus CLI instructions for inspecting local docstrings | read `references/api-reference.md` |\n| **Rich text formatting** \u2014 Markdown in `st.markdown` and widget labels, colored text (`:red[...]`), badges, Material Symbols icons (`:material/icon_name:`), LaTeX math, and Mermaid diagrams | read `references/markdown.md` |\n| **Chat and conversational UIs** \u2014 `st.chat_message`, `st.chat_input`, streaming responses with `st.write_stream`, and building AI assistant interfaces | read `references/chat-ui.md` |\n| **Connecting to Snowflake** \u2014 `st.connection(\"snowflake\")`, secrets configuration, querying data, and Snowflake-specific patterns | read `references/snowflake-connection.md` |\n| **Building or packaging a custom component, triggering events back to Python from JS/HTML, custom HTML/JS with event handling (CCv2), OR any UI element that doesn't exist as a native Streamlit widget** (e.g., drag-and-drop, custom interactive visualization, canvas drawing) | read `references/custom-components-v2.md` \u2014 **IMPORTANT: `st.components.v1` is deprecated. Never use v1 for new components; always use `st.components.v2.component()`.** |\n| **Using third-party community components** \u2014 `streamlit-extras` (pagination, annotated text), `streamlit-pivot-table`, and other popular packages that extend Streamlit's built-in capabilities | read `references/third-party-components.md` |\n| **Structuring app code** \u2014 when to split into modules vs keep in one file, helper functions, and clean project organization patterns | read `references/code-organization.md` |\n| **Environment and dependency setup** \u2014 Python environment management, installing packages, and configuring the development environment for Streamlit apps | read `references/environment-setup.md` |\n| **Streamlit CLI and configuration** \u2014 `streamlit run`, `streamlit config`, looking up docstrings (`streamlit docs <command>`), `.streamlit/config.toml` (script-level and project-level), port settings, and server options | read `references/cli.md` |\n| **Advanced server configuration** \u2014 `st.App`, ASGI entry points, custom HTTP routes, middleware, lifespan hooks, programmatic secrets, exception handlers, and FastAPI/Starlette mounting | read `references/server-asgi.md` |\n\n**Fallback \u2014 \"this widget doesn't exist in Streamlit\":**\n\nIf the user asks for a UI element or interaction that **has never been part of Streamlit's API** and cannot be built with any combination of native widgets (e.g., drag-and-drop, canvas drawing, custom interactive visualizations), **route to the CCv2 reference** (`references/custom-components-v2.md`). **Do not** route to CCv2 for features that exist in newer Streamlit versions (e.g., `st.connection`, `st.segmented_control`) \u2014 suggest upgrading instead.\n\n**Common combinations:**\n\nFor **beautifying/improving an app**, read in order:\n1. `references/design.md`\n2. `references/layouts.md`\n3. `references/selection-widgets.md`\n\nFor **building a dashboard**, read:\n1. `references/dashboards.md`\n2. `references/data-display.md`\n\n**IMPORTANT - Use templates:**\n\nWhen creating a **new dashboard app**, prefer starting from a template in `assets/templates/apps/`:\n- If a template closely matches the request, copy it and adapt:\n  - `dashboard-metrics` \u2014 KPI cards with time-series charts\n  - `dashboard-companies` \u2014 company/entity comparison\n  - `dashboard-compute` \u2014 resource/credit monitoring\n  - `dashboard-feature-usage` \u2014 feature adoption tracking\n  - `dashboard-seattle-weather` \u2014 public dataset exploration\n  - `dashboard-stock-peers` \u2014 financial peer analysis\n- If no template is a close match, start from scratch but borrow relevant patterns from the templates (e.g., caching with `@st.cache_data`, `filter_by_time_range()`, `st.set_page_config()`, chart utilities, layout structure)\n- See `assets/templates/apps/README.md` for template descriptions\n\nWhen **editing an existing app**, use templates as reference for best practices:\n- Check `assets/templates/apps/` for caching patterns, layout structure, and data-loading patterns\n- Apply consistent patterns from templates to improve the existing code\n\nWhen applying a **custom theme**, use a config from `assets/templates/themes/configs/`:\n- Copy one config file (dracula, financial-dashboard, fluent, jupyter, material-ui, minimal, nord, one-dark-pro, shadcn, solarized-light, ubuntu, vscode) to the app's `.streamlit/config.toml`\n- Themes include custom fonts via Google Fonts\n- See `assets/templates/themes/README.md` for the theme list\n\nFor **performance optimization**, read:\n1. `references/performance.md`\n\n### Step 3: Apply Guidance to Edit Code\n\n**Goal:** Make changes to the Streamlit app following reference best practices.\n\n**Actions:**\n\n1. Apply the patterns and recommendations from the loaded reference(s)\n2. Make edits to the source file(s) identified in Step 1\n3. Preserve existing functionality while adding improvements\n\n### Step 4: Check Running Apps and Offer to Run\n\n**Goal:** Help the user see their changes by checking if their app is running.\n\n**Actions:**\n\n1. **Check** for running Streamlit apps on ports 850*:\n   ```bash\n   lsof -nP -iTCP -sTCP:LISTEN 2>/dev/null | grep -i python | awk '{print $2, $9}' | grep ':85' || echo \"No Streamlit apps detected on ports 850*\"\n   ```\n\n2. **Present** findings to user:\n\n   **If app is running:**\n   ```\n   Found Streamlit app running:\n   - PID: [pid] at http://localhost:[port]\n\n   Your changes should be visible after a page refresh (Streamlit hot-reloads on file save).\n   ```\n\n   **If no app is running:**\n   ```\n   No Streamlit app detected on ports 850*.\n\n   Would you like me to run the app? I can start it with:\n     streamlit run [app_file.py]\n   ```\n\n3. **If user wants to run the app**, start it:\n   ```bash\n   streamlit run [path/to/app.py] --server.port 8501\n   ```\n\n## Stopping Points\n\n- **Step 2**: If multiple references seem relevant, ask user which aspect to focus on first\n- **Step 4**: Ask before starting the Streamlit app\n\n## Resources\n\n- [Streamlit API Reference](https://docs.streamlit.io/develop/api-reference)\n- [Streamlit Gallery](https://streamlit.io/gallery)\n",
+    "apps": "# Streamlit Dashboard App Templates\n\nThis directory contains ready-to-use dashboard templates for Streamlit. Each template demonstrates best practices for building data-driven dashboards with modern UI patterns.\n\n## Available Templates\n\n### Public Demo Templates\n\nThese templates are based on official Streamlit demo apps and work out of the box:\n\n| Template | Description | Key Features |\n|----------|-------------|--------------|\n| **dashboard-seattle-weather** | Weather data exploration dashboard | `st.metric`, `st.pills`, `st.altair_chart`, year comparison |\n| **dashboard-stock-peers** | Stock peer analysis and comparison | `st.multiselect`, normalized charts, peer average calculation |\n\n### Analytics Dashboard Templates\n\nThese templates demonstrate common dashboard patterns with synthetic data. Replace the data generation functions with your actual data sources:\n\n| Template | Description | Key Features |\n|----------|-------------|--------------|\n| **dashboard-metrics** | Core metrics dashboard with KPIs | `@st.fragment(parallel=True)` cards with `st.skeleton`, chart/table toggle, `st.popover` filters, TIME_RANGES (1M/6M/1Y/QTD/YTD/All) |\n| **dashboard-feature-usage** | API endpoint usage analytics | Segmented control, starter kits, normalization toggle, rolling averages, conditional \"Raw data\" expander (`on_change=\"rerun\"`) |\n| **dashboard-companies** | Company leaderboard with drill-down | Interactive dataframe, sparkline columns, growth scores, custom cache spinner |\n| **dashboard-compute** | Resource consumption monitoring | `@st.fragment(parallel=True)` with `st.skeleton`, `st.popover` filters, TIME_RANGES, line/bar toggle |\n\n## Quick Start\n\n### Run a Template Locally\n\n```bash\n# Navigate to a template directory\ncd assets/templates/apps/dashboard-metrics\n\n# Sync dependencies from pyproject.toml\nuv sync\n\n# Run the app\nuv run streamlit run streamlit_app.py\n```\n\n## Template Structure\n\nEach template follows this structure:\n\n```\ndashboard-{name}/\n\u251c\u2500\u2500 streamlit_app.py    # Main application code\n\u2514\u2500\u2500 pyproject.toml      # Dependencies and metadata\n```\n\n## Canonical Patterns\n\nWhen creating new templates or adapting existing ones, follow these patterns for consistency.\n\n### Page Configuration\n\nAlways set page config as the first Streamlit call, with `layout=\"wide\"` and a Material icon:\n\n```python\nst.set_page_config(\n    page_title=\"My Dashboard\",\n    page_icon=\":material/monitoring:\",\n    layout=\"wide\",\n)\n```\n\n### Constants\n\nUse these standard constant names:\n\n```python\nTIME_RANGES = [\"1M\", \"6M\", \"1Y\", \"QTD\", \"YTD\", \"All\"]\nCHART_HEIGHT = 300  # Standard chart height in pixels\n```\n\n### Time Range Filtering\n\nAll dashboard templates that support time filtering use the same `filter_by_time_range` function:\n\n```python\ndef filter_by_time_range(df: pd.DataFrame, x_col: str, time_range: str) -> pd.DataFrame:\n    \"\"\"Filter dataframe by time range.\"\"\"\n    if time_range == \"All\" or df.empty:\n        return df\n\n    df = df.copy()\n    df[x_col] = pd.to_datetime(df[x_col])\n    max_date = df[x_col].max()\n\n    if time_range == \"1M\":\n        min_date = max_date - timedelta(days=30)\n    elif time_range == \"6M\":\n        min_date = max_date - timedelta(days=180)\n    elif time_range == \"1Y\":\n        min_date = max_date - timedelta(days=365)\n    elif time_range == \"QTD\":\n        quarter_month = ((max_date.month - 1) // 3) * 3 + 1\n        min_date = pd.Timestamp(date(max_date.year, quarter_month, 1))\n    elif time_range == \"YTD\":\n        min_date = pd.Timestamp(date(max_date.year, 1, 1))\n    else:\n        return df\n\n    filtered: pd.DataFrame = df[df[x_col] >= min_date]\n    return filtered\n```\n\n### Popover Filters\n\nCompact filter controls using `st.popover`:\n\n```python\nwith st.popover(\"Filters\", type=\"tertiary\"):\n    line_options = st.pills(\"Lines\", [\"Daily\", \"7-day MA\"], selection_mode=\"multi\")\n    time_range = st.segmented_control(\"Time range\", TIME_RANGES, default=\"All\")\n```\n\n### Page Header with Reset Button\n\n```python\ndef render_page_header(title: str):\n    \"\"\"Render page header with title and reset button.\"\"\"\n    with st.container(\n        horizontal=True, horizontal_alignment=\"distribute\", vertical_alignment=\"center\"\n    ):\n        st.markdown(title)\n        if st.button(\":material/restart_alt: Reset\", type=\"tertiary\"):\n            st.session_state.clear()\n            st.rerun()\n```\n\n### Independent and parallel card updates with @st.fragment\n\nWrap each card in `@st.fragment` so widget interactions rerun only that card,\nnot the whole page. If a dashboard has multiple cards with independent,\ncompute-intensive data loads, add `parallel=True` so those cards run\nconcurrently on a full app rerun. Wrap the loading body in `st.skeleton` so each\ncard shows a placeholder until its data is ready:\n\n```python\n@st.fragment(parallel=True)\ndef metric_card(metric_name: str):\n    with st.container(border=True):\n        st.markdown(f\"**{metric_name}**\")  # Stays stable while the body loads\n        with st.skeleton(height=300):\n            data = load_metric(metric_name)  # Cached; loads in parallel\n            st.line_chart(data)\n```\n\nKeep `st.dialog` / `st.switch_page` and writes to containers created *outside*\nthe fragment out of parallel fragments \u2014 gate those behind a widget interaction\ninstead, where the fragment reruns sequentially.\n\n### Data Loading with Caching\n\nCache the expensive load and bound it with a `ttl` (and/or `max_entries`) so the\ncache stays fresh and doesn't grow without limit. Use a custom spinner message\nfor loaders that run directly in the page. Use `show_spinner=False` only when a\nsurrounding loading UI, such as `st.skeleton`, already provides feedback:\n\n```python\n@st.cache_data(ttl=\"1h\", show_spinner=\"Loading metric data...\")\ndef load_metric_data() -> pd.DataFrame:\n    \"\"\"Load metric data. Replace with your actual data source.\"\"\"\n    # Replace this with:\n    # - API call\n    # - Database query\n    # - Data warehouse query via st.connection\n    return generate_synthetic_data()\n```\n\nGuidelines: real-time data \u2192 `ttl=\"1m\"`; metrics/reports \u2192 `ttl=\"5m\"`\u2013`\"15m\"`;\nreference data \u2192 `ttl=\"1h\"` or more; static data \u2192 no TTL. Use `max_entries` for\nparameterized loaders so per-argument entries stay bounded.\n\n## Dependencies\n\nAll templates require Python >=3.10 and use:\n- `streamlit`\n- `altair>=5.5.0`\n- `pandas>=2.2.3`\n- `numpy>=1.26.0` (most templates)\n",
+    "themes": "# Streamlit theme templates\n\nReady-to-use theme configs. Each file in `configs/` is a complete `[theme]`\nblock \u2014 paste into your app's `.streamlit/config.toml`.\n\n## Available themes\n\n| Theme | Base | Primary color | Fonts |\n|-------|------|---------------|-------|\n| **dracula** | Dark | `#BD93F9` (purple) | Fira Sans, JetBrains Mono |\n| **financial-dashboard** | Dark | `#60A5FA` (blue) | Inter, JetBrains Mono |\n| **fluent** | Light | `#0078D4` (blue) | Segoe UI, Cascadia Code |\n| **jupyter** | Light | `#F37626` (orange) | Source Sans 3, Source Code Pro |\n| **material-ui** | Light | `#6750A4` (violet) | Roboto, Roboto Mono |\n| **minimal** | Dark | `#6366F1` (indigo) | Inter, JetBrains Mono |\n| **nord** | Dark | `#88C0D0` (frost blue) | Inter, JetBrains Mono |\n| **one-dark-pro** | Dark | `#61AFEF` (blue) | IBM Plex Sans, JetBrains Mono |\n| **shadcn** | Light | `#18181B` (zinc) | Inter, JetBrains Mono |\n| **solarized-light** | Light | `#268BD2` (blue) | Source Sans 3, Source Code Pro |\n| **ubuntu** | Light | `#E95420` (orange) | Ubuntu, Ubuntu Mono |\n| **vscode** | Dark | `#0078D4` (blue) | Segoe UI, Fira Code |\n\nAll themes load [Google Fonts](https://fonts.google.com/) via the\n`font = \"<family>:<stylesheet_url>\"` syntax \u2014 no local font files required.\n\nSee `references/theme.md` for the full theming guide.\n",
+    "references": "\n# Streamlit custom components\n\nExtend Streamlit with third-party custom components from the community.\n\n## What are custom components?\n\nCustom components are standalone Python libraries that add features not in Streamlit's core API. They're built by the community and can be installed like any Python package.\n\n## Installation\n\nInstall using the PyPI package name (not the repo name\u2014they can differ):\n\n```bash\nuv add <pypi-package-name>\n```\n\nThen import according to the component's documentation. The import name often differs from the package name too.\n\n## Use with caution\n\nComponents are not maintained by Streamlit. Before adopting:\n\n- **Check maintenance** - Is it actively maintained? Recent commits?\n- **Check compatibility** - Does it work with your Streamlit version?\n- **Check popularity** - GitHub stars, downloads, community usage\n- **Consider alternatives** - Can you achieve this with core Streamlit?\n\nCustom components can break when Streamlit updates, so prefer core features when possible.\n\n## Popular custom components\n\n### streamlit-keyup\n\nText input that fires on every keystroke instead of waiting for enter/blur. Useful for live search.\n\n- **Repo:** https://github.com/blackary/streamlit-keyup\n- **Docs:** https://pypi.org/project/streamlit-keyup/\n\n```bash\nuv add streamlit-keyup\n```\n\n```python\nfrom st_keyup import st_keyup\n\nquery = st_keyup(\"Search\", debounce=300)  # 300ms debounce\nfiltered = df[df[\"name\"].str.contains(query, case=False)]\nst.dataframe(filtered)\n```\n\n### streamlit-bokeh\n\nOfficial replacement for `st.bokeh_chart` (removed from Streamlit API). Maintained by Streamlit.\n\n- **Repo:** https://github.com/streamlit/streamlit-bokeh\n- **Docs:** https://pypi.org/project/streamlit-bokeh/\n\n```bash\nuv add streamlit-bokeh\n```\n\n```python\nfrom bokeh.plotting import figure\nfrom streamlit_bokeh import streamlit_bokeh\n\np = figure(title=\"Simple Line\", x_axis_label=\"x\", y_axis_label=\"y\")\np.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)\nstreamlit_bokeh(p)\n```\n\n### streamlit-aggrid\n\nInteractive dataframes with sorting, filtering, cell editing, grouping, and pivoting. Use when you need customization beyond what `st.dataframe` and `st.data_editor` offer.\n\n- **Repo:** https://github.com/PablocFonseca/streamlit-aggrid\n- **Docs:** https://pypi.org/project/streamlit-aggrid/\n\n```bash\nuv add streamlit-aggrid\n```\n\n```python\nfrom st_aggrid import AgGrid\n\nAgGrid(df, editable=True, filter=True)\n```\n\n**When to use aggrid over st.dataframe:**\n- Interactive row grouping and pivoting\n- Advanced filtering and sorting UI\n- Complex cell editing workflows\n- Custom cell renderers\n\n### streamlit-folium\n\nInteractive maps powered by Folium.\n\n- **Repo:** https://github.com/randyzwitch/streamlit-folium\n- **Docs:** https://folium.streamlit.app/\n\n```bash\nuv add streamlit-folium\n```\n\n```python\nimport folium\nfrom streamlit_folium import st_folium\n\nm = folium.Map(location=[37.7749, -122.4194], zoom_start=12)\nst_folium(m, width=700)\n```\n\n### streamlit-pivot-table\n\nInteractive pivot tables with drag-and-drop dimensions, aggregation, and drill-down. Maintained by Streamlit.\n\n- **Repo:** https://github.com/streamlit/streamlit-pivot-table\n- **Docs:** https://pypi.org/project/streamlit-pivot/\n\n```bash\nuv add streamlit-pivot\n```\n\n```python\nimport pandas as pd\nfrom streamlit_pivot import st_pivot_table\n\ndf = pd.read_csv(\"sales.csv\")\nresult = st_pivot_table(\n    df,\n    key=\"my_pivot\",\n    rows=[\"Region\"],\n    columns=[\"Year\"],\n    values=[\"Revenue\"],\n    aggregation={\"Revenue\": \"sum\"},\n    show_totals=True,\n)\n```\n\n### streamlit-extras\n\nA collection of community utilities. Cherry-pick what you need.\n\n- **Repo:** https://github.com/arnaudmiribel/streamlit-extras\n- **Docs:** https://extras.streamlit.app/\n\n```bash\nuv add streamlit-extras\n```\n\n```python\nfrom streamlit_extras.pagination import pagination\n\npage = pagination(num_pages=10, default=1, key=\"my_pages\")\nst.write(f\"Current page: {page}\")\n```\n\n```python\nfrom annotated_text import annotated_text\n\nannotated_text(\n    \"This \",\n    (\"is\", \"verb\", \"#8ef\"),\n    \" some \",\n    (\"annotated\", \"adj\", \"#faa\"),\n    (\"text\", \"noun\", \"#afa\"),\n)\n```\n\n## Discover more\n\nBrowse the custom component gallery: https://streamlit.io/components\n\nFilter by category, popularity, and recency to find custom components for your use case.\n\n## References\n\n- [Components Gallery](https://streamlit.io/components)\n- [Build a custom component](https://docs.streamlit.io/develop/concepts/custom-components)\n",
+    "project-cfo-agent": "---\nname: project-cfo-agent\ndescription: Conduct portfolio-level profitability reviews, audit cash flow forecasts, assess capital expenditure risk, and evaluate Margin at Completion.\n---\n\n# Skill: Project CFO / Executive Agent\n\nThis skill guides the agent in financial decision-making, auditing long-term margins, managing cash flow risk, and preparing executive presentations.\n\n## When to Use\nActivate this skill when:\n* Reviewing project margin expectations (EAC vs. Initial targets).\n* Auditing cash flow forecasts and funding requirements.\n* Performing sensitivity analyses or assessing financial risks (inflation, currency fluctuation).\n* Drafting summaries for board-level or investor presentations.\n\n## Role Directives & Rules\n1. **Profitability First**: Focus strictly on the bottom line. Evaluate how changes in cost or schedule impact the final profit margin.\n2. **Variance Thresholds**: Flag any project where the projected Margin at Completion deviates negatively by more than 2% from the baseline plan.\n3. **Cash Flow Sensitivity**: Assess billing milestones against timesheet/material cash outlays to prevent negative project cash balances.\n4. **Strategic Focus**: Summaries must be concise, bulleted, and structured with clear recommendations (e.g. \"Action Required: Re-negotiate contract milestone 3 due to early material procurement cash outflow\").\n",
+    "project-contract-manager-agent": "---\nname: project-contract-manager-agent\ndescription: Manage change orders, track variation orders (VO/VOR), monitor contract milestones, and coordinate baseline budget revisions.\n---\n\n# Skill: Contract / Variation Manager Agent\n\nThis skill guides the agent in administering variations, verifying contract compliance, and updating the budget baseline.\n\n## When to Use\nActivate this skill when:\n* Tracking client-driven changes or contractor claims.\n* Processing Variation Orders (VO) and Variation Order Requests (VOR).\n* Updating the project budget baseline after change approvals.\n* Evaluating contractual schedule impact (liquidated damages risks).\n\n## Role Directives & Rules\n1. **Change Registry Integrity**: Maintain a central Change Log (ID, Description, Estimated Value, Status: Draft/Submitted/Approved/Rejected).\n2. **Controller Alignment**: Never allow the Project Controller to adjust the Approved Budget baseline (`BAC`) until the corresponding VO is marked as \"Approved\" by the client.\n3. **Claim Defense**: Document every delay cause (e.g., late client-supplied drawings) to protect against liquidated damages (LDs).\n4. **Milestone Tracking**: Monitor contractually binding milestones and flag payment trigger dates to the billing team.\n",
+    "project-controller-agent": "---\nname: project-controller-agent\ndescription: Calculate project financial performance, run EVM metrics (CPI/SPI), forecast Estimate at Completion (EAC), and audit variance anomalies.\n---\n\n# Skill: Project Controller (PC) Agent\n\nThis skill directs the agent to act as a financial and progress auditor, ensuring data-integrity, calculating cost efficiencies, and drafting forecasting models.\n\n## When to Use\nActivate this skill when:\n* Auditing labor hours and timesheet logs.\n* Matching material invoices to WBS allocations.\n* Querying database/CSV datasets for cost variances.\n* Generating Estimate at Completion (EAC) projections and profit margin forecasts.\n\n## Role Directives & Rules\n1. **Variance Audit**: Audit any WBS element experiencing a cost variance (CV) outside the +/- 5% boundary. \n2. **EVM Formulas**: Follow strictly the standard formulas (CPI = EV/AC, SPI = EV/PV) as defined in workspace rules.\n3. **Data Quality Check**: Verify that timesheets map to valid resources and approved hourly rates before executing financial queries.\n4. **Proactive Alerting**: When project CPI drops below 0.95, generate an early-warning memo with detailed cost-driver breakdowns (labor rate variance vs. material inflation).\n",
+    "project-controlling-evm": "---\nname: project-controlling-evm\ndescription: Load and analyze project control CSV datasets (timesheets, costs, progress) to compute EVM metrics and detect schedule/budget variances.\n---\n\n# Skill: Project Controlling & EVM Analyst\n\nThis skill guides the agent in querying, calculating, and explaining Earned Value Management (EVM) metrics using the workspace project data.\n\n## When to Use\nActivate this skill when:\n* Asked to run financial reviews or audit project files.\n* Calculating Planned Value (PV), Earned Value (EV), Actual Cost (AC), or forecasting metrics (EAC, ETC, VAC).\n* Generating timesheet anomaly reports or looking for resource/task overruns.\n\n## How to Use\n\n### 1. Data Source Mapping\nThe relational data tables are located under [AI_Controller/mock_data/](file:///c:/Users/frank/Desktop/Project%20Mng/AI_Controller/mock_data). Use the following tables:\n* `projects.csv`: General project settings.\n* `wbs_elements.csv`: Planned budgets (`PlannedCost`) and hours (`PlannedHours`) per task.\n* `resources.csv`: Resource standard rates (`HourlyRate`).\n* `timesheets.csv`: Daily logged hours per employee and WBS.\n* `material_costs.csv`: Invoiced purchases per WBS.\n* `physical_progress.csv`: Weekly percent complete reports per WBS.\n\n### 2. Math & Business Logic\n* **Actual Cost (AC)**: `SUM(Timesheets.HoursWorked * Resources.HourlyRate) + SUM(Material_Costs.TotalActualCost)` grouped by WBS.\n* **Earned Value (EV)**: `WBS_Elements.PlannedCost * Latest_Physical_Progress.PercentComplete` (always find the progress entry with the maximum `RecordDate` relative to the reporting date).\n* **Cost Performance Index (CPI)**: `EV / AC`. If `CPI < 0.95`, flag a cost overrun.\n* **Schedule Performance Index (SPI)**: `EV / PV`. If `SPI < 0.90`, flag a schedule lag.\n\n### 3. Output Requirements\n* Write queries and calculations using clean, dependency-free Python or DuckDB SQL.\n* Format financial numbers using thousands separators (e.g. `100,000.00 NOK`).\n* Present reports containing the WBS, Element Name, BAC, AC, EV, CPI, and Status.\n",
+    "project-engineering-lead-agent": "---\nname: project-engineering-lead-agent\ndescription: Track engineering design schedules, manage drawing release dates, and monitor engineering hours burn-rates.\n---\n\n# Skill: Engineering / Design Lead Agent\n\nThis skill guides the agent in tracking design schedules, drawing lists, and engineering hours.\n\n## When to Use\nActivate this skill when:\n* Tracking drawing releases, calculations, and approvals.\n* Monitoring engineering hours logged in the initial phases.\n* Coordinating interfaces between different technical disciplines (structural, electrical, system design).\n* Managing revisions or client comments on designs.\n\n## Role Directives & Rules\n1. **Drawing Release Plan (DRP)**: Monitor drawing status: Planned release date vs. Actual release date. Late drawings directly delay purchasing and production.\n2. **Design hours Burn Rate**: Monitor hours spent by engineers. Verify that design hours do not burn faster than physical model maturity.\n3. **Change Notification**: If client engineering feedback modifies structural design, notify the Contract Manager immediately for a potential variation order (VO).\n4. **Interface Control**: Log design reviews to ensure structural modifications do not conflict with electrical routing.\n",
+    "project-evaluation-agent": "---\nname: project-evaluation-agent\ndescription: Perform post-project financial calculations (etterkalkyle), analyze baseline deviations, and compile cost benchmarks to improve future bidding models.\n---\n\n# Skill: Project Evaluation & Post-Calculation Agent\n\nThis skill guides the agent in conducting post-project financial audits (*etterkalkyle*), identifying root causes of baseline deviations, and summarizing organizational learning.\n\n## When to Use\nActivate this skill when:\n* Conducting closeout reviews on completed projects (e.g. at stage gates or project end).\n* Performing variance analysis comparing original baseline budget (`BAC`) to Final Actual Cost (`FAC`).\n* Compiling lessons-learned reports and cost-driver benchmarks.\n* Preparing feed-forward data for future bidding and estimating teams.\n\n## Role Directives & Rules\n1. **Variance Decomposition**: Deconstruct total cost overruns into specific drivers:\n   * *Labor Rate Variance*: Higher standard rates than planned.\n   * *Labor Efficiency Variance*: More hours worked than planned.\n   * *Material Price Variance*: Higher material costs per unit.\n   * *Material Quantity Variance*: More materials consumed than planned.\n2. **Closeout report Format**: Output standard summaries including BAC, Final AC, Variance, and a list of top 3 cost-saving or cost-overrunning items.\n3. **Lessons Learned Database**: Log specific root causes (e.g., \"Composite cure times took 20% longer than vendor spec due to shop-floor temp issues\") to update the PM's planning guidelines.\n4. **Bidding Database Update**: Extract actual unit costs (e.g., \"Average cost per ton of structural steel was X NOK\") to update the estimating team's pricing databases.\n",
+    "project-manager-agent": "---\nname: project-manager-agent\ndescription: Coordinate project milestones, allocate resource capacities, manage risk registers, and handle task dependencies.\n---\n\n# Skill: Project Manager (PM) Agent\n\nThis skill directs the agent on how to manage, schedule, and execute project scope, handle critical paths, and coordinate resources.\n\n## When to Use\nActivate this skill when:\n* Mapping out project schedules, durations, and tasks.\n* Running Critical Path Analysis (CPA) or updating Gantt charts.\n* Managing risk mitigation plans or resolving resource scheduling conflicts.\n* Coordinating with project controllers on schedule variance (SV/SPI).\n\n## Role Directives & Rules\n1. **Critical Path First**: Always prioritize tracking tasks on the critical path. If a critical path task shifts, recalculate the target end date immediately.\n2. **Buffer Management**: Maintain a visible schedule buffer/contingency of 10-15% on high-risk technical tasks.\n3. **Resource Capacity**: Keep resource workloads at a sustainable rate (~80% target allocation). Red-flag allocations exceeding 100%.\n4. **Variance Response**: When the Project Controller flags an SPI < 0.90, generate recovery options (e.g., fast-tracking, crashing, or scope adjustment).\n",
+    "project-procurement-agent": "---\nname: project-procurement-agent\ndescription: Monitor procurement schedules, track purchase orders (POs), calculate committed costs, and manage supplier delivery risk.\n---\n\n# Skill: Procurement / Supply Chain Agent\n\nThis skill guides the agent in tracking material purchasing, committed costs, and managing logistics risks.\n\n## When to Use\nActivate this skill when:\n* Tracking the status of Purchase Orders (POs).\n* Calculating committed costs (approved POs that have not yet been invoiced).\n* Assessing supply chain risks, lead times, or material cost changes.\n* Coordinating bulk material allocations with project budget elements.\n\n## Role Directives & Rules\n1. **Committed Cost Aggregation**: Calculate committed costs weekly: `Committed Cost = Approved PO Value - Invoiced Value`. This is critical for predicting future actual cash outlays.\n2. **Early Warnings**: Flag any supplier delivery slip that is within 2 weeks of the dependent task start date on the PM's schedule.\n3. **Escalation**: Alert the Project Controller and PM immediately if a vendor quotes a price increase that exceeds the material budget allocation for that WBS.\n4. **Receipt Validation**: Verify quantity and quality reports on arrival before authorizing payment releases.\n",
+    "project-production-agent": "---\nname: project-production-agent\ndescription: Monitor shipyard/shop-floor labor productivity, verify physical milestone completion percentages, and track structural assembly progress.\n---\n\n# Skill: Production / Construction Agent\n\nThis skill guides the agent in tracking field construction, checking physical completion, and monitoring direct labor hours productivity.\n\n## When to Use\nActivate this skill when:\n* Auditing physical progress reports or validating \"percent complete\" updates.\n* Spanning direct labor hours (e.g. welding, electrical install) against task output.\n* Reviewing shop-floor schedules and crew sizing.\n* Resolving delays related to equipment or space availability.\n\n## Role Directives & Rules\n1. **Physical Validation**: Ensure reported completion percentages (`PercentComplete` in progress logs) are backed by measurable output (e.g. tons steel erected, cables run) rather than subjective estimates.\n2. **Productivity Index (PF)**: Monitor labor productivity factor: `PF = Planned Hours for Work Done / Actual Hours Spent`. A PF < 1.0 means productivity is lagging, leading to a cost overrun.\n3. **Daily Log Coordination**: Validate timesheet codes daily against active work locations to ensure no miscoding.\n4. **Safety & Site Hold**: Red-flag any work package blocked due to lack of safety permits or material shortages.\n",
+    "project-quality-agent": "---\nname: project-quality-agent\ndescription: Track non-conformity reports (NCRs), audit inspection pass-rates, and estimate cost/schedule impact of structural rework.\n---\n\n# Skill: Quality / QAQC Agent\n\nThis skill guides the agent in tracking non-conformity reports, inspect requirements, and tracking cost of rework.\n\n## When to Use\nActivate this skill when:\n* Tracking structural inspection milestones or DNV class reviews.\n* Logging Non-Conformity Reports (NCRs).\n* Calculating the cost and schedule impact of corrective rework.\n* Auditing material certificates or welding procedure specifications (WPS).\n\n## Role Directives & Rules\n1. **NCR Cost Impact**: For every NCR raised, calculate the estimated rework cost: `Rework Cost = Estimated Repair Hours * Hourly Rate + Material Replacement Cost`. Flag this to the Project Controller immediately.\n2. **First-Time Pass Rate (FTR)**: Monitor weld and assembly inspection FTR. A low pass-rate (<95%) is an early indicator of future labor cost overruns.\n3. **Rework Coding**: Ensure all rework hours logged in timesheets are assigned to specific, traceable quality charge codes (not hidden inside standard production codes).\n4. **Certificate Audit**: Red-flag any incoming raw material that lacks official manufacturing certificates.\n",
+    "project-research-agent": "---\nname: project-research-agent\ndescription: Perform market research, compile industry benchmarks (e.g. shipbuilding rates), evaluate cost-effective software, and summarize specification documents.\n---\n\n# Skill: Project Research Agent\n\nThis skill guides the agent in gathering external data, validating benchmarks, researching low-cost/free tooling solutions, and summarizing research findings.\n\n## When to Use\nActivate this skill when:\n* Asked to search the web for industry standards, rates, or metrics.\n* Conducting tool/software evaluations (focused on cost-effective alternatives).\n* Translating or summarizing technical specifications or academic papers.\n* Compiling market competitor data.\n\n## Role Directives & Rules\n1. **Source Citation**: Every fact, benchmark, or tool pricing must be cited with a direct, clickable URL. Never list statistical figures without validation.\n2. **Cost-Efficiency Priority**: When reviewing software or setups, always prioritize free, open-source, or local-first technologies.\n3. **Structured Syntheses**: Format research summaries using bold key points, bullet lists, and visual tables. Focus on direct business applicability.\n4. **Accuracy Over Estimation**: If a metric is not publicly available or verifiable, explicitly declare it as \"unknown\" or \"needs manual confirmation\" rather than making assumptions.\n",
+    "project-support-agent": "---\nname: project-support-agent\ndescription: Assist with project administration, document organization, timesheet collection, meeting logs, and compliance standards.\n---\n\n# Skill: Project Support (PSO) Agent\n\nThis skill guides the agent in administrative, coordination, and governance tasks, acting as the operational anchor of the project office.\n\n## When to Use\nActivate this skill when:\n* Writing meeting minutes or tracking action item lists.\n* Organizing project documentation folders and template files.\n* Following up on timesheet compliance or data-collection errors.\n* Ensuring the team adheres to project management frameworks (e.g. PRINCE2, Stage-Gate).\n\n## Role Directives & Rules\n1. **Action Item Tracking**: Maintain a strict Log format (ID, Description, Owner, Due Date, Status) for all project team actions.\n2. **Document Version Control**: Always log major document edits with author, date, and version change-log at the top of markdown files.\n3. **Timesheet Compliance**: Highlight missing, unapproved, or incorrectly coded timesheet entries weekly.\n4. **Governance Checks**: Validate that all required deliverables (e.g. PID template, Risk assessment charts) are completed before proposing phase-gate passage.\n",
+    "tufte-dashboard-designer": "---\nname: tufte-dashboard-designer\ndescription: Apply Edward Tufte's Data-Ink Ratio principles to project management visual assets, charts, tables, and KPI cards.\n---\n\n# Skill: Tufte Dashboard Designer\n\nThis skill instructs the agent on how to apply Edward Tufte's Data-Ink Ratio principles when formatting reports, designing BI schema visuals, or drafting report layout guides.\n\n## When to Use\nActivate this skill when:\n* Asked to write styling guides, mockups, or design charts for Power BI, Excel, or Streamlit.\n* Formatting tables, charts, S-curves, or resource histograms.\n* Writing layouts for stakeholder reporting.\n\n## Core Directives\n\n### 1. Data-Ink Maximization\n* **Eliminate Gridlines**: Never add background grids, frames, or borders to charts. Whitespace serves as the boundary.\n* **Direct Labeling**: Place label names directly next to data curves, bars, or segments. Avoid separate legends/color keys that force eye-movement.\n* **No Chart Junk**: Remove decorative icons, 3D shapes, shadow effects, and background card-fills.\n\n### 2. Table Layout Standards\n* **No Vertical Lines**: Never use vertical separators between columns.\n* **Subtle Horizontals**: Only use thin horizontal borders under the headers and at the bottom of the table.\n* **Alignment Rules**:\n  * Left-align text columns.\n  * Right-align numerical and currency columns.\n  * Align decimal points vertically.\n* **Common Units**: Place units (e.g. `NOK`, `hours`) in the column header only. Do not duplicate them in individual rows.\n\n### 3. Chart Color Rules\n* Keep colors muted and functional. \n* Use light grey for baselines/plans, dark grey/black for actuals, and blue/grey for earned progress.\n* Reserve accent colors (like muted red or amber) exclusively to call out active risks or negative variances.\n"
+  }
+};
+    </script>
+
+    <!-- INTERACTIVE SCRIPT LOGIC -->
+    <script>
+        // Initialize focus agent dropdown
+        const focusSkillSelect = document.getElementById('focus-skill-select');
+        Object.keys(APP_DATA.skills).forEach(skillKey => {
+            const opt = document.createElement('option');
+            opt.value = skillKey;
+            opt.textContent = skillKey.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            focusSkillSelect.appendChild(opt);
+        });
+
+        // 1. Sidebar Switcher
+        function switchView(view, elem, preventReload) {
+            if (elem) {
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                elem.classList.add('active');
+            } else if (view === 'skills') {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    if (item.textContent.includes('Skill Inspector')) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+            
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + view).classList.add('active');
+            
+            const titleMap = {
+                'dashboard': ['Project Control Tower Dashboard', 'Integrated Earned Value Management & Agent Intelligence System'],
+                'stakeholders': ['Tailored Stakeholder Reports', 'Custom executive briefs, operational views, and compliance reports synthesized for key project roles.'],
+                'skills': ['Individual Agent Skill Inspector', 'Detailed directives and instructions parsed from local project agents.'],
+                'execution': ['🤖 Live Agent Crew Audit Runner', 'Executes Python agent audit routines directly against DuckDB & SQLite database backends.']
+            };
+            
+            document.getElementById('view-title').textContent = titleMap[view][0];
+            document.getElementById('view-caption').textContent = titleMap[view][1];
+
+            if (view === 'skills' && !preventReload) {
+                loadFocusedSkill(focusSkillSelect.value);
+            }
+        }
+
+        // 2. Tab Switcher
+        function switchTab(tabId, elem) {
+            const container = elem.closest('.view-panel');
+            container.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            elem.classList.add('active');
+            
+            container.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 3. Gantt Chart Context Data
+        const ganttData = {
+            'PRJ-001': [
+                { task: '1.0 PM & Engineering', start: '2026-01-01', finish: '2026-06-30', progress: 97.5, status: 'Over Budget' },
+                { task: '2.0 Hull Fabrication', start: '2026-02-01', finish: '2026-04-20', progress: 100.0, status: 'On Track' },
+                { task: '3.0 Outfitting & Integration', start: '2026-04-01', finish: '2026-05-25', progress: 100.0, status: 'Over Budget' },
+                { task: '4.0 Sea Trials & Handover', start: '2026-06-01', finish: '2026-06-30', progress: 100.0, status: 'Over Budget' }
+            ],
+            'PRJ-002': [
+                { task: '1.0 Hull Design & CFD', start: '2026-05-01', finish: '2026-08-15', progress: 75.0, status: 'On Track' },
+                { task: '2.0 Carbon Fiber Molding', start: '2026-07-01', finish: '2026-10-30', progress: 20.0, status: 'On Track' },
+                { task: '3.0 Autonomous Avionics', start: '2026-09-01', finish: '2026-12-15', progress: 0.0, status: 'On Track' }
+            ]
+        };
+
+        function updateGantt(proj) {
+            const container = document.getElementById('gantt-chart');
+            container.innerHTML = '';
+            
+            let tasks = [];
+            if(proj === 'ALL') {
+                tasks = [...ganttData['PRJ-001'], ...ganttData['PRJ-002']];
+            } else {
+                tasks = ganttData[proj] || [];
+            }
+            
+            tasks.forEach(t => {
+                const row = document.createElement('div');
+                row.className = 'gantt-row';
+                
+                const label = document.createElement('div');
+                label.className = 'gantt-task-name';
+                label.textContent = t.task;
+                
+                const track = document.createElement('div');
+                track.className = 'gantt-bar-track';
+                
+                const fill = document.createElement('div');
+                fill.className = 'gantt-bar-fill' + (t.status === 'Over Budget' ? ' over-budget' : '');
+                fill.style.width = t.progress + '%';
+                fill.textContent = t.progress.toFixed(1) + '%';
+                
+                track.appendChild(fill);
+                row.appendChild(label);
+                row.appendChild(track);
+                container.appendChild(row);
+            });
+        }
+
+        // Initialize Gantt Chart
+        updateGantt('PRJ-001');
+
+        // Populate Tables
+        // WBS Table
+        const wbsBody = document.querySelector('#wbs-table tbody');
+        APP_DATA.db.wbs.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.WBS_Code.toFixed(1)}</td>
+                <td>${row.ElementName}</td>
+                <td class="align-right">${row.BAC.toLocaleString()} NOK</td>
+                <td class="align-right">${row.AC.toLocaleString()} NOK</td>
+                <td class="align-right">${row.EV.toLocaleString()} NOK</td>
+                <td class="align-right ${row.CPI < 0.95 ? 'text-danger' : 'text-success'}">${row.CPI.toFixed(2)}</td>
+                <td class="align-right">${(row.PercentComplete * 100).toFixed(1)}%</td>
+                <td class="align-right">${row.EAC_Typical.toLocaleString(undefined, {maximumFractionDigits: 0})} NOK</td>
+            `;
+            wbsBody.appendChild(tr);
+        });
+
+        // Overtime Table
+        const overtimeBody = document.querySelector('#overtime-table tbody');
+        APP_DATA.db.overtime.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.WorkWeek}</td>
+                <td>${row.ResourceName}</td>
+                <td>${row.Role}</td>
+                <td class="align-right">${row.TotalHours.toFixed(1)} hrs</td>
+            `;
+            overtimeBody.appendChild(tr);
+        });
+
+        // Procurement Table
+        const procBody = document.querySelector('#procurement-table tbody');
+        const largeProc = APP_DATA.db.materials.filter(m => m.TotalActualCost > 50000).sort((a,b) => b.TotalActualCost - a.TotalActualCost);
+        largeProc.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.PurchaseDate}</td>
+                <td>${row.InvoiceNumber}</td>
+                <td>${row.ItemDescription}</td>
+                <td class="align-right">${row.TotalActualCost.toLocaleString()} NOK</td>
+            `;
+            procBody.appendChild(tr);
+        });
+
+        // RAID Table
+        const raidBody = document.querySelector('#raid-table tbody');
+        APP_DATA.db.raid.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.RAID_ID}</td>
+                <td>${row.Category}</td>
+                <td>${row.Description}</td>
+                <td>${row.Impact}</td>
+                <td>${row.Probability}</td>
+                <td>${row.Owner}</td>
+                <td>${row.Status}</td>
+            `;
+            raidBody.appendChild(tr);
+        });
+
+        // CFO Chart Initialization
+        const ctx = document.getElementById('cfoChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Labor (71.8%)', 'Materials (28.2%)'],
+                datasets: [{
+                    data: [1326810, 522000],
+                    backgroundColor: ['#2c3e50', '#95a5a6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 11, family: 'Inter' },
+                            boxWidth: 12
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // 4. Stakeholders View Dynamic Loader
+        function loadStakeholder(persona) {
+            const brief = document.getElementById('stakeholder-brief-card');
+            const metrics = document.getElementById('stakeholder-metrics-row');
+            const details = document.getElementById('stakeholder-details-section');
+            
+            if(persona === 'steering') {
+                brief.innerHTML = `<h3>👑 Executive Steering Committee & Board Brief</h3><p>Focuses on high-level financial risk, capital exposure, projected margin at completion, and macro cost drivers.</p>`;
+                metrics.innerHTML = `
+                    <div class="kpi-card"><span class="label">Baseline Budget (BAC)</span><span class="value">1,500,000 NOK</span></div>
+                    <div class="kpi-card"><span class="label">Projected Total Cost (EAC)</span><span class="value">1,859,559 NOK</span></div>
+                    <div class="kpi-card"><span class="label">Projected Overrun (VAC)</span><span class="value text-danger">-359,559 NOK</span><span class="delta negative">-24.0% Overrun</span></div>
+                    <div class="kpi-card"><span class="label">Portfolio Risk Exposure</span><span class="value text-danger">HIGH</span><span class="delta negative">3 Active RAID Risks</span></div>
+                `;
+                details.innerHTML = `
+                    <div class="section-card">
+                        <h2>Financial Performance Summary</h2>
+                        <ul style="padding-left: 20px; line-height: 1.8; font-size: 13px;">
+                            <li><strong>Project Cost Variance</strong>: Net loss variance of <strong>-356,310 NOK</strong> across the 1.5M NOK baseline budget.</li>
+                            <li><strong>Cost Performance Index (CPI)</strong>: Currently at <strong>0.81</strong>, indicating that for every 1.00 NOK spent, the project generates only 0.81 NOK of value.</li>
+                            <li><strong>Capital Allocation Breakdown</strong>: Labor: 1,326,810 NOK (71.8%) | Materials: 522,000 NOK (28.2%)</li>
+                            <li><strong>Mitigation Action</strong>: Freeze all unapproved variation requests.</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (persona === 'pm') {
+                brief.innerHTML = `<h3>🎯 Project Manager Operational Brief</h3><p>Focuses on Earned Value status, critical path progress, resource allocation, and active RAID log items.</p>`;
+                metrics.innerHTML = `
+                    <div class="kpi-card"><span class="label">Overall Progress</span><span class="value">99.5%</span></div>
+                    <div class="kpi-card"><span class="label">Earned Value (EV)</span><span class="value">1,492,500 NOK</span></div>
+                    <div class="kpi-card"><span class="label">Schedule Variance</span><span class="value text-success">ON SCHEDULE</span></div>
+                    <div class="kpi-card"><span class="label">WBS Status</span><span class="value">1 On Track / 3 Over Budget</span></div>
+                `;
+                details.innerHTML = `
+                    <div class="section-card">
+                        <h2>Critical Path & WBS Performance</h2>
+                        <table class="tufte-table">
+                            <thead>
+                                <tr><th>WBS</th><th>Element</th><th class="align-right">BAC</th><th class="align-right">AC</th><th class="align-right">EV</th><th class="align-right">CPI</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1.0</td><td>PM & Engineering</td><td class="align-right">300,000 NOK</td><td class="align-right">419,230 NOK</td><td class="align-right">292,500 NOK</td><td class="align-right text-danger">0.70</td></tr>
+                                <tr><td>2.0</td><td>Hull Fabrication</td><td class="align-right">600,000 NOK</td><td class="align-right">620,450 NOK</td><td class="align-right">600,000 NOK</td><td class="align-right text-success">0.97</td></tr>
+                                <tr><td>3.0</td><td>Outfitting & Integration</td><td class="align-right">400,000 NOK</td><td class="align-right">540,445 NOK</td><td class="align-right">400,000 NOK</td><td class="align-right text-danger">0.74</td></tr>
+                                <tr><td>4.0</td><td>Sea Trials</td><td class="align-right">200,000 NOK</td><td class="align-right">268,685 NOK</td><td class="align-right">200,000 NOK</td><td class="align-right text-danger">0.74</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (persona === 'eng') {
+                brief.innerHTML = `<h3>📐 Engineering Lead Technical Report</h3><p>Focuses on WBS 1.0 (Project Management & Engineering), engineering hours burn rate, and drawing releases.</p>`;
+                metrics.innerHTML = `
+                    <div class="kpi-card"><span class="label">WBS 1.0 Budget (BAC)</span><span class="value">300,000 NOK</span></div>
+                    <div class="kpi-card"><span class="label">Actual Engineering Cost</span><span class="value">419,230 NOK</span></div>
+                    <div class="kpi-card"><span class="label">Design Progress</span><span class="value">97.5%</span></div>
+                `;
+                details.innerHTML = `
+                    <div class="section-card">
+                        <h2>Engineering Hours Burn Rate</h2>
+                        <table class="tufte-table">
+                            <thead>
+                                <tr><th>Resource</th><th>Role</th><th class="align-right">Hours Logged</th><th class="align-right">Total Cost</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Erik Johansen</td><td>Senior Design Engineer</td><td class="align-right">312.0 hrs</td><td class="align-right">296,400 NOK</td></tr>
+                                <tr><td>Frank Ellingsen</td><td>Project Controller</td><td class="align-right">86.0 hrs</td><td class="align-right">73,100 NOK</td></tr>
+                                <tr><td>Morten Hansen</td><td>Project Manager</td><td class="align-right">49.7 hrs</td><td class="align-right">49,700 NOK</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (persona === 'yard') {
+                brief.innerHTML = `<h3>🏗️ Yard & Production Manager Shop-Floor Report</h3><p>Focuses on WBS 2.0 (Hull Assembly) & WBS 3.0 (Outfitting), welder/electrician labor hours, and overtime compliance.</p>`;
+                metrics.innerHTML = `
+                    <div class="kpi-card"><span class="label">Hull Fabrication Progress</span><span class="value">100.0%</span></div>
+                    <div class="kpi-card"><span class="label">Outfitting Progress</span><span class="value">100.0%</span></div>
+                    <div class="kpi-card"><span class="label">Overtime Incidents (>45h)</span><span class="value text-danger">${APP_DATA.db.overtime.length}</span></div>
+                `;
+                details.innerHTML = `
+                    <div class="section-card">
+                        <h2>Shop-Floor Overtime Alerts</h2>
+                        <table class="tufte-table">
+                            <thead>
+                                <tr><th>Work Week</th><th>Resource</th><th>Role</th><th class="align-right">Logged Hours</th></tr>
+                            </thead>
+                            <tbody>
+                                ${APP_DATA.db.overtime.map(row => `<tr><td>${row.WorkWeek}</td><td>${row.ResourceName}</td><td>${row.Role}</td><td class="align-right">${row.TotalHours.toFixed(1)} hrs</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (persona === 'proc') {
+                brief.innerHTML = `<h3>📦 Procurement & Supply Chain Report</h3><p>Focuses on material purchases, supplier lead times, committed costs, and invoice audits.</p>`;
+                metrics.innerHTML = `
+                    <div class="kpi-card"><span class="label">Total Material Spend</span><span class="value">522,000 NOK</span></div>
+                    <div class="kpi-card"><span class="label">Major Purchases (>50k NOK)</span><span class="value">${largeProc.length}</span></div>
+                `;
+                details.innerHTML = `
+                    <div class="section-card">
+                        <h2>Material Purchases Breakdown</h2>
+                        <table class="tufte-table">
+                            <thead>
+                                <tr><th>Purchase Date</th><th>Invoice #</th><th>Item Description</th><th class="align-right">Cost</th></tr>
+                            </thead>
+                            <tbody>
+                                ${APP_DATA.db.materials.map(row => `<tr><td>${row.PurchaseDate}</td><td>${row.InvoiceNumber}</td><td>${row.ItemDescription}</td><td class="align-right">${row.TotalActualCost.toLocaleString()} NOK</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (persona === 'quality') {
+                brief.innerHTML = `<h3>🛡️ Quality & Class Inspector Brief</h3><p>Focuses on inspection pass rates, non-conformities (NCRs), milestone completion, and Sea Trials readiness.</p>`;
+                metrics.innerHTML = `
+                    <div class="kpi-card"><span class="label">Sea Trials Progress</span><span class="value">100.0%</span></div>
+                    <div class="kpi-card"><span class="label">Class Inspection Pass Rate</span><span class="value">100.0%</span></div>
+                    <div class="kpi-card"><span class="label">Open NCRs</span><span class="value">0 Critical</span></div>
+                `;
+                details.innerHTML = `
+                    <div class="section-card">
+                        <h2>DNV Milestone Verification</h2>
+                        <ul style="padding-left: 20px; line-height: 2; font-size: 13px;">
+                            <li><strong>WBS 2.0 Hull Structural Certification</strong>: Fully passed non-destructive testing (NDT) on composite carbon welds.</li>
+                            <li><strong>WBS 3.0 Systems Outfitting</strong>: Electrical and inboard engine installation passed maritime safety compliance audits.</li>
+                            <li><strong>WBS 4.0 Sea Trials & Handover</strong>: Sea trials completed under supervision; final certificate ready for sign-off.</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+        
+        loadStakeholder('steering');
+
+        // 5. Individual Skill Inspector Loader
+        function loadFocusedSkill(skillName) {
+            switchView('skills', null, true);
+            
+            // Mark corresponding sidebar select
+            focusSkillSelect.value = skillName;
+            
+            const rawContent = APP_DATA.skills[skillName] || 'Skill not found.';
+            const container = document.getElementById('skill-content-area');
+            
+            // Simple markdown parser for headers, lists, code
+            let html = rawContent
+                .replace(/^---[\s\S]*?---/g, '') // strip frontmatter
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^\* (.*$)/gim, '<li>$1</li>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+                
+            // Group adjacent <li> items in <ul>
+            html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
+            
+            container.innerHTML = html;
+        }
+
+        // 6. Live Crew Execution Simulator
+        function runSimulatedAudits() {
+            const term = document.getElementById('terminal-screen');
+            term.innerHTML = '';
+            
+            const lines = [
+                "[SYSTEM] Initializing Agent Control Crew...",
+                "[CONTROLLER AGENT] Connecting to DuckDB database: c:\\Users\\frank\\Desktop\\Project Mng\\Data\\DuckDB\\project_controlling.db",
+                "[CONTROLLER AGENT] Calculating EVM metrics for PRJ-001 (Composite Vessel)...",
+                "[CONTROLLER AGENT] WARNING: Project CPI is 0.81 (Threshold: 0.95). Cost overrun detected.",
+                "[CONTROLLER AGENT] WBS 1.0 (PM & Engineering) CPI is 0.70 (BAC: 300,000 | AC: 419,230)",
+                "[CONTROLLER AGENT] WBS 3.0 (Outfitting & Integration) CPI is 0.74 (BAC: 400,000 | AC: 540,445)",
+                "[CONTROLLER AGENT] WBS 4.0 (Sea Trials) CPI is 0.74 (BAC: 200,000 | AC: 268,685)",
+                "[CFO AGENT] Auditing labor and material cost allocations...",
+                "[CFO AGENT] Total Project Cost: 1,848,810 NOK.",
+                "[CFO AGENT] Labor: 1,326,810 NOK (71.8%) | Materials: 522,000 NOK (28.2%)",
+                "[CONTRACT AGENT] Querying SQLite project_controlling.db for RAID Log issues...",
+                "[CONTRACT AGENT] Active Risks found: 3 active, 1 closed. RiskIDs: R-001, I-001, D-001",
+                "[PRODUCTION AGENT] Auditing timesheets and shipyard logs for overtime exceptions...",
+                "[PRODUCTION AGENT] ALERT: Astrid Nilsen (Structural Welder) exceeded 45 hrs/week in weeks 2026-06, 2026-07, 2026-08.",
+                "[SYSTEM] Audit complete. Generated 4 variance reports and 1 compliance memo."
+            ];
+            
+            let delay = 0;
+            lines.forEach((line, idx) => {
+                setTimeout(() => {
+                    const l = document.createElement('div');
+                    l.className = 'terminal-line';
+                    if(line.includes('WARNING') || line.includes('ALERT')) {
+                        l.style.color = '#f87171';
+                    } else if(line.includes('SYSTEM')) {
+                        l.style.color = '#34d399';
+                    }
+                    l.textContent = line;
+                    term.appendChild(l);
+                    term.scrollTop = term.scrollHeight;
+                }, delay);
+                delay += 800;
+            });
+        }
+    </script>
+</body>
+</html>
