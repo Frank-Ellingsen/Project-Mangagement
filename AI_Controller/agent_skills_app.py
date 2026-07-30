@@ -479,6 +479,49 @@ if view_mode == "Agent Control Tower":
         
         st.table(wbs_display[['WBS_Code', 'ElementName', 'BAC (NOK)', 'AC (NOK)', 'EV (NOK)', 'EAC Typical (NOK)', 'CPI', 'Progress %', 'Status']])
         
+        st.subheader("🌲 Interactive WBS Hierarchy Explorer")
+        st.caption("Click WBS nodes to expand task details, baseline schedules, labor roles, and committed costs.")
+        
+        with st.expander("WBS 1.0 - Project Management & Engineering (🟢 Active)"):
+            st.markdown("""
+            * **Task Breakdown**:
+              * **1.1 Project Controlling & PM**: Planned: 150h | Actual: 180h. Cost: 120,000 NOK.
+              * **1.2 Structural Design & Drafting**: Planned: 200h | Actual: 210.8h. Cost: 210,000 NOK.
+              * **1.3 Systems Integration Planning**: Planned: 50h | Actual: 50h. Cost: 89,230 NOK.
+            * **Performance Metrics**: BAC: 300,000 NOK | AC: 419,230 NOK | CPI: 0.72 (🔴 Cost Overrun).
+            * **Leading Resource Role**: Senior Design Engineer, Financial Controller.
+            """)
+            
+        with st.expander("WBS 2.0 - Hull Fabrication & Assembly (🟢 Active)"):
+            st.markdown("""
+            * **Task Breakdown**:
+              * **2.1 Jig Setup & Alignment**: Planned: 300h | Actual: 290h. Cost: 150,000 NOK.
+              * **2.2 Carbon Fiber Infusion**: Planned: 600h | Actual: 150.5h. Cost: 300,000 NOK.
+              * **2.3 Demolding & Inspection**: Planned: 300h | Actual: 73h. Cost: 170,450 NOK.
+            * **Performance Metrics**: BAC: 600,000 NOK | AC: 620,450 NOK | CPI: 0.97 (🟢 On Track).
+            * **Leading Resource Role**: Composites Lead Technician, Structural Welder.
+            """)
+            
+        with st.expander("WBS 3.0 - Outfitting & Integration (🟢 Active)"):
+            st.markdown("""
+            * **Task Breakdown**:
+              * **3.1 Propulsion Engine Rigging**: Planned: 300h | Actual: 210.5h. Cost: 180,000 NOK.
+              * **3.2 Piping & Valve Manifolds**: Planned: 300h | Actual: 140.6h. Cost: 220,000 NOK.
+              * **3.3 Electrical & Automation Wiring**: Planned: 200h | Actual: 50h. Cost: 140,445 NOK.
+            * **Performance Metrics**: BAC: 400,000 NOK | AC: 540,445 NOK | CPI: 0.74 (🔴 Cost Overrun).
+            * **Leading Resource Role**: Marine Outfitting Supervisor, Marine Electrician.
+            """)
+            
+        with st.expander("WBS 4.0 - Sea Trials & Handover (🟢 Active)"):
+            st.markdown("""
+            * **Task Breakdown**:
+              * **4.1 Pier-Side Machinery Checkout**: Planned: 100h | Actual: 90.5h. Cost: 80,000 NOK.
+              * **4.2 Sea Endurance Trials**: Planned: 150h | Actual: 160h. Cost: 120,000 NOK.
+              * **4.3 Survey Certification (DNV)**: Planned: 50h | Actual: 30h. Cost: 68,685 NOK.
+            * **Performance Metrics**: BAC: 200,000 NOK | AC: 268,685 NOK | CPI: 0.74 (🔴 Cost Overrun).
+            * **Leading Resource Role**: Sea Trials Captain, DNV Class Surveyor.
+            """)
+
         st.subheader("🧮 Dynamic EAC & VAC Forecast Simulator")
         col_sim1, col_sim2 = st.columns([2, 3])
         with col_sim1:
