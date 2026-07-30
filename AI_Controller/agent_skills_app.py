@@ -371,7 +371,7 @@ if view_mode == "Agent Control Tower":
     with col3:
         st.metric("Earned Value (EV)", f"{ev:,.0f} NOK")
     with col4:
-        st.metric("Project CPI", f"{cpi:.2f}", delta=f"{'ON TRACK' if cpi >= 0.95 else 'COST OVERRUN'}", delta_color="normal" if cpi >= 0.95 else "inverse")
+        st.metric("Project CPI", f"{cpi:.2f}", delta=f"{'🟢 GREEN' if cpi >= 0.98 else '🟡 AMBER' if cpi >= 0.90 else '🔴 RED'}", delta_color="normal" if cpi >= 0.98 else "off" if cpi >= 0.90 else "inverse")
     with col5:
         st.metric("Physical Progress", f"{progress:.1f}%")
         
@@ -406,7 +406,7 @@ if view_mode == "Agent Control Tower":
     with tab1:
         st.subheader("WBS Element Performance Matrix")
         wbs_display = wbs_df.copy()
-        wbs_display['Status'] = wbs_display['CPI'].apply(lambda x: "⚠️ OVER BUDGET" if x < 0.95 else "✅ ON TRACK")
+        wbs_display['Status'] = wbs_display['CPI'].apply(lambda x: "🟢 Green" if x >= 0.98 else "🟡 Amber" if x >= 0.90 else "🔴 Red")
         wbs_display['BAC (NOK)'] = wbs_display['BAC'].apply(lambda x: f"{x:,.2f}")
         wbs_display['AC (NOK)'] = wbs_display['AC'].apply(lambda x: f"{x:,.2f}")
         wbs_display['EV (NOK)'] = wbs_display['EV'].apply(lambda x: f"{x:,.2f}")
@@ -551,10 +551,17 @@ elif view_mode == "👥 Stakeholder Reports":
         with pm_col3:
             st.metric("Schedule Variance", "ON SCHEDULE", delta="Sea trials complete", delta_color="normal")
         with pm_col4:
-            st.metric("WBS Status", "1 On Track / 3 Over Budget")
+            st.metric("WBS Status", "1 Green / 3 Red")
             
         st.subheader("Critical Path & WBS Performance")
-        st.table(wbs_df[['WBS_Code', 'ElementName', 'BAC', 'AC', 'EV', 'CPI', 'PercentComplete']])
+        wbs_pm = wbs_df.copy()
+        wbs_pm['RAG Status'] = wbs_pm['CPI'].apply(lambda x: "🟢 Green" if x >= 0.98 else "🟡 Amber" if x >= 0.90 else "🔴 Red")
+        wbs_pm['BAC'] = wbs_pm['BAC'].apply(lambda x: f"{x:,.0f}")
+        wbs_pm['AC'] = wbs_pm['AC'].apply(lambda x: f"{x:,.0f}")
+        wbs_pm['EV'] = wbs_pm['EV'].apply(lambda x: f"{x:,.0f}")
+        wbs_pm['CPI'] = wbs_pm['CPI'].apply(lambda x: f"{x:.2f}")
+        wbs_pm['PercentComplete'] = wbs_pm['PercentComplete'].apply(lambda x: f"{x*100:.1f}%")
+        st.table(wbs_pm[['WBS_Code', 'ElementName', 'BAC', 'AC', 'EV', 'CPI', 'PercentComplete', 'RAG Status']])
         
         st.subheader("Active Risks & Dependencies")
         if raid_df is not None:

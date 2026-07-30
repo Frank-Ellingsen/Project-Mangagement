@@ -396,6 +396,11 @@
             font-weight: 600;
         }
 
+        .text-warning {
+            color: var(--color-amber);
+            font-weight: 600;
+        }
+
         /* --- EXECUTION TERMINAL SIMULATOR --- */
         .terminal-box {
             background-color: #0f172a;
@@ -599,6 +604,7 @@
                             <th class="align-right">CPI</th>
                             <th class="align-right">Percent Complete</th>
                             <th class="align-right">EAC Typical (NOK)</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -4049,15 +4055,25 @@
         const wbsBody = document.querySelector('#wbs-table tbody');
         APP_DATA.db.wbs.forEach(row => {
             const tr = document.createElement('tr');
+            let ragClass = 'text-success';
+            let ragStatus = '🟢 Green';
+            if (row.CPI < 0.90) {
+                ragClass = 'text-danger';
+                ragStatus = '🔴 Red';
+            } else if (row.CPI < 0.98) {
+                ragClass = 'text-warning';
+                ragStatus = '🟡 Amber';
+            }
             tr.innerHTML = `
                 <td>${row.WBS_Code.toFixed(1)}</td>
                 <td>${row.ElementName}</td>
                 <td class="align-right">${row.BAC.toLocaleString()} NOK</td>
                 <td class="align-right">${row.AC.toLocaleString()} NOK</td>
                 <td class="align-right">${row.EV.toLocaleString()} NOK</td>
-                <td class="align-right ${row.CPI < 0.95 ? 'text-danger' : 'text-success'}">${row.CPI.toFixed(2)}</td>
+                <td class="align-right ${ragClass}">${row.CPI.toFixed(2)}</td>
                 <td class="align-right">${(row.PercentComplete * 100).toFixed(1)}%</td>
                 <td class="align-right">${row.EAC_Typical.toLocaleString(undefined, {maximumFractionDigits: 0})} NOK</td>
+                <td class="${ragClass}">${ragStatus}</td>
             `;
             wbsBody.appendChild(tr);
         });
