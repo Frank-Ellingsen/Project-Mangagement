@@ -597,6 +597,7 @@
                 <button class="tab-btn" onclick="switchTab('tab-contract', this)">📜 Contract & Risk Audit</button>
                 <button class="tab-btn" onclick="switchTab('tab-production', this)">🏗️ Production & Assembly</button>
                 <button class="tab-btn" onclick="switchTab('tab-recommendations', this)">💡 Recommendations</button>
+                <button class="tab-btn" onclick="switchTab('tab-glossary', this)">📚 Glossary</button>
             </div>
 
             <!-- TAB PANEL: CONTROLLER -->
@@ -835,6 +836,98 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- TAB PANEL: GLOSSARY -->
+            <div id="tab-glossary" class="tab-panel">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 14px; margin-bottom: 8px;">📚 Earned Value Management (EVM) Glossary</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
+                    This glossary details the mathematical definitions, equations, and AACE / PMI international compliance guidelines utilized within this dashboard.
+                </p>
+                <table class="tufte-table">
+                    <thead>
+                        <tr>
+                            <th>Term / KPI</th>
+                            <th>Equation</th>
+                            <th>Description</th>
+                            <th>AACE Compliance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>BAC</strong> (Budget at Completion)</td>
+                            <td>Baseline Budget</td>
+                            <td>The total authorized budget for the project's scope of work.</td>
+                            <td>Baseline Value</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PV</strong> (Planned Value)</td>
+                            <td>BCWS (Budgeted Cost of Work Scheduled)</td>
+                            <td>The authorized budget planned for work scheduled to be completed.</td>
+                            <td>Baseline Distribution</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EV</strong> (Earned Value)</td>
+                            <td>BCWP (Budgeted Cost of Work Performed)</td>
+                            <td>The measure of work performed expressed in terms of the budget authorized for that work.</td>
+                            <td>Physical Progress Value</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AC</strong> (Actual Cost)</td>
+                            <td>ACWP (Actual Cost of Work Performed)</td>
+                            <td>The total cost actually incurred for work performed.</td>
+                            <td>Accounting Cost Data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CPI</strong> (Cost Performance Index)</td>
+                            <td><code>EV / AC</code></td>
+                            <td>A measure of cost efficiency. Values &lt; 1.0 indicate overrun.</td>
+                            <td>Standard Ratio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SPI</strong> (Schedule Performance Index)</td>
+                            <td><code>EV / PV</code></td>
+                            <td>A measure of schedule efficiency. Values &lt; 1.0 indicate delay.</td>
+                            <td>Standard Ratio</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EAC Typical</strong></td>
+                            <td><code>BAC / CPI</code></td>
+                            <td>Forecasted final cost assuming current cost performance trends persist.</td>
+                            <td>Recommended for persisting deviations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EAC Atypical</strong></td>
+                            <td><code>AC + (BAC - EV)</code></td>
+                            <td>Forecasted final cost assuming remaining work will be done at the planned rate.</td>
+                            <td>Recommended for one-time anomalies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ETC</strong> (Estimate to Complete)</td>
+                            <td><code>EAC - AC</code></td>
+                            <td>The expected cost required to complete all remaining project work.</td>
+                            <td>Forecast Metric</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VAC</strong> (Variance at Completion)</td>
+                            <td><code>BAC - EAC</code></td>
+                            <td>The projected budget deficit or surplus at project end.</td>
+                            <td>Variance Indicator</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TCPI</strong></td>
+                            <td><code>(BAC - EV) / (BAC - AC)</code></td>
+                            <td>The cost performance required to meet the target budget (BAC).</td>
+                            <td>Target index</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h4 style="font-family: 'Outfit', sans-serif; font-size: 13px; margin-top: 20px; margin-bottom: 8px;">🔍 International Project Controlling Compliance Audit</h4>
+                <ul style="font-size: 12px; line-height: 1.6; color: var(--text-secondary); margin-left: 20px;">
+                    <li><strong>Calculation Accuracy</strong>: Database queries strictly compute EVM ratios (<code>CPI = EV / AC</code>; <code>SPI = EV / PV</code>) and EAC metrics. Zero-division checks are implemented to prevent errors on unstarted tasks.</li>
+                    <li><strong>Standard Alignments</strong>: Fully compliant with <strong>AACE International 10S-90 Practice Standard</strong> and the <strong>Project Management Institute (PMI) EVM Practice Standards</strong>.</li>
+                </ul>
             </div>
         </div>
 

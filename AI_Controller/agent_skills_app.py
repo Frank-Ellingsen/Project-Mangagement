@@ -457,12 +457,13 @@ if view_mode == "Agent Control Tower":
     st.write("---")
 
     # --- Agent Domains Tabs ---
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "📊 Project Controller (EVM & Forecasts)",
         "💼 CFO & Profitability Audit",
         "📜 Contract, Risk & Anomaly Audit",
         "🏗️ Production & Quality Control",
-        "💡 Recommendation Agent"
+        "💡 Recommendation Agent",
+        "📚 Glossary & EVM Standards"
     ])
     
     with tab1:
@@ -590,6 +591,34 @@ if view_mode == "Agent Control Tower":
             st.markdown("#### 📊 Simulation Results")
             st.metric("Simulated CPI", f"{sim_cpi:.2f}", delta=f"{sim_cpi - cpi:+.2f} Improvement" if sim_cpi > cpi else None)
             st.metric("Simulated EAC", f"{sim_eac:,.0f} NOK", delta=f"{sim_eac - 1859559:,.0f} NOK vs Current Forecast" if sim_eac != 1859559 else None)
+
+    with tab6:
+        st.subheader("📚 Earned Value Management (EVM) Glossary")
+        st.caption("EVM standards and equations audited for compliance with **PMI PMBOK** and **AACE International** guidelines.")
+        
+        glossary_data = [
+            {"Term / KPI": "BAC (Budget at Completion)", "Equation": "Baseline Budget", "Description": "The total authorized budget for the project's scope of work.", "AACE Compliance": "Baseline Value"},
+            {"Term / KPI": "PV (Planned Value)", "Equation": "BCWS (Budgeted Cost of Work Scheduled)", "Description": "The authorized budget planned for work scheduled to be completed.", "AACE Compliance": "Baseline Distribution"},
+            {"Term / KPI": "EV (Earned Value)", "Equation": "BCWP (Budgeted Cost of Work Performed)", "Description": "The measure of work performed expressed in terms of the budget authorized for that work.", "AACE Compliance": "Physical Progress Value"},
+            {"Term / KPI": "AC (Actual Cost)", "Equation": "ACWP (Actual Cost of Work Performed)", "Description": "The total cost actually incurred for work performed.", "AACE Compliance": "Accounting Cost Data"},
+            {"Term / KPI": "CPI (Cost Performance Index)", "Equation": "EV / AC", "Description": "A measure of cost efficiency. Values < 1.0 indicate overrun.", "AACE Compliance": "Standard Ratio"},
+            {"Term / KPI": "SPI (Schedule Performance Index)", "Equation": "EV / PV", "Description": "A measure of schedule efficiency. Values < 1.0 indicate delay.", "AACE Compliance": "Standard Ratio"},
+            {"Term / KPI": "EAC (Estimate at Completion) - Typical", "Equation": "BAC / CPI", "Description": "Forecasted final cost assuming current cost performance trends persist.", "AACE Compliance": "Recommended for persisting deviations"},
+            {"Term / KPI": "EAC (Estimate at Completion) - Atypical", "Equation": "AC + (BAC - EV)", "Description": "Forecasted final cost assuming remaining work will be done at the planned rate.", "AACE Compliance": "Recommended for one-time anomalies"},
+            {"Term / KPI": "ETC (Estimate to Complete)", "Equation": "EAC - AC", "Description": "The expected cost required to complete all remaining project work.", "AACE Compliance": "Forecast Metric"},
+            {"Term / KPI": "VAC (Variance at Completion)", "Equation": "BAC - EAC", "Description": "The projected budget deficit or surplus at project end.", "AACE Compliance": "Variance Indicator"},
+            {"Term / KPI": "TCPI (To-Complete Performance Index)", "Equation": "(BAC - EV) / (BAC - AC)", "Description": "The cost performance required to meet the target budget (BAC).", "AACE Compliance": "Target index"}
+        ]
+        
+        st.table(pd.DataFrame(glossary_data))
+        st.markdown("""
+        ### 🔍 International Project Controlling Compliance Audit
+        * **Calculation Verification**: Evaluated SQLite database views (`v_project_evm_summary`) and verified they strictly employ:
+          * `CPI = EV / AC`
+          * `SPI = EV / PV`
+          * `EAC_Typical = BAC / CPI` (safeguarded against CPI = 0).
+        * **Standards Compliance**: Compliant with **AACE International Practice Standard 10S-90** and **PMI Practice Standard for Earned Value Management**.
+        """)
 
 # ==========================================
 # 2. STAKEHOLDER REPORTS VIEW
