@@ -387,6 +387,7 @@ if view_mode == "Agent Control Tower":
             ["PRJ-001 (Composite Vessel)", "PRJ-002 (Patrol Vessel)", "Multi-Project Portfolio View"]
         )
         st.caption("🔍 **Tufte Rule Check:** Vertical gridlines removed for maximum data-ink ratio. Progress percentages displayed directly on bars.")
+        st.markdown("<div style='font-size:12px; margin-top:8px;'><span style='color:#2c3e50; font-size:14px;'>■</span> <strong>On Track</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#e74c3c; font-size:14px;'>■</span> <strong>Cost Overrun</strong></div>", unsafe_allow_html=True)
         
     with gantt_col1:
         fig_gantt = render_tufte_gantt_chart(project_select)
