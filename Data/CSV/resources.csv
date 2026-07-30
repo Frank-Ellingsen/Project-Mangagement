@@ -1,0 +1,6 @@
+ResourceID,ResourceName,Role,HourlyRate
+RES-001,Frank Ellingsen,Project Controller,850.0
+RES-002,Morten Hansen,Project Manager,1000.0
+RES-003,Erik Johansen,Senior Design Engineer,950.0
+RES-004,Astrid Nilsen,Structural Welder,700.0
+RES-005,Lars Olsen,Marine Electrician,750.0

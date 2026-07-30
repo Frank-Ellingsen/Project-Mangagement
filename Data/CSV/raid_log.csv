@@ -1,0 +1,5 @@
+RiskID,Type,Description,Impact,Probability,MitigationStrategy,Owner,Status
+R-001,Risk,Delay in composite carbon sheet deliveries from overseas supplier,High,Medium,Pre-order early or source alternative local supplier,Morten Hansen,Active
+A-001,Assumption,Subcontractor electrician rates remain fixed under contract,Medium,Low,Keep signed SLA agreements as references,Frank Ellingsen,Closed
+I-001,Issue,Astrid Nilsen welder overtime limit breached due to recovery fabrication schedule,Medium,High,Allocate junior welder to assist with low-priority tasks,Morten Hansen,Active
+D-001,Dependency,Sea trials (WBS 4.0) depend on DNV safety and compliance certification approval,High,High,Submit compliance paperwork 2 weeks in advance of handover date,Frank Ellingsen,Active

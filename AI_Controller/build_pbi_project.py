@@ -1,0 +1,303 @@
+import os
+import json
+
+# Define paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PBI_DIR = os.path.join(BASE_DIR, "Data", "PowerBI_Project")
+SEM_MODEL_DIR = os.path.join(PBI_DIR, "Vessel_Performance.SemanticModel")
+REPORT_DIR = os.path.join(PBI_DIR, "Vessel_Performance.Report")
+CSV_PATH_REL = "../../CSV" # Relative path from semantic model folder to CSV files
+
+# Ensure directories exist
+for folder in [PBI_DIR, SEM_MODEL_DIR, REPORT_DIR]:
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+def build_project_files():
+    print("Generating Power BI Project (.pbip) configuration files...")
+    
+    # 1. Main .pbip file
+    pbip_content = {
+        "version": "1.0",
+        "settings": {
+            "reportRegistry": {
+                "Vessel_Performance.Report": {
+                    "reportId": "00000000-0000-0000-0000-000000000000"
+                }
+            }
+        }
+    }
+    with open(os.path.join(PBI_DIR, "Vessel_Performance.pbip"), "w", encoding="utf-8") as f:
+        json.dump(pbip_content, f, indent=2)
+        
+    # 2. Semantic Model definition
+    pbidataset_content = {
+        "version": "1.0",
+        "dataset": {
+            "path": "."
+        }
+    }
+    with open(os.path.join(SEM_MODEL_DIR, "definition.pbidataset"), "w", encoding="utf-8") as f:
+        json.dump(pbidataset_content, f, indent=2)
+
+    # 3. Report target definition
+    pbitarget_content = {
+        "version": "1.0",
+        "report": {
+            "path": "."
+        }
+    }
+    with open(os.path.join(REPORT_DIR, "definition.pbitarget"), "w", encoding="utf-8") as f:
+        json.dump(pbitarget_content, f, indent=2)
+
+    # 4. Empty report layout metadata
+    report_json_content = {
+        "config": "{}",
+        "layout": "{}",
+        "publicAccessType": "None"
+    }
+    with open(os.path.join(REPORT_DIR, "report.json"), "w", encoding="utf-8") as f:
+        json.dump(report_json_content, f, indent=2)
+
+    # 5. Semantic Model schema definition (model.bim)
+    # Includes all tables, relationships, formatting, and DAX measures
+    model_bim = {
+        "name": "Vessel_Performance",
+        "compatibilityLevel": 1570,
+        "model": {
+            "culture": "en-US",
+            "dataAccessOptions": {
+                "legacyRedirects": True,
+                "returnErrorValuesAsNull": True
+            },
+            "defaultPowerBIDataSourceVersion": "PowerBI_V3",
+            "sourceQueryCulture": "en-US",
+            "tables": [
+                {
+                    "name": "_Measures",
+                    "columns": [
+                        {
+                            "name": "MeasurePlaceholder",
+                            "dataType": "int64",
+                            "isHidden": True,
+                            "sourceColumn": "MeasurePlaceholder"
+                        }
+                    ],
+                    "partitions": [
+                        {
+                            "name": "MeasuresPartition",
+                            "source": {
+                                "type": "m",
+                                "expression": "let\n    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText(\"i44FAA==\", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [MeasurePlaceholder = _t]),\n    Type = Table.TransformColumnTypes(Source,{{\"MeasurePlaceholder\", Int64.Type}})\nin\n    Type"
+                            }
+                        }
+                    ],
+                    "measures": [
+                        {
+                            "name": "BAC",
+                            "expression": "SUM('wbs_elements'[PlannedCost])",
+                            "formatString": "$#,##0.00"
+                        },
+                        {
+                            "name": "AC",
+                            "expression": "SUM('timesheets'[LaborCost]) + SUM('material_costs'[TotalActualCost])",
+                            "formatString": "$#,##0.00"
+                        },
+                        {
+                            "name": "Latest Percent Complete",
+                            "expression": "VAR SelectedDate = MAX('physical_progress'[RecordDate])\nRETURN\nSUMX(\n    VALUES('wbs_elements'[WBS_ID]),\n    VAR LatestWBSProgressDate =\n        CALCULATE(\n            MAX('physical_progress'[RecordDate]),\n            'physical_progress'[RecordDate] <= SelectedDate\n        )\n    RETURN\n    CALCULATE(\n        MAX('physical_progress'[PercentComplete]),\n        'physical_progress'[RecordDate] = LatestWBSProgressDate\n    )\n)"
+                        },
+                        {
+                            "name": "EV",
+                            "expression": "SUMX(\n    VALUES('wbs_elements'[WBS_ID]),\n    [BAC] * [Latest Percent Complete]\n)",
+                            "formatString": "$#,##0.00"
+                        },
+                        {
+                            "name": "CV",
+                            "expression": "[EV] - [AC]",
+                            "formatString": "$#,##0.00"
+                        },
+                        {
+                            "name": "CPI",
+                            "expression": "DIVIDE([EV], [AC], 1.0)",
+                            "formatString": "0.00"
+                        },
+                        {
+                            "name": "EAC (Typical)",
+                            "expression": "DIVIDE([BAC], [CPI], [BAC])",
+                            "formatString": "$#,##0.00"
+                        },
+                        {
+                            "name": "VAC",
+                            "expression": "[BAC] - [EAC (Typical)]",
+                            "formatString": "$#,##0.00"
+                        }
+                    ]
+                },
+                {
+                    "name": "projects",
+                    "columns": [
+                        {"name": "ProjectID", "dataType": "string", "sourceColumn": "ProjectID"},
+                        {"name": "ProjectName", "dataType": "string", "sourceColumn": "ProjectName"},
+                        {"name": "ProjectManager", "dataType": "string", "sourceColumn": "ProjectManager"},
+                        {"name": "BudgetAtCompletion_BAC", "dataType": "double", "sourceColumn": "BudgetAtCompletion_BAC", "formatString": "$#,##0.00"},
+                        {"name": "StartDate", "dataType": "dateTime", "sourceColumn": "StartDate"},
+                        {"name": "EndDate", "dataType": "dateTime", "sourceColumn": "EndDate"},
+                        {"name": "Status", "dataType": "string", "sourceColumn": "Status"}
+                    ],
+                    "partitions": [
+                        {
+                            "name": "projects-Partition",
+                            "source": {
+                                "type": "m",
+                                "expression": f'let\n    Source = Csv.Document(File.Contents("{os.path.join(BASE_DIR, "Data", "CSV", "projects.csv").replace("\\\\", "/")}"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers'
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "wbs_elements",
+                    "columns": [
+                        {"name": "WBS_ID", "dataType": "string", "sourceColumn": "WBS_ID"},
+                        {"name": "ProjectID", "dataType": "string", "sourceColumn": "ProjectID"},
+                        {"name": "WBS_Code", "dataType": "string", "sourceColumn": "WBS_Code"},
+                        {"name": "ElementName", "dataType": "string", "sourceColumn": "ElementName"},
+                        {"name": "PlannedCost", "dataType": "double", "sourceColumn": "PlannedCost", "formatString": "$#,##0.00"},
+                        {"name": "PlannedHours", "dataType": "double", "sourceColumn": "PlannedHours"}
+                    ],
+                    "partitions": [
+                        {
+                            "name": "wbs_elements-Partition",
+                            "source": {
+                                "type": "m",
+                                "expression": f'let\n    Source = Csv.Document(File.Contents("{os.path.join(BASE_DIR, "Data", "CSV", "wbs_elements.csv").replace("\\\\", "/")}"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers'
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "resources",
+                    "columns": [
+                        {"name": "ResourceID", "dataType": "string", "sourceColumn": "ResourceID"},
+                        {"name": "ResourceName", "dataType": "string", "sourceColumn": "ResourceName"},
+                        {"name": "Role", "dataType": "string", "sourceColumn": "Role"},
+                        {"name": "HourlyRate", "dataType": "double", "sourceColumn": "HourlyRate", "formatString": "$#,##0.00"}
+                    ],
+                    "partitions": [
+                        {
+                            "name": "resources-Partition",
+                            "source": {
+                                "type": "m",
+                                "expression": f'let\n    Source = Csv.Document(File.Contents("{os.path.join(BASE_DIR, "Data", "CSV", "resources.csv").replace("\\\\", "/")}"),[Delimiter=",", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers'
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "timesheets",
+                    "columns": [
+                        {"name": "TimesheetID", "dataType": "string", "sourceColumn": "TimesheetID"},
+                        {"name": "ResourceID", "dataType": "string", "sourceColumn": "ResourceID"},
+                        {"name": "WBS_ID", "dataType": "string", "sourceColumn": "WBS_ID"},
+                        {"name": "WorkDate", "dataType": "dateTime", "sourceColumn": "WorkDate"},
+                        {"name": "HoursWorked", "dataType": "double", "sourceColumn": "HoursWorked"},
+                        {"name": "ApprovalStatus", "dataType": "string", "sourceColumn": "ApprovalStatus"},
+                        {"name": "LaborCost", "dataType": "double", "sourceColumn": "LaborCost", "formatString": "$#,##0.00"}
+                    ],
+                    "partitions": [
+                        {
+                            "name": "timesheets-Partition",
+                            "source": {
+                                "type": "m",
+                                "expression": f'let\n    Source = Csv.Document(File.Contents("{os.path.join(BASE_DIR, "Data", "CSV", "timesheets.csv").replace("\\\\", "/")}"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),\n    Types = Table.TransformColumnTypes(Headers, {{"HoursWorked", type number}}),\n    MergeRes = Table.NestedJoin(Types, {{"ResourceID"}}, resources, {{"ResourceID"}}, "res", JoinKind.LeftOuter),\n    ExpandRes = Table.ExpandTableColumn(MergeRes, "res", {{"HourlyRate"}}, {{"HourlyRate"}}),\n    TypeRate = Table.TransformColumnTypes(ExpandRes, {{"HourlyRate", type number}}),\n    AddLabor = Table.AddColumn(TypeRate, "LaborCost", each [HoursWorked] * [HourlyRate], type number)\nin\n    AddLabor'
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "material_costs",
+                    "columns": [
+                        {"name": "PurchaseID", "dataType": "string", "sourceColumn": "PurchaseID"},
+                        {"name": "WBS_ID", "dataType": "string", "sourceColumn": "WBS_ID"},
+                        {"name": "PurchaseDate", "dataType": "dateTime", "sourceColumn": "PurchaseDate"},
+                        {"name": "Description", "dataType": "string", "sourceColumn": "Description"},
+                        {"name": "Quantity", "dataType": "int64", "sourceColumn": "Quantity"},
+                        {"name": "UnitPrice", "dataType": "double", "sourceColumn": "UnitPrice", "formatString": "$#,##0.00"},
+                        {"name": "TotalActualCost", "dataType": "double", "sourceColumn": "TotalActualCost", "formatString": "$#,##0.00"}
+                    ],
+                    "partitions": [
+                        {
+                            "name": "material_costs-Partition",
+                            "source": {
+                                "type": "m",
+                                "expression": f'let\n    Source = Csv.Document(File.Contents("{os.path.join(BASE_DIR, "Data", "CSV", "material_costs.csv").replace("\\\\", "/")}"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers'
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "physical_progress",
+                    "columns": [
+                        {"name": "ProgressID", "dataType": "string", "sourceColumn": "ProgressID"},
+                        {"name": "WBS_ID", "dataType": "string", "sourceColumn": "WBS_ID"},
+                        {"name": "RecordDate", "dataType": "dateTime", "sourceColumn": "RecordDate"},
+                        {"name": "PercentComplete", "dataType": "double", "sourceColumn": "PercentComplete"},
+                        {"name": "ReportedBy", "dataType": "string", "sourceColumn": "ReportedBy"}
+                    ],
+                    "partitions": [
+                        {
+                            "name": "physical_progress-Partition",
+                            "source": {
+                                "type": "m",
+                                "expression": f'let\n    Source = Csv.Document(File.Contents("{os.path.join(BASE_DIR, "Data", "CSV", "physical_progress.csv").replace("\\\\", "/")}"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers'
+                            }
+                        }
+                    ]
+                }
+            ],
+            "relationships": [
+                {
+                    "name": "rel_project_wbs",
+                    "fromTable": "wbs_elements",
+                    "fromColumn": "ProjectID",
+                    "toTable": "projects",
+                    "toColumn": "ProjectID"
+                },
+                {
+                    "name": "rel_wbs_timesheets",
+                    "fromTable": "timesheets",
+                    "fromColumn": "WBS_ID",
+                    "toTable": "wbs_elements",
+                    "toColumn": "WBS_ID"
+                },
+                {
+                    "name": "rel_resources_timesheets",
+                    "fromTable": "timesheets",
+                    "fromColumn": "ResourceID",
+                    "toTable": "resources",
+                    "toColumn": "ResourceID"
+                },
+                {
+                    "name": "rel_wbs_material_costs",
+                    "fromTable": "material_costs",
+                    "fromColumn": "WBS_ID",
+                    "toTable": "wbs_elements",
+                    "toColumn": "WBS_ID"
+                },
+                {
+                    "name": "rel_wbs_physical_progress",
+                    "fromTable": "physical_progress",
+                    "fromColumn": "WBS_ID",
+                    "toTable": "wbs_elements",
+                    "toColumn": "WBS_ID"
+                }
+            ]
+        }
+    }
+    with open(os.path.join(SEM_MODEL_DIR, "model.bim"), "w", encoding="utf-8") as f:
+        json.dump(model_bim, f, indent=2)
+        
+    print(f"Power BI Project compiled successfully at: {os.path.join(PBI_DIR, 'Vessel_Performance.pbip')}")
+
+if __name__ == "__main__":
+    build_project_files()

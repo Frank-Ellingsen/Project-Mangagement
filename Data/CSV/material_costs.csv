@@ -1,0 +1,11 @@
+PurchaseID,WBS_ID,PurchaseDate,Description,Quantity,UnitPrice,TotalActualCost
+INV-001,WBS-002,2026-02-05,Structural Composite Carbon Sheets,10,15000.0,150000.0
+INV-002,WBS-002,2026-02-12,Epoxy Resin Infusion Kit,20,2500.0,50000.0
+INV-003,WBS-002,2026-02-28,Steel Support Beam Frames,4,8000.0,32000.0
+INV-004,WBS-002,2026-03-10,Additional Epoxies (Overrun material),5,2700.0,13500.0
+INV-005,WBS-003,2026-04-05,Marine Cabin Electrical Wiring,2,12000.0,24000.0
+INV-006,WBS-003,2026-04-20,Simrad Integrated Marine Dashboard,1,45000.0,45000.0
+INV-007,WBS-003,2026-05-02,Twin Electric Inboard Engines,2,65000.0,130000.0
+INV-008,WBS-003,2026-05-18,Battery Storage Bank Lithium 10kWh,2,22000.0,44000.0
+INV-009,WBS-004,2026-06-05,DNV Safety & Compliance Certification,1,25000.0,25000.0
+INV-010,WBS-004,2026-06-15,Test Trial Bio-Fuel & Supplies,1,8500.0,8500.0

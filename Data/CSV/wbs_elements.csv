@@ -1,0 +1,5 @@
+WBS_ID,ProjectID,WBS_Code,ElementName,PlannedCost,PlannedHours
+WBS-001,PRJ-001,1.0,Project Management & Engineering,300000.0,400.0
+WBS-002,PRJ-001,2.0,Hull Fabrication & Assembly,600000.0,1200.0
+WBS-003,PRJ-001,3.0,Outfitting & Integration,400000.0,800.0
+WBS-004,PRJ-001,4.0,Sea Trials & Handover,200000.0,300.0
