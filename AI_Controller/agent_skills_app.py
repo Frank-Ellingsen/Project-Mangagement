@@ -419,19 +419,67 @@ if view_mode == "Agent Control Tower":
     st.title("⚓ Project Control Tower Dashboard")
     st.caption("Integrated Earned Value Management & Agent Intelligence System")
     
-    # --- Top KPI Row (Tufte Style) ---
+    # --- PORTFOLIO SUMMARY HEADER ---
+    st.markdown("""
+    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 16px 24px; margin-bottom: 24px;">
+        <h3 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 600;">
+            📊 Portfolio Control Tower — Project Summary
+        </h3>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #7f8c8d; font-weight: normal;">
+            Aggregate KPIs across all active projects | Last updated: 2026-06-30
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # --- PORTFOLIO KPI ROW (Tufte Style) ---
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        st.metric("Budget at Completion", f"{bac:,.0f} NOK")
+        st.metric("Total Portfolio BAC", f"{bac:,.0f} NOK", delta="Baseline budget (1 project)")
     with col2:
-        st.metric("Actual Cost (AC)", f"{ac:,.0f} NOK", delta=f"{ac - bac:,.0f} NOK over BAC", delta_color="inverse")
+        st.metric("Total Actual Cost (AC)", f"{ac:,.0f} NOK", delta=f"{ac - bac:,.0f} NOK over BAC", delta_color="inverse")
     with col3:
-        st.metric("Earned Value (EV)", f"{ev:,.0f} NOK")
+        st.metric("Total Earned Value (EV)", f"{ev:,.0f} NOK", delta=f"{progress:.1f}% work complete")
     with col4:
-        st.metric("Project CPI", f"{cpi:.2f}", delta=f"{'🟢 GREEN' if cpi >= 0.98 else '🟡 AMBER' if cpi >= 0.90 else '🔴 RED'}", delta_color="normal" if cpi >= 0.98 else "off" if cpi >= 0.90 else "inverse")
+        st.metric("Portfolio CPI", f"{cpi:.2f}", delta=f"{'🟢 GREEN' if cpi >= 0.98 else '🟡 AMBER' if cpi >= 0.90 else '🔴 RED'}", delta_color="normal" if cpi >= 0.98 else "off" if cpi >= 0.90 else "inverse")
     with col5:
-        st.metric("Physical Progress", f"{progress:.1f}%")
+        st.metric("Portfolio Progress", f"{progress:.1f}%", delta="0.5% remaining")
         
+    st.write("---")
+    
+    # --- PORTFOLIO RATIOS SUMMARY ---
+    st.subheader("📈 Portfolio Financial Ratios & Forecasts")
+    col_r1, col_r2, col_r3, col_r4, col_r5 = st.columns(5)
+    with col_r1:
+        st.metric("Cost Variance (CV)", f"{cv:,.0f} NOK", delta="EV - AC", delta_color="inverse")
+    with col_r2:
+        st.metric("EAC (Typical)", f"{summary['Total_EAC_Typical']:,.0f} NOK", delta="BAC / CPI", delta_color="inverse")
+    with col_r3:
+        eac_atypical = ac + (bac - ev)
+        st.metric("EAC (Atypical)", f"{eac_atypical:,.0f} NOK", delta="AC + (BAC - EV)", delta_color="inverse")
+    with col_r4:
+        st.metric("Variance at Completion (VAC)", f"{summary['Total_VAC']:,.0f} NOK", delta="BAC - EAC", delta_color="inverse")
+    with col_r5:
+        tcpi = (bac - ev) / (bac - ac) if (bac - ac) > 0 else 0
+        st.metric("To-Complete PI (TCPI)", f"{tcpi:.2f}", delta="(BAC-EV)/(BAC-AC)", delta_color="inverse")
+    
+    st.write("---")
+    
+    # --- PORTFOLIO PROJECT BREAKDOWN ---
+    st.subheader("📋 Portfolio Project Breakdown")
+    portfolio_df = pd.DataFrame([{
+        "Project ID": "PRJ-001",
+        "Project Name": "Composite Maritime Vessel Construction",
+        "Manager": "Morten Hansen",
+        "BAC (NOK)": f"{bac:,.0f}",
+        "AC (NOK)": f"{ac:,.0f}",
+        "EV (NOK)": f"{ev:,.0f}",
+        "CPI": f"{cpi:.2f}",
+        "Progress": f"{progress:.1f}%",
+        "VAC (NOK)": f"{summary['Total_VAC']:,.0f}",
+        "Status": "🔴 Over Budget"
+    }])
+    st.dataframe(portfolio_df, use_container_width=True, hide_index=True)
+    
     st.write("---")
 
     # --- INTERACTIVE GANTT CHART SECTION (FRONT PAGE) ---
@@ -449,6 +497,7 @@ if view_mode == "Agent Control Tower":
         )
         st.caption("🔍 **Tufte Rule Check:** Vertical gridlines removed. Planned bars shown in light gray. Actual bars colored by status.")
         st.markdown("<div style='font-size:12px; margin-top:8px;'><span style='color:#cbd5e1; font-size:14px;'>■</span> <strong>Planned</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#2c3e50; font-size:14px;'>■</span> <strong>On Track</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#e74c3c; font-size:14px;'>■</span> <strong>Deviation/Overrun</strong></div>", unsafe_allow_html=True)
+>>>>>>>
         
     with gantt_col1:
         fig_gantt = render_tufte_gantt_chart(project_select, gantt_metric)

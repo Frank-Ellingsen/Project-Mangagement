@@ -532,37 +532,123 @@
 
         <!-- VIEW PANEL: DASHBOARD -->
         <div id="panel-dashboard" class="view-panel active">
-            <!-- KPI ROW -->
+            <!-- PORTFOLIO SUMMARY HEADER -->
+            <div class="section-card" style="margin-bottom: 24px;">
+                <h2 style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📊 Portfolio Control Tower — Project Summary</span>
+                    <span class="section-subtitle" style="font-size: 12px; color: var(--text-secondary); font-weight: normal;">
+                        Aggregate KPIs across all active projects | Last updated: 2026-06-30
+                    </span>
+                </h2>
+            </div>
+
+            <!-- PORTFOLIO KPI ROW -->
             <div class="kpi-row">
                 <div class="kpi-card">
-                    <span class="label">Budget at Completion (BAC)</span>
+                    <span class="label">Total Portfolio BAC</span>
                     <span class="value">1,500,000 NOK</span>
-                    <span class="delta neutral">Baseline budget</span>
+                    <span class="delta neutral">Baseline budget (1 project)</span>
                 </div>
                 <div class="kpi-card">
-                    <span class="label">Actual Cost (AC)</span>
+                    <span class="label">Total Actual Cost (AC)</span>
                     <span class="value">1,848,810 NOK</span>
                     <span class="delta negative">+348,810 NOK over BAC</span>
                 </div>
                 <div class="kpi-card">
-                    <span class="label">Earned Value (EV)</span>
+                    <span class="label">Total Earned Value (EV)</span>
                     <span class="value">1,492,500 NOK</span>
                     <span class="delta neutral">99.5% work complete</span>
                 </div>
                 <div class="kpi-card">
-                    <span class="label">Project CPI</span>
+                    <span class="label">Portfolio CPI</span>
                     <span class="value text-danger">0.81</span>
                     <span class="delta negative">COST OVERRUN</span>
                 </div>
                 <div class="kpi-card">
-                    <span class="label">Physical Progress</span>
+                    <span class="label">Portfolio Progress</span>
                     <span class="value">99.5%</span>
                     <span class="delta neutral">0.5% remaining</span>
                 </div>
             </div>
 
+            <!-- PORTFOLIO RATIOS SUMMARY -->
+            <div class="section-card" style="margin-bottom: 24px;">
+                <h2 style="font-size: 16px; margin-bottom: 12px;">📈 Portfolio Financial Ratios & Forecasts</h2>
+                <div class="kpi-row">
+                    <div class="kpi-card">
+                        <span class="label">Cost Variance (CV)</span>
+                        <span class="value text-danger">-356,310 NOK</span>
+                        <span class="delta negative">EV - AC</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="label">EAC (Typical)</span>
+                        <span class="value">1,859,559 NOK</span>
+                        <span class="delta negative">BAC / CPI</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="label">EAC (Atypical)</span>
+                        <span class="value">1,856,310 NOK</span>
+                        <span class="delta negative">AC + (BAC - EV)</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="label">Variance at Completion (VAC)</span>
+                        <span class="value text-danger">-359,559 NOK</span>
+                        <span class="delta negative">BAC - EAC</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="label">To-Complete PI (TCPI)</span>
+                        <span class="value text-danger">0.81</span>
+                        <span class="delta negative">(BAC-EV)/(BAC-AC)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PORTFOLIO PROJECT BREAKDOWN -->
+            <div class="section-card" style="margin-bottom: 24px;">
+                <h2 style="font-size: 16px; margin-bottom: 12px;">📋 Portfolio Project Breakdown</h2>
+                <table class="tufte-table">
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Project Name</th>
+                            <th>Manager</th>
+                            <th class="align-right">BAC (NOK)</th>
+                            <th class="align-right">AC (NOK)</th>
+                            <th class="align-right">EV (NOK)</th>
+                            <th class="align-right">CPI</th>
+                            <th class="align-right">Progress</th>
+                            <th class="align-right">VAC (NOK)</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PRJ-001</td>
+                            <td>Composite Maritime Vessel Construction</td>
+                            <td>Morten Hansen</td>
+                            <td class="align-right">1,500,000</td>
+                            <td class="align-right">1,848,810</td>
+                            <td class="align-right">1,492,500</td>
+                            <td class="align-right text-danger">0.81</td>
+                            <td class="align-right">99.5%</td>
+                            <td class="align-right text-danger">-359,559</td>
+                            <td><span class="text-danger">🔴 Over Budget</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <!-- GANTT CHART -->
             <div class="section-card">
+>>>>>>>
+<task_progress>
+- [x] Analyze project documentation
+- [x] Design LinkedIn post structure
+- [x] Write engaging post content
+- [x] Include relevant hashtags and call-to-action
+- [x] Save post to file
+- [ ] Add portfolio summary front page to HTML dashboard
+- [ ] Add portfolio summary front page to Streamlit app
                 <h2>
                     <span>📅 Interactive Schedule & WBS Gantt Chart</span>
                     <span class="section-subtitle">
