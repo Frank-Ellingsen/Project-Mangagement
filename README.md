@@ -4,28 +4,27 @@ An automated, interactive **Project Controlling & Earned Value Management (EVM) 
 
 ---
 
-## 📋 Project Overview
+## 📋 Project Overview & Portfolio Scope
 
-**PRJ-001 — Composite Maritime Vessel Construction** is a simulated maritime vessel build with a baseline budget of **1,500,000 NOK** and a timeline from **2026-01-01 to 2026-06-30**. The project is structured into four Work Breakdown Structure (WBS) elements:
+Originally built around a single vessel project, the Control Tower now aggregates and tracks a **6-project portfolio** spanning various stages of execution:
 
-| WBS Code | Element Name                     | Planned Cost (BAC) | Planned Hours |
-| :------- | :------------------------------- | :----------------- | :------------ |
-| **1.0**  | Project Management & Engineering | 300,000 NOK        | 400 hrs       |
-| **2.0**  | Hull Fabrication & Assembly      | 600,000 NOK        | 1,200 hrs     |
-| **3.0**  | Outfitting & Integration         | 400,000 NOK        | 800 hrs       |
-| **4.0**  | Sea Trials & Handover            | 200,000 NOK        | 300 hrs       |
+1. **PRJ-001 (Composite Vessel Construction):** Baseline BAC 1,500,000 NOK. Currently **99.5% complete**, suffering from a 🔴 24.0% cost overrun driven by WBS 1.0 labor rates.
+2. **PRJ-002 (Patrol Vessel Carbon Mold Design):** Baseline BAC 800,000 NOK. **0.0% complete** (Planned).
+3. **PRJ-003 (Subsea Cable Installation Frame):** Baseline BAC 1,200,000 NOK. **30.0% complete** (Active).
+4. **PRJ-004 (Autonomous Workboat Hull Weldments):** Baseline BAC 2,000,000 NOK. **70.0% complete** (Active).
+5. **PRJ-005 (Defense Logistics Pontoon Build):** Baseline BAC 1,000,000 NOK. **90.0% complete** (Active).
+6. **PRJ-006 (Lightweight Composite Cargo Hatch):** Baseline BAC 600,000 NOK. **100.0% complete** (Delivered 🟢 under budget at 586,500 NOK).
 
-### Current Project Health Snapshot
+### Current Portfolio Health Snapshot
 
 | Metric                           | Value         | Status                   |
 | :------------------------------- | :------------ | :----------------------- |
-| **Budget at Completion (BAC)**   | 1,500,000 NOK | Baseline                 |
-| **Actual Cost (AC)**             | 1,848,810 NOK | 🔴 Over budget           |
-| **Earned Value (EV)**            | 1,492,500 NOK | 99.5% complete           |
-| **Cost Performance Index (CPI)** | 0.81          | 🔴 Cost overrun          |
-| **Variance at Completion (VAC)** | -359,559 NOK  | 🔴 24% projected overrun |
-
-The project is physically complete (99.5%) but significantly over budget, driven primarily by labor cost overruns in Engineering (WBS 1.0) and Outfitting (WBS 3.0).
+| **Total Portfolio BAC**          | 7,100,000 NOK | Baseline                 |
+| **Total Portfolio AC**           | 5,220,810 NOK | Active Spend             |
+| **Total Portfolio EV**           | 4,752,500 NOK | Value Earned             |
+| **Portfolio CPI**                | 0.91          | 🟡 Muted Cost Overrun    |
+| **Portfolio Cost Variance (CV)** | -468,310 NOK  | 🔴 9% budget overrun     |
+| **Overall Portfolio Progress**   | 66.9%         | In-progress              |
 
 ---
 
@@ -182,7 +181,7 @@ You can run the entire workspace using the **PowerShell Master Orchestrator**:
 .\run_all.ps1
 ```
 
-This launches an interactive menu with 9 options:
+This launches an interactive menu with 10 options:
 
 | Option  | Action                                |
 | :------ | :------------------------------------ |
@@ -192,9 +191,10 @@ This launches an interactive menu with 9 options:
 | **[4]** | Run Excel Reports Agent               |
 | **[5]** | Compile Power BI Project (.pbip)      |
 | **[6]** | Run Agentic Control Crew Audits       |
-| **[7]** | Start Interactive Streamlit Dashboard |
-| **[8]** | Run Full Pipeline (1–6 in sequence)   |
-| **[9]** | Exit                                  |
+| **[7]** | Run Executive Board Report Exporter   |
+| **[8]** | Start Interactive Streamlit Dashboard |
+| **[9]** | Run Full Pipeline (1–7 in sequence)   |
+| **[10]**| Exit                                  |
 
 _Alternatively, you can run individual components manually:_
 

@@ -106,6 +106,40 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DUCKDB_PATH = os.path.join(BASE_DIR, "Data", "DuckDB", "project_controlling.db")
 SQLITE_PATH = os.path.join(BASE_DIR, "Data", "SQLite", "project_controlling.db")
 
+# ==========================================
+# HELPER FUNCTIONS FOR WRITE-BACK AND AI NARRATIVE
+# ==========================================
+import csv
+import json
+import urllib.request
+import urllib.error
+
+def append_to_raid_csv(row_dict):
+    csv_path = os.path.join(BASE_DIR, "Data", "CSV", "raid_log.csv")
+    fieldnames = ['RiskID', 'Type', 'Description', 'Impact', 'Probability', 'MitigationStrategy', 'Owner', 'Status']
+    with open(csv_path, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writerow(row_dict)
+
+def generate_ollama_narrative(prompt):
+    url = "http://localhost:11434/api/generate"
+    data = {
+        "model": "qwen2.5:latest",
+        "prompt": prompt,
+        "stream": False
+    }
+    req = urllib.request.Request(
+        url, 
+        data=json.dumps(data).encode('utf-8'), 
+        headers={"Content-Type": "application/json"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=5) as response:
+            res = json.loads(response.read().decode('utf-8'))
+            return res.get("response", "")
+    except Exception as e:
+        return f"Ollama Connection Error: {str(e)}"
+
 @st.cache_data(ttl=60)
 def load_duckdb_data():
     if not os.path.exists(DUCKDB_PATH):
@@ -378,6 +412,107 @@ def render_tufte_gantt_chart(project_selection="PRJ-001 (Composite Vessel)", met
     
     return fig_gantt
 
+def render_tufte_scurve_chart():
+    # Build daily cumulative EV, AC, and PV
+    dates = pd.date_range(start="2026-01-01", end="2026-06-30", freq="D")
+    
+    # 1. Cumulative PV (Sigmoid representation of 1.5M baseline spend)
+    import numpy as np
+    t = np.linspace(-3, 3, len(dates))
+    sigmoid = 1 / (1 + np.exp(-t))
+    cum_pv = sigmoid * 1500000
+    
+    # 2. Cumulative AC
+    # Group timesheets and materials by date
+    ts_costs = timesheet_df[['WorkDate', 'LaborCost']].rename(columns={'WorkDate': 'Date', 'LaborCost': 'Cost'})
+    mat_costs = material_df[['PurchaseDate', 'TotalActualCost']].rename(columns={'PurchaseDate': 'Date', 'TotalActualCost': 'Cost'})
+    all_actuals = pd.concat([ts_costs, mat_costs], ignore_index=True)
+    all_actuals['Date'] = pd.to_datetime(all_actuals['Date'])
+    
+    # Group by date and sum
+    ac_daily = all_actuals.groupby('Date')['Cost'].sum().reset_index()
+    
+    # Merge with dates to ensure continuous timeline
+    df_scurve = pd.DataFrame({'Date': dates})
+    df_scurve = pd.merge(df_scurve, ac_daily, on='Date', how='left').fillna(0)
+    df_scurve['AC'] = df_scurve['Cost'].cumsum()
+    
+    # 3. Cumulative EV
+    # Load physical progress history from DuckDB
+    con = duckdb.connect(DUCKDB_PATH, read_only=True)
+    progress_hist = con.execute("""
+        SELECT RecordDate, WBS_ID, CAST(PercentComplete AS REAL) as PercentComplete
+        FROM physical_progress
+        ORDER BY RecordDate
+    """).df()
+    wbs_bac = con.execute("SELECT WBS_ID, CAST(PlannedCost AS REAL) as BAC FROM wbs_elements").df()
+    con.close()
+    
+    progress_hist['RecordDate'] = pd.to_datetime(progress_hist['RecordDate'])
+    wbs_bac_map = dict(zip(wbs_bac['WBS_ID'], wbs_bac['BAC']))
+    
+    ev_vals = []
+    for d in dates:
+        current_ev = 0.0
+        for wbs_id, bac_val in wbs_bac_map.items():
+            sub = progress_hist[(progress_hist['WBS_ID'] == wbs_id) & (progress_hist['RecordDate'] <= d)]
+            if not sub.empty:
+                latest_pct = sub.iloc[-1]['PercentComplete']
+                current_ev += bac_val * latest_pct
+        ev_vals.append(current_ev)
+        
+    df_scurve['PV'] = cum_pv
+    df_scurve['EV'] = ev_vals
+    
+    # Create S-Curve Figure
+    fig = go.Figure()
+    
+    # Planned Value (Dashed slate)
+    fig.add_trace(go.Scatter(
+        x=df_scurve['Date'], y=df_scurve['PV'],
+        mode='lines', name='Planned Value (PV)',
+        line=dict(color='#94a3b8', width=2, dash='dash')
+    ))
+    
+    # Earned Value (Muted Blue)
+    fig.add_trace(go.Scatter(
+        x=df_scurve['Date'], y=df_scurve['EV'],
+        mode='lines', name='Earned Value (EV)',
+        line=dict(color='#2c3e50', width=3)
+    ))
+    
+    # Actual Cost (Solid Black/Dark Red if overrun)
+    fig.add_trace(go.Scatter(
+        x=df_scurve['Date'], y=df_scurve['AC'],
+        mode='lines', name='Actual Cost (AC)',
+        line=dict(color='#e74c3c', width=3)
+    ))
+    
+    # Tufte Layout Styling
+    fig.update_layout(
+        title_text="Project Cumulative S-Curve Chart (PV vs. EV vs. AC)",
+        margin=dict(l=20, r=140, t=40, b=20),
+        height=320,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        showlegend=False,
+        hovermode="x unified"
+    )
+    
+    # Remove gridlines
+    fig.update_xaxes(showgrid=False, linecolor="#cccccc")
+    fig.update_yaxes(showgrid=True, gridcolor="#f0f0f0")
+    
+    # Direct Labeling at the end of each trace (Tufte style)
+    last_idx = len(df_scurve) - 1
+    end_date = df_scurve['Date'].iloc[last_idx]
+    
+    fig.add_annotation(x=end_date, y=df_scurve['PV'].iloc[last_idx], text="<b>  Planned Value (PV)</b>", xanchor="left", showarrow=False, font=dict(color='#94a3b8', size=11))
+    fig.add_annotation(x=end_date, y=df_scurve['EV'].iloc[last_idx], text="<b>  Earned Value (EV)</b>", xanchor="left", showarrow=False, font=dict(color='#2c3e50', size=11))
+    fig.add_annotation(x=end_date, y=df_scurve['AC'].iloc[last_idx], text="<b>  Actual Cost (AC)</b>", xanchor="left", showarrow=False, font=dict(color='#e74c3c', size=11))
+    
+    return fig
+
 # ==========================================
 # SIDEBAR NAVIGATION & AGENT SELECTOR
 # ==========================================
@@ -497,7 +632,6 @@ if view_mode == "Agent Control Tower":
         )
         st.caption("🔍 **Tufte Rule Check:** Vertical gridlines removed. Planned bars shown in light gray. Actual bars colored by status.")
         st.markdown("<div style='font-size:12px; margin-top:8px;'><span style='color:#cbd5e1; font-size:14px;'>■</span> <strong>Planned</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#2c3e50; font-size:14px;'>■</span> <strong>On Track</strong> &nbsp;&nbsp;&nbsp;&nbsp; <span style='color:#e74c3c; font-size:14px;'>■</span> <strong>Deviation/Overrun</strong></div>", unsafe_allow_html=True)
->>>>>>>
         
     with gantt_col1:
         fig_gantt = render_tufte_gantt_chart(project_select, gantt_metric)
@@ -527,6 +661,11 @@ if view_mode == "Agent Control Tower":
         wbs_display['Progress %'] = wbs_display['PercentComplete'].apply(lambda x: f"{x:.1f}%")
         
         st.table(wbs_display[['WBS_Code', 'ElementName', 'BAC (NOK)', 'AC (NOK)', 'EV (NOK)', 'EAC Typical (NOK)', 'CPI', 'Progress %', 'Status']])
+        
+        st.write("---")
+        fig_scurve = render_tufte_scurve_chart()
+        st.plotly_chart(fig_scurve, use_container_width=True)
+        st.write("---")
         
         st.subheader("🌲 Interactive WBS Hierarchy Explorer")
         st.caption("Click WBS nodes to expand task details, baseline schedules, labor roles, and committed costs.")
@@ -636,6 +775,58 @@ if view_mode == "Agent Control Tower":
         if raid_df is not None and not raid_df.empty:
             st.dataframe(raid_df[['RAID_ID', 'Category', 'Description', 'Impact', 'Probability', 'Status', 'Owner']], use_container_width=True)
 
+        st.write("---")
+        with st.expander("➕ Add New RAID Log Item (with AI Guardrails)"):
+            with st.form("add_raid_item_form"):
+                new_category = st.selectbox("Category", ["Risk", "Issue", "Assumption", "Dependency"])
+                new_desc = st.text_area("Description (required)")
+                new_impact = st.selectbox("Impact", ["Low", "Medium", "High"])
+                new_prob = st.selectbox("Probability", ["Low", "Medium", "High"])
+                new_owner = st.text_input("Owner", value="Frank Ellingsen")
+                new_mitigation = st.text_area("Mitigation Strategy / Action (required)")
+                submitted = st.form_submit_button("Submit RAID Item")
+                
+                if submitted:
+                    valid = True
+                    if not new_desc.strip():
+                        st.error("⚠️ Description is required.")
+                        valid = False
+                    if new_category == "Issue" and new_prob != "High":
+                        st.error("⚠️ AI Guardrail Warning: An Issue represents an active event that has already occurred; its probability must be set to High.")
+                        valid = False
+                    if new_category == "Risk" and new_impact == "High" and len(new_mitigation.strip()) < 10:
+                        st.error("⚠️ AI Guardrail Warning: High-impact risks require a detailed mitigation strategy (minimum 10 characters).")
+                        valid = False
+                        
+                    if valid:
+                        conn = sqlite3.connect(SQLITE_PATH)
+                        cursor = conn.cursor()
+                        prefix = new_category[0].upper()
+                        cursor.execute("SELECT RiskID FROM raid_log WHERE Type = ?", (new_category,))
+                        matching_ids = cursor.fetchall()
+                        next_num = len(matching_ids) + 1
+                        new_id = f"{prefix}-{next_num:03d}"
+                        
+                        cursor.execute("""
+                            INSERT INTO raid_log (RiskID, Type, Description, Impact, Probability, MitigationStrategy, Owner, Status)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """, (new_id, new_category, new_desc, new_impact, new_prob, new_mitigation, new_owner, 'Active'))
+                        conn.commit()
+                        conn.close()
+                        
+                        append_to_raid_csv({
+                            'RiskID': new_id,
+                            'Type': new_category,
+                            'Description': new_desc,
+                            'Impact': new_impact,
+                            'Probability': new_prob,
+                            'MitigationStrategy': new_mitigation,
+                            'Owner': new_owner,
+                            'Status': 'Active'
+                        })
+                        st.success(f"Successfully added RAID item {new_id} to SQLite and CSV!")
+                        st.rerun()
+
     with tab4:
         st.subheader("Structural Assembly & Physical Progress")
         progress_by_wbs = wbs_df[['ElementName', 'PercentComplete']].copy()
@@ -664,25 +855,48 @@ if view_mode == "Agent Control Tower":
             
             labor_saving = st.slider("Simulated Labor Rate Savings (%)", 0.0, 30.0, 0.0, step=1.0)
             material_saving = st.slider("Simulated Material Price Reduction (%)", 0.0, 30.0, 0.0, step=1.0)
-            schedule_crash = st.selectbox("Crash WBS 4.0 Schedule (Add Overtime Shifts)", ["No (Normal)", "Yes (5% extra cost, 5 days saved)", "Yes (10% extra cost, 10 days saved)"])
+            
+            st.markdown("#### 📅 Schedule Crashing & Contract Penalty Trade-off")
+            penalty_per_day = st.slider("Contract Delay Penalty (NOK/Day)", 0, 50000, 10000, step=1000)
+            schedule_crash = st.selectbox("Crash WBS 4.0 Schedule (Add Overtime Shifts)", ["No (Normal - 10 days delay)", "Yes (5% extra cost, 5 days saved)", "Yes (10% extra cost, 10 days saved)"])
             
             # Original BAC = 1,300,000. Original AC = 1,848,810.
             sim_ac = 1848810 * (1 - (labor_saving / 100) * 0.7 - (material_saving / 100) * 0.3)
             
             crash_pct = 0.0
+            days_saved = 0
             if "5%" in schedule_crash:
                 crash_pct = 0.05
+                days_saved = 5
             elif "10%" in schedule_crash:
                 crash_pct = 0.10
+                days_saved = 10
                 
-            sim_ac += 200000 * crash_pct
+            crashing_cost = 200000 * crash_pct
+            sim_ac += crashing_cost
+            
+            # Calculate liquidated damages
+            base_delay = 10
+            sim_delay = max(0, base_delay - days_saved)
+            sim_penalty = sim_delay * penalty_per_day
+            initial_penalty = base_delay * penalty_per_day
+            penalty_savings = initial_penalty - sim_penalty
+            
+            net_benefit = penalty_savings - crashing_cost
+            
             sim_cpi = ev / sim_ac if sim_ac > 0 else cpi
             sim_eac = bac / sim_cpi if sim_cpi > 0 else 1859559
             
             st.write("---")
             st.markdown("#### 📊 Simulation Results")
-            st.metric("Simulated CPI", f"{sim_cpi:.2f}", delta=f"{sim_cpi - cpi:+.2f} Improvement" if sim_cpi > cpi else None)
-            st.metric("Simulated EAC", f"{sim_eac:,.0f} NOK", delta=f"{sim_eac - 1859559:,.0f} NOK vs Current Forecast" if sim_eac != 1859559 else None)
+            
+            metric_c1, metric_c2 = st.columns(2)
+            with metric_c1:
+                st.metric("Simulated CPI", f"{sim_cpi:.2f}", delta=f"{sim_cpi - cpi:+.2f} Improvement" if sim_cpi > cpi else None)
+                st.metric("Simulated EAC", f"{sim_eac:,.0f} NOK", delta=f"{sim_eac - 1859559:,.0f} NOK vs Current" if sim_eac != 1859559 else None)
+            with metric_c2:
+                st.metric("Liquidated Damages", f"{sim_penalty:,.0f} NOK", delta=f"-{penalty_savings:,.0f} NOK Saved" if penalty_savings > 0 else None, delta_color="normal")
+                st.metric("Net Crashing Trade-off", f"{net_benefit:+,.0f} NOK", delta=f"Crashing Cost: {crashing_cost:,.0f} NOK", delta_color="normal" if net_benefit >= 0 else "inverse")
 
     with tab6:
         st.subheader("📚 Earned Value Management (EVM) Glossary")
@@ -898,17 +1112,98 @@ elif view_mode == "Individual Agent Skill Inspector":
 # 4. LIVE CREW EXECUTION
 # ==========================================
 elif view_mode == "Live Crew Execution":
-    st.title("🤖 Live Agent Crew Audit Runner")
-    st.caption("Executes Python agent audit routines directly against DuckDB & SQLite database backends.")
+    st.title("🤖 Live Agent Crew Audit Runner & Narrator")
+    st.caption("Executes Python agent audit routines directly against database backends and generates a synthesized report.")
     
-    if st.button("🚀 Run All 4 Agent Audits", type="primary"):
-        import io
-        import contextlib
-        from run_agents import run_all_agents
+    # Board Exporter Download Button
+    st.write("---")
+    st.markdown("### 📥 Monthly Executive Board Report Exporter")
+    st.write("Generate and download the compiled, print-ready Project Board Report based on live DuckDB & SQLite metrics.")
+    
+    from export_executive_report import generate_report_content
+    try:
+        report_md = generate_report_content()
+        st.download_button(
+            label="📥 Download Executive Board Report (.md)",
+            data=report_md,
+            file_name="PRJ-001_Executive_Board_Report.md",
+            mime="text/markdown",
+            key="download_board_report"
+        )
+    except Exception as e:
+        st.error(f"Error compiling board report: {str(e)}")
+    st.write("---")
+    
+    col_llm1, col_llm2 = st.columns([1, 2])
+    with col_llm1:
+        st.subheader("Configuration")
+        narrator_mode = st.radio(
+            "Select Narrative Generation Mode", 
+            ["Deterministic Rule-based PM Narrator", "Ollama Local LLM (qwen2.5:latest)"]
+        )
+        st.info("💡 Local LLM requires Ollama to be running on your machine (`http://localhost:11434`).")
         
-        output_buffer = io.StringIO()
-        with contextlib.redirect_stdout(output_buffer):
-            run_all_agents()
+    with col_llm2:
+        st.subheader("Auditing & Synthesis Console")
+        if st.button("🚀 Run Audits & Generate Narrative", type="primary"):
+            import io
+            import contextlib
+            from run_agents import run_all_agents
             
-        result_text = output_buffer.getvalue()
-        st.code(result_text, language="text")
+            with st.spinner("Executing agent audits..."):
+                output_buffer = io.StringIO()
+                with contextlib.redirect_stdout(output_buffer):
+                    run_all_agents()
+                result_text = output_buffer.getvalue()
+                
+            st.success("Auditing completed!")
+            
+            st.subheader("1. Raw Agent Crew Audit Logs")
+            st.code(result_text, language="text")
+            
+            st.subheader("2. Synthesized Project Controlling Narrative")
+            
+            narrative = ""
+            if narrator_mode == "Ollama Local LLM (qwen2.5:latest)":
+                with st.spinner("Querying local Ollama instance..."):
+                    prompt = f"""
+                    You are the Lead Project Controlling Agent. Synthesize the following raw multi-agent audit reports into a concise, professional executive narrative. 
+                    Your report must highlight the primary reasons for budget and schedule deviations, identify the key cost drivers (e.g. labor vs material splits, specific resources logging overtime, large invoices), and recommend 3 immediate mitigation steps.
+                    Format the report using clean, clear headers, left-aligned bullet points, and high-contrast styling.
+                    
+                    RAW AGENT REPORTS:
+                    {result_text}
+                    """
+                    ollama_res = generate_ollama_narrative(prompt)
+                    if "Ollama Connection Error" in ollama_res:
+                        st.warning("⚠️ Local Ollama instance not detected. Falling back to the deterministic PM Narrator...")
+                        narrator_mode = "Deterministic Rule-based PM Narrator"
+                    else:
+                        narrative = ollama_res
+                        
+            if narrator_mode == "Deterministic Rule-based PM Narrator":
+                # Synthesize programmatically
+                overtime_count = len(overtime_df) if overtime_df is not None else 0
+                large_inv_count = len(material_df[material_df['TotalActualCost'] > 50000])
+                
+                narrative = f"""
+### ⚓ Executive Controlling Narrative (Synthesized)
+
+#### **Project Health Overview**
+* **Project Reference:** PRJ-001 (Composite Maritime Vessel Construction)
+* **Physical Progress:** **{progress:.1f}%**
+* **Budget Status:** The project is **over budget** by **{ac - bac:,.0f} NOK** (Actual Cost: **{ac:,.0f} NOK** vs. Baseline BAC: **{bac:,.0f} NOK**).
+* **Cost Performance Index (CPI):** **{cpi:.2f}** (indicating poor cost efficiency).
+* **Estimate at Completion (EAC Typical):** **{summary['Total_EAC_Typical']:,.0f} NOK** (a projected variance at completion of **{summary['Total_VAC']:,.0f} NOK**).
+
+#### **Key Cost & Anomaly Drivers**
+1. **Labor Overruns (71.8% of spend):** WBS 1.0 (PM & Engineering) is overspent by **{total_labor - 300000:,.0f} NOK** (Actual cost: **{total_labor:,.0f} NOK**). This was driven by design changes and overtime.
+2. **Shop-Floor Overtime:** Detected **{overtime_count}** instances of resources exceeding weekly limits of 45 hours, representing potential burn-out and rate inflation.
+3. **High-Value Procurement:** Identified **{large_inv_count}** single material invoices exceeding the 50,000 NOK threshold, primarily related to carbon composite sheet logistics.
+
+#### **Immediate Corrective Actions Recommended**
+* **Enforce Variation Order (VO) Freeze:** Immediately restrict unapproved engineering modifications to prevent further margin erosion in Outfitting and Systems Integration.
+* **Labor Allocation Shift:** Shift structural welders and laminators to WBS 4.0 finishing phases to ensure handover without further delay penalties.
+* **Supplier Audit:** Conduct a post-project review of the composite material supply chain to investigate the root cause of carbon sheet delivery premiums.
+"""
+            st.markdown(narrative)

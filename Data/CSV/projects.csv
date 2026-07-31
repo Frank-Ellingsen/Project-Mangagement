@@ -1,2 +1,7 @@
 ProjectID,ProjectName,ProjectManager,BudgetAtCompletion_BAC,StartDate,EndDate,Status
 PRJ-001,Composite Maritime Vessel Construction,Morten Hansen,1500000.0,2026-01-01,2026-06-30,Completed
+PRJ-002,PRJ-002: Patrol Vessel Carbon Mold Design,Morten Hansen,800000.00,2026-08-01,2026-12-31,Planned
+PRJ-003,PRJ-003: Subsea Cable Installation Frame,Erik Johansen,1200000.00,2026-05-01,2026-10-31,Active
+PRJ-004,PRJ-004: Autonomous Workboat Hull Weldments,Astrid Nilsen,2000000.00,2026-03-01,2026-08-31,Active
+PRJ-005,PRJ-005: Defense Logistics Pontoon Build,Frank Ellingsen,1000000.00,2026-02-01,2026-07-31,Active
+PRJ-006,PRJ-006: Lightweight Composite Cargo Hatch,Morten Hansen,600000.00,2025-10-01,2026-03-31,Completed

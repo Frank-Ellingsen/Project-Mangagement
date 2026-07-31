@@ -3,3 +3,13 @@ WBS-001,PRJ-001,1.0,Project Management & Engineering,300000.0,400.0
 WBS-002,PRJ-001,2.0,Hull Fabrication & Assembly,600000.0,1200.0
 WBS-003,PRJ-001,3.0,Outfitting & Integration,400000.0,800.0
 WBS-004,PRJ-001,4.0,Sea Trials & Handover,200000.0,300.0
+WBS-005,PRJ-002,1.0,Design & CFD Analysis,300000.00,300.0
+WBS-006,PRJ-002,2.0,Material Procurement,500000.00,0.0
+WBS-007,PRJ-003,1.0,Structural Frame Engineering,400000.00,400.0
+WBS-008,PRJ-003,2.0,Steel Fabrication,800000.00,1000.0
+WBS-009,PRJ-004,1.0,Engineering Drawings & Class Approval,500000.00,500.0
+WBS-010,PRJ-004,2.0,Hull Welding & Assembly,1500000.00,2000.0
+WBS-011,PRJ-005,1.0,Project Control & PM,200000.00,250.0
+WBS-012,PRJ-005,2.0,Pontoon Assembly & Painting,800000.00,1000.0
+WBS-013,PRJ-006,1.0,Hatch Engineering & FEA,200000.00,200.0
+WBS-014,PRJ-006,2.0,Molding & Testing,400000.00,500.0

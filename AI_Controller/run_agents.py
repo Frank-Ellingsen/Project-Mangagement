@@ -213,5 +213,8 @@ def run_project_control_crew():
     print(" ALL AGENTS CONCLUDED REPORTING WORK")
     print("=" * 73)
 
+def run_all_agents():
+    run_project_control_crew()
+
 if __name__ == "__main__":
     run_project_control_crew()
