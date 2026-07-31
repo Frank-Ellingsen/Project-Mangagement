@@ -123,11 +123,11 @@ else:
     # --- Top Row: Tufte-Style KPI Cards ---
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        st.metric(label="Budget at Completion", value=f"{summary['Total_BAC']:,.0f} NOK")
+        st.metric(label="Budget at Completion", value=f"${summary['Total_BAC']:,.0f}")
     with col2:
-        st.metric(label="Actual Cost (AC)", value=f"{summary['Total_AC']:,.0f} NOK")
+        st.metric(label="Actual Cost (AC)", value=f"${summary['Total_AC']:,.0f}")
     with col3:
-        st.metric(label="Earned Value (EV)", value=f"{summary['Total_EV']:,.0f} NOK")
+        st.metric(label="Earned Value (EV)", value=f"${summary['Total_EV']:,.0f}")
     with col4:
         # Highlight CPI variance if < 0.95 (unfavorable)
         cpi = summary['Project_CPI']
@@ -146,21 +146,21 @@ else:
         
         # Build synthetic PV line for visualization (weekly interpolation)
         pv_dates = pd.date_range(start="2026-01-01", end="2026-06-30", freq="W")
-        # WBS plans: WBS-001 (300k, 6 months), WBS-002 (600k, Feb-Apr), WBS-003 (400k, Apr-May), WBS-004 (200k, Jun)
+        # WBS plans: WBS-001 (30k, 6 months), WBS-002 (60k, Feb-Apr), WBS-003 (40k, Apr-May), WBS-004 (20k, Jun) in USD
         pv_values = []
         for d in pv_dates:
             val = 0
-            # WBS-001: 300k over 181 days
-            val += min(300000.0, (d - pd.Timestamp("2026-01-01")).days / 181 * 300000.0)
+            # WBS-001: 30k over 181 days
+            val += min(30000.0, (d - pd.Timestamp("2026-01-01")).days / 181 * 30000.0)
             # WBS-002: Feb 1 to Apr 15 (74 days)
             if d >= pd.Timestamp("2026-02-01"):
-                val += min(600000.0, (d - pd.Timestamp("2026-02-01")).days / 74 * 600000.0)
+                val += min(60000.0, (d - pd.Timestamp("2026-02-01")).days / 74 * 60000.0)
             # WBS-003: Apr 1 to May 31 (61 days)
             if d >= pd.Timestamp("2026-04-01"):
-                val += min(400000.0, (d - pd.Timestamp("2026-04-01")).days / 61 * 400000.0)
+                val += min(40000.0, (d - pd.Timestamp("2026-04-01")).days / 61 * 40000.0)
             # WBS-004: Jun 1 to Jun 30 (30 days)
             if d >= pd.Timestamp("2026-06-01"):
-                val += min(200000.0, (d - pd.Timestamp("2026-06-01")).days / 30 * 200000.0)
+                val += min(20000.0, (d - pd.Timestamp("2026-06-01")).days / 30 * 20000.0)
             pv_values.append(val)
             
         pv_df = pd.DataFrame({"Date": pv_dates, "PV_Cum": pv_values})
@@ -221,8 +221,8 @@ else:
                 showgrid=True,
                 gridcolor="#f2f2f2",
                 linecolor="#bdc3c7",
-                title="NOK (in Thousands)",
-                tickformat=",.0f"
+                title="USD ($)",
+                tickformat="$,.0f"
             ),
             legend=dict(
                 orientation="h",
@@ -247,14 +247,14 @@ else:
         tot_vac = summary['Total_VAC']
         
         if tot_cv < 0:
-            st.error(f"**Current Cost Variance (CV):** {tot_cv:+,.2f} NOK (Over Budget)")
+            st.error(f"**Current Cost Variance (CV):** ${abs(tot_cv):,.2f} (Over Budget)")
         else:
-            st.success(f"**Current Cost Variance (CV):** {tot_cv:+,.2f} NOK (Under Budget)")
+            st.success(f"**Current Cost Variance (CV):** ${tot_cv:,.2f} (Under Budget)")
             
         if tot_vac < 0:
-            st.warning(f"**Projected Variance at Completion (VAC):** {tot_vac:+,.2f} NOK (Typical EAC)")
+            st.warning(f"**Projected Variance at Completion (VAC):** ${abs(tot_vac):,.2f} (Typical EAC Overrun)")
         else:
-            st.info(f"**Projected Variance at Completion (VAC):** {tot_vac:+,.2f} NOK")
+            st.info(f"**Projected Variance at Completion (VAC):** ${tot_vac:,.2f}")
             
         # Quick table showing WBS Status (Highlighting red for low CPI)
         st.write("WBS Health Status:")

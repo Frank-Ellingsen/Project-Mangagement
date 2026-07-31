@@ -31,16 +31,16 @@ class ProjectControllerAgent:
         report.append("=========================================================================")
         report.append("\nWBS PERFORMANCE DETAILS:")
         report.append("-" * 73)
-        report.append(f"{'WBS':<6} | {'WBS Element Name':<25} | {'BAC (NOK)':>12} | {'AC (NOK)':>12} | {'CPI':>5}")
+        report.append(f"{'WBS':<6} | {'WBS Element Name':<25} | {'BAC (USD)':>12} | {'AC (USD)':>12} | {'CPI':>5}")
         report.append("-" * 73)
         for row in wbs_metrics:
             wbs_code, name, bac, ac, ev, cpi, pct, eac = row
             cpi_warn = " (!)" if cpi < 0.95 else ""
-            report.append(f"{wbs_code:<6} | {name[:25]:<25} | {bac:>12,.2f} | {ac:>12,.2f} | {cpi:>5.2f}{cpi_warn}")
+            report.append(f"{wbs_code:<6} | {name[:25]:<25} | ${bac:>11,.2f} | ${ac:>11,.2f} | {cpi:>5.2f}{cpi_warn}")
         report.append("-" * 73)
         
         tot_bac, tot_ac, tot_ev, tot_cv, proj_cpi, overall_pct = summary
-        report.append(f"Project Cost Variance (CV): {tot_cv:+,.2f} NOK")
+        report.append(f"Project Cost Variance (CV): ${tot_cv:+,.2f}")
         report.append(f"Project Cost Performance Index (CPI): {proj_cpi:.2f}")
         report.append(f"Overall Progress: {overall_pct:.1f}%")
         
@@ -62,11 +62,11 @@ class CFOAgent:
             FROM v_project_evm_summary
         """).fetchone()
         
-        # Material vs Labor Cost share
+        # Material vs Labor Cost share (converted to USD using 1 USD = 10 NOK)
         costs = con.execute("""
             SELECT 
-                (SELECT SUM(HoursWorked * HourlyRate) FROM timesheets t JOIN resources r ON t.ResourceID = r.ResourceID) as Labor,
-                (SELECT SUM(TotalActualCost) FROM material_costs) as Material
+                (SELECT SUM(HoursWorked * HourlyRate) FROM timesheets t JOIN resources r ON t.ResourceID = r.ResourceID) * 0.10 as Labor,
+                (SELECT SUM(TotalActualCost) FROM material_costs) * 0.10 as Material
         """).fetchone()
         con.close()
         
@@ -77,16 +77,16 @@ class CFOAgent:
         report.append("=========================================================================")
         report.append(" AGENT 2: PROJECT CFO PROFITABILITY & FORECAST AUDIT")
         report.append("=========================================================================")
-        report.append(f"\nBudget At Completion (BAC)  : {tot_bac:,.2f} NOK")
-        report.append(f"Estimate At Completion (EAC) : {tot_eac:,.2f} NOK")
-        report.append(f"Variance At Completion (VAC) : {tot_vac:+,.2f} NOK")
+        report.append(f"\nBudget At Completion (BAC)  : ${tot_bac:,.2f}")
+        report.append(f"Estimate At Completion (EAC) : ${tot_eac:,.2f}")
+        report.append(f"Variance At Completion (VAC) : ${tot_vac:+,.2f}")
         
         pct_overrun = (tot_eac - tot_bac) / tot_bac * 100
         report.append(f"Projected Cost Overrun Pct   : {pct_overrun:.1f}%")
         
         report.append("\nActual Cost Cost-Share Breakdown:")
-        report.append(f"  Labor Actual Cost          : {labor:,.2f} NOK ({labor/tot_ac*100:.1f}%)")
-        report.append(f"  Material Actual Cost       : {mat:,.2f} NOK ({mat/tot_ac*100:.1f}%)")
+        report.append(f"  Labor Actual Cost          : ${labor:,.2f} ({labor/tot_ac*100:.1f}%)")
+        report.append(f"  Material Actual Cost       : ${mat:,.2f} ({mat/tot_ac*100:.1f}%)")
         
         if tot_vac < 0:
             report.append("\n[CFO COMMENTARY] The project vessel margin is under severe pressure.")
@@ -115,11 +115,11 @@ class RiskAnomalyAgent:
         """)
         overtimes = cursor.fetchall()
         
-        # Query 2: Single invoices > 50,000 NOK
+        # Query 2: Single invoices > $5,000 USD
         cursor.execute("""
-            SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) as Cost
+            SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) * 0.10 as Cost
             FROM material_costs
-            WHERE Cost > 50000
+            WHERE CAST(TotalActualCost AS REAL) * 0.10 > 5000
             ORDER BY Cost DESC
         """)
         large_invoices = cursor.fetchall()
@@ -146,12 +146,12 @@ class RiskAnomalyAgent:
         else:
             report.append("  No excessive resource weekly hours logged.")
             
-        report.append("\nLARGE PROCUREMENT TRANSACTION AUDIT (> 50,000 NOK):")
+        report.append("\nLARGE PROCUREMENT TRANSACTION AUDIT (> $5,000):")
         if large_invoices:
             for pid, desc, cost in large_invoices:
-                report.append(f"  [AUDIT] Invoice {pid:<8} | {desc:<35} | {cost:>10,.2f} NOK")
+                report.append(f"  [AUDIT] Invoice {pid:<8} | {desc:<35} | ${cost:>9,.2f}")
         else:
-            report.append("  No invoices exceeded the 50,000 NOK threshold.")
+            report.append("  No invoices exceeded the $5,000 threshold.")
 
         report.append("\nACTIVE RAID LOG AUDIT (Active Risks/Issues/Dependencies):")
         if active_raid:

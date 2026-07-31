@@ -23,15 +23,15 @@ def generate_report_content():
         ORDER BY WBS_Code
     """).fetchall()
     
-    # Material vs Labor Cost share
+    # Material vs Labor Cost share (converted to USD using 1 USD = 10 NOK)
     labor_cost = con.execute("""
-        SELECT SUM(t.HoursWorked * r.HourlyRate) 
+        SELECT SUM(t.HoursWorked * r.HourlyRate) * 0.10 
         FROM timesheets t 
         JOIN resources r ON t.ResourceID = r.ResourceID
     """).fetchone()[0] or 0.0
     
     material_cost = con.execute("""
-        SELECT SUM(TotalActualCost) 
+        SELECT SUM(TotalActualCost) * 0.10 
         FROM material_costs
     """).fetchone()[0] or 0.0
     
@@ -50,9 +50,9 @@ def generate_report_content():
     """).fetchall()
     
     large_invoices = conn.execute("""
-        SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) as Cost
+        SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) * 0.10 as Cost
         FROM material_costs
-        WHERE Cost > 50000
+        WHERE CAST(TotalActualCost AS REAL) * 0.10 > 5000
         ORDER BY Cost DESC
     """).fetchall()
     
@@ -78,30 +78,30 @@ def generate_report_content():
     report.append("\n## 1. Executive Summary")
     status_indicator = "🔴 CRITICAL OVERRUN" if proj_cpi < 0.95 else "🟢 ON TRACK"
     report.append(f"The project **Composite Maritime Vessel Construction (PRJ-001)** is currently at **{overall_pct:.1f}% physical progress** (essentially complete) but has breached cost tolerances, finishing with an overall status of **{status_indicator}**.")
-    report.append(f"* **Total Budget (BAC):** {tot_bac:,.2f} NOK")
-    report.append(f"* **Actual Cost (AC):** {tot_ac:,.2f} NOK")
-    report.append(f"* **Value Earned (EV):** {tot_ev:,.2f} NOK")
-    report.append(f"* **Cost Variance (CV):** {tot_cv:+,.2f} NOK")
+    report.append(f"* **Total Budget (BAC):** ${tot_bac:,.2f}")
+    report.append(f"* **Actual Cost (AC):** ${tot_ac:,.2f}")
+    report.append(f"* **Value Earned (EV):** ${tot_ev:,.2f}")
+    report.append(f"* **Cost Variance (CV):** ${tot_cv:+,.2f}")
     report.append(f"* **Final Cost Performance Index (CPI):** {proj_cpi:.2f}")
-    report.append(f"* **Projected Margin Slippage (VAC):** {tot_vac:+,.2f} NOK (an overrun of **{(tot_eac - tot_bac)/tot_bac*100:.1f}%** over baseline).")
+    report.append(f"* **Projected Margin Slippage (VAC):** ${tot_vac:+,.2f} (an overrun of **{(tot_eac - tot_bac)/tot_bac*100:.1f}%** over baseline).")
     
     report.append("\n---")
     
     report.append("\n## 2. Work Breakdown Structure (WBS) Performance Matrix")
     report.append("The cost overruns are distributed across the primary work packages as follows:")
-    report.append("\n| WBS | WBS Element Name | BAC (NOK) | AC (NOK) | EV (NOK) | CPI | Status |")
+    report.append("\n| WBS | WBS Element Name | BAC (USD) | AC (USD) | EV (USD) | CPI | Status |")
     report.append("| :--- | :--- | :---: | :---: | :---: | :---: | :---: |")
     for row in wbs_metrics:
         wbs_code, name, bac, ac, ev, cpi, pct, eac = row
         wbs_status = "🔴 Overrun" if cpi < 0.95 else "🟢 On Track"
-        report.append(f"| {wbs_code} | {name} | {bac:,.2f} | {ac:,.2f} | {ev:,.2f} | {cpi:.2f} | {wbs_status} |")
+        report.append(f"| {wbs_code} | {name} | ${bac:,.2f} | ${ac:,.2f} | ${ev:,.2f} | {cpi:.2f} | {wbs_status} |")
     
     report.append("\n---")
     
     report.append("\n## 3. Financial Cost-Share Drivers")
     report.append(f"Analysis of actual expenditures reveals that labor accounts for the dominant share of the budget slippage:")
-    report.append(f"* **Labor Actual Spend:** {labor_cost:,.2f} NOK ({labor_cost/tot_ac*100:.1f}% of total cost)")
-    report.append(f"* **Material Actual Spend:** {material_cost:,.2f} NOK ({material_cost/tot_ac*100:.1f}% of total cost)")
+    report.append(f"* **Labor Actual Spend:** ${labor_cost:,.2f} ({labor_cost/tot_ac*100:.1f}% of total cost)")
+    report.append(f"* **Material Actual Spend:** ${material_cost:,.2f} ({material_cost/tot_ac*100:.1f}% of total cost)")
     
     report.append("\n### 🚨 Resource & Audit Anomalies")
     report.append("1. **Labor Overtime Violations (>45 hrs/week):**")
@@ -111,10 +111,10 @@ def generate_report_content():
     else:
         report.append("   * No resource weekly overtime violations detected.")
         
-    report.append("\n2. **High-Value Procurement Invoices (>50,000 NOK):**")
+    report.append("\n2. **High-Value Procurement Invoices (>$5,000):**")
     if large_invoices:
         for pid, desc, cost in large_invoices:
-            report.append(f"   * **[AUDIT]** Invoice `{pid}` for `{desc}` was processed at `{cost:,.2f} NOK`.")
+            report.append(f"   * **[AUDIT]** Invoice `{pid}` for `{desc}` was processed at `${cost:,.2f}`.")
     else:
         report.append("   * No invoices exceeded the threshold.")
         
@@ -135,7 +135,7 @@ def generate_report_content():
     report.append("\n## 5. Corrective Action Plan & Recommendations")
     report.append("To safeguard the net margin of the vessel delivery and future project portfolios, we advise the Board to implement the following actions:")
     report.append("1. **Freeze Variation Orders (VO):** Instigate a strict change-order freeze on WBS 1.0 (PM & Engineering) and WBS 3.0 (Outfitting) to block unbudgeted design features.")
-    report.append("2. **Contract Penalty Mitigation:** WBS 4.0 (Sea Trials) has slip risk. Enacting a schedule crash (overlapping testing crew shift) costs an extra **10,000 NOK** but saves **50,000 NOK** in liquidated damages penalty (Net Benefit: **+40,000 NOK**).")
+    report.append("2. **Contract Penalty Mitigation:** WBS 4.0 (Sea Trials) has slip risk. Enacting a schedule crash (overlapping testing crew shift) costs an extra **$1,000** but saves **$5,000** in liquidated damages penalty (Net Benefit: **+$4,000**).")
     report.append("3. **Supplier Dual-Sourcing:** Diversify composite carbon suppliers to avoid shipping premium costs identified in the procurement audit.")
     
     return "\n".join(report)

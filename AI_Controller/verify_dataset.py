@@ -64,18 +64,19 @@ for prg in physical_progress:
         latest_progress[wbs_id] = {"Date": date_str, "Percent": percent}
 
 # Print EVM Report by WBS Element
+# Print EVM Report by WBS Element (Converted to USD using 1 USD = 10 NOK)
 total_bac = 0.0
 total_ac = 0.0
 total_ev = 0.0
 
-print(f"{'WBS':<8} | {'WBS Element Name':<30} | {'BAC (NOK)':<12} | {'AC (NOK)':<12} | {'EV (NOK)':<12} | {'CPI':<6} | {'Status'}")
+print(f"{'WBS':<8} | {'WBS Element Name':<30} | {'BAC (USD)':<12} | {'AC (USD)':<12} | {'EV (USD)':<12} | {'CPI':<6} | {'Status'}")
 print("-" * 95)
 
 for wbs in wbs_elements:
     wbs_id = wbs["WBS_ID"]
     name = wbs["ElementName"]
-    bac = float(wbs["PlannedCost"])
-    ac = actual_costs_by_wbs.get(wbs_id, 0.0)
+    bac = float(wbs["PlannedCost"]) * 0.10
+    ac = actual_costs_by_wbs.get(wbs_id, 0.0) * 0.10
     
     # Earned Value = BAC * Percent Complete
     progress_info = latest_progress.get(wbs_id, {"Percent": 0.0})
@@ -95,14 +96,14 @@ for wbs in wbs_elements:
     elif cpi > 1.05:
         status = "UNDER BUDGET (SAVING)"
         
-    print(f"{wbs['WBS_Code']:<8} | {name:<30} | {bac:<12,.2f} | {ac:<12,.2f} | {ev:<12,.2f} | {cpi:<6.2f} | {status}")
+    print(f"{wbs['WBS_Code']:<8} | {name:<30} | ${bac:<11,.2f} | ${ac:<11,.2f} | ${ev:<11,.2f} | {cpi:<6.2f} | {status}")
 
 # Project Summary
 project_cpi = total_ev / total_ac if total_ac > 0 else 1.0
 print("-" * 95)
-print(f"{'PROJECT':<8} | {'Total Project Vessel':<30} | {total_bac:<12,.2f} | {total_ac:<12,.2f} | {total_ev:<12,.2f} | {project_cpi:<6.2f} |")
+print(f"{'PROJECT':<8} | {'Total Project Vessel':<30} | ${total_bac:<11,.2f} | ${total_ac:<11,.2f} | ${total_ev:<11,.2f} | {project_cpi:<6.2f} |")
 print("-" * 95)
-print(f"Project Cost Variance (CV): {total_ev - total_ac:+,.2f} NOK")
+print(f"Project Cost Variance (CV): ${total_ev - total_ac:+,.2f}")
 print(f"Overall Physical Progress: {total_ev / total_bac * 100:.1f}%")
 print("\n")
 
@@ -116,10 +117,10 @@ try:
         db_summary = con.execute("SELECT Total_BAC, Total_AC, Total_EV, Total_CV, Project_CPI, Overall_Progress_Pct FROM v_project_evm_summary").fetchone()
         
         db_bac, db_ac, db_ev, db_cv, db_cpi, db_progress = db_summary
-        print(f"DuckDB Total BAC : {db_bac:,.2f} NOK (Mismatch: {abs(db_bac - total_bac):.2f} NOK)")
-        print(f"DuckDB Total AC  : {db_ac:,.2f} NOK (Mismatch: {abs(db_ac - total_ac):.2f} NOK)")
-        print(f"DuckDB Total EV  : {db_ev:,.2f} NOK (Mismatch: {abs(db_ev - total_ev):.2f} NOK)")
-        print(f"DuckDB Total CV  : {db_cv:,.2f} NOK (Mismatch: {abs(db_cv - (total_ev - total_ac)):.2f} NOK)")
+        print(f"DuckDB Total BAC : ${db_bac:,.2f} (Mismatch: ${abs(db_bac - total_bac):.2f})")
+        print(f"DuckDB Total AC  : ${db_ac:,.2f} (Mismatch: ${abs(db_ac - total_ac):.2f})")
+        print(f"DuckDB Total EV  : ${db_ev:,.2f} (Mismatch: ${abs(db_ev - total_ev):.2f})")
+        print(f"DuckDB Total CV  : ${db_cv:,.2f} (Mismatch: ${abs(db_cv - (total_ev - total_ac)):.2f})")
         print(f"DuckDB CPI       : {db_cpi:.2f} (Mismatch: {abs(db_cpi - project_cpi):.4f})")
         print(f"DuckDB Progress  : {db_progress:.1f}% (Mismatch: {abs(db_progress - (total_ev / total_bac * 100)):.2f}%)")
         print("-------------------------------------------")

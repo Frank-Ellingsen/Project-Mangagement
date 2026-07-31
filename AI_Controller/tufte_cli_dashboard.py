@@ -50,7 +50,7 @@ def print_tufte_dashboard():
     print("=" * 98)
     print("\nEVM Performance Matrix by WBS Element:")
     print("-" * 98)
-    print(f"{'WBS':<6} | {'WBS Element Name':<28} | {'BAC (NOK)':>12} | {'AC (NOK)':>12} | {'EV (NOK)':>12} | {'EAC (NOK)':>12} | {'CPI':>5} | {'Status'}")
+    print(f"{'WBS':<6} | {'WBS Element Name':<28} | {'BAC (USD)':>12} | {'AC (USD)':>12} | {'EV (USD)':>12} | {'EAC (USD)':>12} | {'CPI':>5} | {'Status'}")
     print("-" * 98)
     
     for row in wbs_data:
@@ -98,15 +98,15 @@ def print_tufte_dashboard():
     print("-" * 98)
     
     # Bottom KPI Summary (Tufte style: large indicators, clear labels, minimal ink)
-    print(f"\nProject Cost Variance (CV): {tot_cv:+,.2f} NOK")
-    print(f"Projected Variance at Completion (VAC): {tot_vac:+,.2f} NOK (Typical EAC)")
+    print(f"\nProject Cost Variance (CV): ${tot_cv:+,.2f}")
+    print(f"Projected Variance at Completion (VAC): ${tot_vac:+,.2f} (Typical EAC)")
     print(f"Overall Physical Progress: {overall_pct:.1f}%\n")
     
     # Additional analytical insight (Top resource consumers & Material overruns)
     print("Top Resource Cost Consumers (Timesheet Analysis):")
     print("-" * 60)
     top_resources = con.execute("""
-        SELECT r.ResourceName, r.Role, SUM(t.HoursWorked) as TotalHours, SUM(t.HoursWorked * r.HourlyRate) as TotalCost
+        SELECT r.ResourceName, r.Role, SUM(t.HoursWorked) as TotalHours, SUM(t.HoursWorked * r.HourlyRate) * 0.10 as TotalCost
         FROM timesheets t
         JOIN resources r ON t.ResourceID = r.ResourceID
         GROUP BY r.ResourceName, r.Role
@@ -115,7 +115,7 @@ def print_tufte_dashboard():
     """).fetchall()
     
     for rname, role, hours, cost in top_resources:
-        print(f"  {rname:<20} ({role:<20}): {hours:>5.1f} hrs  |  {cost:>12,.2f} NOK")
+        print(f"  {rname:<20} ({role:<20}): {hours:>5.1f} hrs  |  ${cost:>11,.2f}")
     print("-" * 60)
     
     con.close()

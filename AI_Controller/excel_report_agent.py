@@ -110,9 +110,9 @@ def create_excel_report():
     
     # KPI metrics (BAC, AC, EV, CPI, Progress, CV, VAC, TCPI)
     kpis = [
-        ("BUDGET (BAC)", summary[0], "NOK#,##0.00"),
-        ("ACTUAL COST (AC)", summary[1], "NOK#,##0.00"),
-        ("EARNED VALUE (EV)", summary[2], "NOK#,##0.00"),
+        ("BUDGET (BAC)", summary[0], "$#,##0.00"),
+        ("ACTUAL COST (AC)", summary[1], "$#,##0.00"),
+        ("EARNED VALUE (EV)", summary[2], "$#,##0.00"),
         ("CPI", summary[4], "0.00"),
         ("PROGRESS", summary[7] / 100, "0.0%")
     ]
@@ -128,7 +128,7 @@ def create_excel_report():
             
     # WBS Table Headers
     ws_dash.cell(row=8, column=1, value="WBS Element Performance").font = section_font
-    headers = ["WBS Code", "ElementName", "BAC (NOK)", "AC (NOK)", "EV (NOK)", "CPI", "Progress", "EAC Typical (NOK)", "Status"]
+    headers = ["WBS Code", "ElementName", "BAC (USD)", "AC (USD)", "EV (USD)", "CPI", "Progress", "EAC Typical (USD)", "Status"]
     for col_idx, header in enumerate(headers, start=1):
         cell = ws_dash.cell(row=9, column=col_idx, value=header)
         cell.font = header_font
@@ -143,9 +143,9 @@ def create_excel_report():
         
         ws_dash.cell(row=r, column=1, value=wbs_code).alignment = Alignment(horizontal="center")
         ws_dash.cell(row=r, column=2, value=name).alignment = Alignment(horizontal="left")
-        ws_dash.cell(row=r, column=3, value=bac).number_format = "NOK#,##0.00"
-        ws_dash.cell(row=r, column=4, value=ac).number_format = "NOK#,##0.00"
-        ws_dash.cell(row=r, column=5, value=ev).number_format = "NOK#,##0.00"
+        ws_dash.cell(row=r, column=3, value=bac).number_format = "$#,##0.00"
+        ws_dash.cell(row=r, column=4, value=ac).number_format = "$#,##0.00"
+        ws_dash.cell(row=r, column=5, value=ev).number_format = "$#,##0.00"
         
         cpi_cell = ws_dash.cell(row=r, column=6, value=f"=E{r}/D{r}")
         cpi_cell.number_format = "0.00"
@@ -154,7 +154,7 @@ def create_excel_report():
         ws_dash.cell(row=r, column=7, value=pct).number_format = "0.0%"
         
         eac_cell = ws_dash.cell(row=r, column=8, value=f"=C{r}/F{r}")
-        eac_cell.number_format = "NOK#,##0.00"
+        eac_cell.number_format = "$#,##0.00"
         
         status_cell = ws_dash.cell(row=r, column=9, value=f'=IF(F{r}<0.95, "🔴 Overrun", "🟢 On Track")')
         status_cell.alignment = Alignment(horizontal="center")
@@ -169,12 +169,12 @@ def create_excel_report():
     tot_row = start_row + len(wbs_metrics)
     ws_dash.cell(row=tot_row, column=1, value="TOTAL").alignment = Alignment(horizontal="center")
     ws_dash.cell(row=tot_row, column=2, value="Project Vessel Summary")
-    ws_dash.cell(row=tot_row, column=3, value=f"=SUM(C10:C{tot_row-1})").number_format = "NOK#,##0.00"
-    ws_dash.cell(row=tot_row, column=4, value=f"=SUM(D10:D{tot_row-1})").number_format = "NOK#,##0.00"
-    ws_dash.cell(row=tot_row, column=5, value=f"=SUM(E10:E{tot_row-1})").number_format = "NOK#,##0.00"
+    ws_dash.cell(row=tot_row, column=3, value=f"=SUM(C10:C{tot_row-1})").number_format = "$#,##0.00"
+    ws_dash.cell(row=tot_row, column=4, value=f"=SUM(D10:D{tot_row-1})").number_format = "$#,##0.00"
+    ws_dash.cell(row=tot_row, column=5, value=f"=SUM(E10:E{tot_row-1})").number_format = "$#,##0.00"
     ws_dash.cell(row=tot_row, column=6, value=f"=E{tot_row}/D{tot_row}").number_format = "0.00"
     ws_dash.cell(row=tot_row, column=7, value=f"=E{tot_row}/C{tot_row}").number_format = "0.0%"
-    ws_dash.cell(row=tot_row, column=8, value=f"=SUM(H10:H{tot_row-1})").number_format = "NOK#,##0.00"
+    ws_dash.cell(row=tot_row, column=8, value=f"=SUM(H10:H{tot_row-1})").number_format = "$#,##0.00"
     ws_dash.cell(row=tot_row, column=9, value=f'=IF(F{tot_row}<0.95, "🔴 Overrun", "🟢 On Track")').alignment = Alignment(horizontal="center")
     
     for c in range(1, 10):
@@ -267,7 +267,7 @@ def create_excel_report():
     
     # Labor vs Material Split table
     ws_cfo.cell(row=5, column=1, value="Cost-Share Breakdown").font = section_font
-    cfo_headers = ["Category", "Actual Cost (NOK)", "Share %"]
+    cfo_headers = ["Category", "Actual Cost (USD)", "Share %"]
     for col_idx, h in enumerate(cfo_headers, start=1):
         cell = ws_cfo.cell(row=6, column=col_idx, value=h)
         cell.font = header_font
@@ -279,17 +279,17 @@ def create_excel_report():
     
     # Write Labor
     ws_cfo.cell(row=7, column=1, value="Labor Costs").font = regular_font
-    ws_cfo.cell(row=7, column=2, value=tot_labor).number_format = "NOK#,##0.00"
+    ws_cfo.cell(row=7, column=2, value=tot_labor).number_format = "$#,##0.00"
     ws_cfo.cell(row=7, column=3, value=f"=B7/B9").number_format = "0.0%"
     
     # Write Material
     ws_cfo.cell(row=8, column=1, value="Material & Procurement Costs").font = regular_font
-    ws_cfo.cell(row=8, column=2, value=tot_material).number_format = "NOK#,##0.00"
+    ws_cfo.cell(row=8, column=2, value=tot_material).number_format = "$#,##0.00"
     ws_cfo.cell(row=8, column=3, value=f"=B8/B9").number_format = "0.0%"
     
     # Total Cost Share
     ws_cfo.cell(row=9, column=1, value="TOTAL ACTUAL COST").font = bold_font
-    ws_cfo.cell(row=9, column=2, value=f"=SUM(B7:B8)").number_format = "NOK#,##0.00"
+    ws_cfo.cell(row=9, column=2, value=f"=SUM(B7:B8)").number_format = "$#,##0.00"
     ws_cfo.cell(row=9, column=3, value=1.0).number_format = "0.0%"
     
     for c in range(1, 4):
@@ -302,7 +302,7 @@ def create_excel_report():
         
     # Top Resource Burn Rates
     ws_cfo.cell(row=12, column=1, value="Resource Burn Rates").font = section_font
-    res_headers = ["Resource Name", "Role", "Hourly Rate (NOK)", "Hours Logged", "Total Cost Logged (NOK)"]
+    res_headers = ["Resource Name", "Role", "Hourly Rate (USD)", "Hours Logged", "Total Cost Logged (USD)"]
     for col_idx, h in enumerate(res_headers, start=1):
         cell = ws_cfo.cell(row=13, column=col_idx, value=h)
         cell.font = header_font
@@ -314,9 +314,9 @@ def create_excel_report():
         name, role, rate, hours, cost = row
         ws_cfo.cell(row=r, column=1, value=name).font = regular_font
         ws_cfo.cell(row=r, column=2, value=role).font = regular_font
-        ws_cfo.cell(row=r, column=3, value=float(rate)).number_format = "NOK#,##0.00"
+        ws_cfo.cell(row=r, column=3, value=float(rate) * 0.10).number_format = "$#,##0.00"
         ws_cfo.cell(row=r, column=4, value=float(hours)).number_format = "#,##0.0"
-        ws_cfo.cell(row=r, column=5, value=float(cost)).number_format = "NOK#,##0.00"
+        ws_cfo.cell(row=r, column=5, value=float(cost)).number_format = "$#,##0.00"
         for c in range(1, 6):
             ws_cfo.cell(row=r, column=c).border = thin_bottom
             
@@ -356,15 +356,15 @@ def create_excel_report():
             
     # Large Procurement Transactions Table
     start_proc_row = 7 + len(overtime_logs) + 3
-    ws_risk.cell(row=start_proc_row-1, column=1, value="Large Procurement Audits (>50,000 NOK)").font = section_font
-    proc_headers = ["Purchase Date", "Invoice Number", "Description", "Cost (NOK)"]
+    ws_risk.cell(row=start_proc_row-1, column=1, value="Large Procurement Audits (>$5,000)").font = section_font
+    proc_headers = ["Purchase Date", "Invoice Number", "Description", "Cost (USD)"]
     for col_idx, h in enumerate(proc_headers, start=1):
         cell = ws_risk.cell(row=start_proc_row, column=col_idx, value=h)
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center" if col_idx in [1, 2] else ("left" if col_idx == 3 else "right"))
         
-    large_invoices = [inv for inv in materials_summary if inv[3] > 50000]
+    large_invoices = [inv for inv in materials_summary if inv[3] > 5000]
     r = start_proc_row
     for idx, inv in enumerate(large_invoices):
         r = start_proc_row + 1 + idx
@@ -373,7 +373,7 @@ def create_excel_report():
         ws_risk.cell(row=r, column=2, value=inv_id).alignment = Alignment(horizontal="center")
         ws_risk.cell(row=r, column=3, value=desc).alignment = Alignment(horizontal="left")
         cost_cell = ws_risk.cell(row=r, column=4, value=float(cost))
-        cost_cell.number_format = "NOK#,##0.00"
+        cost_cell.number_format = "$#,#0.00"
         cost_cell.alignment = Alignment(horizontal="right")
         cost_cell.fill = alert_fill
         for c in range(1, 5):
@@ -425,7 +425,7 @@ def create_excel_report():
     inputs = [
         ("Simulated Labor Rate Savings (%)", 0.05, "0.0%"),
         ("Simulated Material Price Savings (%)", 0.10, "0.0%"),
-        ("Contract Delay Penalty (NOK/Day)", 10000.0, "NOK#,##0.00"),
+        ("Contract Delay Penalty (USD/Day)", 1000.0, "$#,##0.00"),
         ("Crash Schedule? (0=No, 5=Crash 5 Days, 10=Crash 10 Days)", 5, "0")
     ]
     
@@ -445,20 +445,20 @@ def create_excel_report():
     ws_sim.cell(row=12, column=1, value="Simulation Results (Calculated)").font = section_font
     
     # Original Values
-    ws_sim.cell(row=14, column=1, value="Current Baseline BAC (NOK)").font = regular_font
-    ws_sim.cell(row=14, column=2, value=summary[0]).number_format = "NOK#,##0.00"
+    ws_sim.cell(row=14, column=1, value="Current Baseline BAC (USD)").font = regular_font
+    ws_sim.cell(row=14, column=2, value=summary[0]).number_format = "$#,##0.00"
     
-    ws_sim.cell(row=15, column=1, value="Current Actual Cost AC (NOK)").font = regular_font
-    ws_sim.cell(row=15, column=2, value=summary[1]).number_format = "NOK#,##0.00"
+    ws_sim.cell(row=15, column=1, value="Current Actual Cost AC (USD)").font = regular_font
+    ws_sim.cell(row=15, column=2, value=summary[1]).number_format = "$#,##0.00"
     
-    ws_sim.cell(row=16, column=1, value="Current Earned Value EV (NOK)").font = regular_font
-    ws_sim.cell(row=16, column=2, value=summary[2]).number_format = "NOK#,##0.00"
+    ws_sim.cell(row=16, column=1, value="Current Earned Value EV (USD)").font = regular_font
+    ws_sim.cell(row=16, column=2, value=summary[2]).number_format = "$#,##0.00"
     
     # Formulas for simulated cost share
-    ws_sim.cell(row=18, column=1, value="Simulated Actual Cost (AC) NOK").font = bold_font
+    ws_sim.cell(row=18, column=1, value="Simulated Actual Cost (AC) USD").font = bold_font
     # AC = Current_AC * (1 - Labor_Saving * 0.718 - Material_Saving * 0.282) + Crashing_Cost
-    ac_form = "=B15 * (1 - B6 * 0.718 - B7 * 0.282) + 200000 * (B9 / 100)"
-    ws_sim.cell(row=18, column=2, value=ac_form).number_format = "NOK#,##0.00"
+    ac_form = "=B15 * (1 - B6 * 0.718 - B7 * 0.282) + 20000 * (B9 / 100)"
+    ws_sim.cell(row=18, column=2, value=ac_form).number_format = "$#,##0.00"
     ws_sim.cell(row=18, column=2).font = bold_font
     ws_sim.cell(row=18, column=2).fill = accent_fill
     
@@ -468,8 +468,8 @@ def create_excel_report():
     ws_sim.cell(row=19, column=2).font = bold_font
     
     # Simulated EAC
-    ws_sim.cell(row=20, column=1, value="Simulated Estimate At Completion (EAC) NOK").font = bold_font
-    ws_sim.cell(row=20, column=2, value="=B14/B19").number_format = "NOK#,##0.00"
+    ws_sim.cell(row=20, column=1, value="Simulated Estimate At Completion (EAC) USD").font = bold_font
+    ws_sim.cell(row=20, column=2, value="=B14/B19").number_format = "$#,##0.00"
     ws_sim.cell(row=20, column=2).font = bold_font
     ws_sim.cell(row=20, column=2).fill = accent_fill
     
@@ -477,14 +477,14 @@ def create_excel_report():
     ws_sim.cell(row=22, column=1, value="Simulated Schedule Delay (Days)").font = regular_font
     ws_sim.cell(row=22, column=2, value="=MAX(0, 10 - B9)").number_format = "0"
     
-    ws_sim.cell(row=23, column=1, value="Simulated Liquidated Damages Penalty (NOK)").font = regular_font
-    ws_sim.cell(row=23, column=2, value="=B22 * B8").number_format = "NOK#,##0.00"
+    ws_sim.cell(row=23, column=1, value="Simulated Liquidated Damages Penalty (USD)").font = regular_font
+    ws_sim.cell(row=23, column=2, value="=B22 * B8").number_format = "$#,##0.00"
     
-    ws_sim.cell(row=24, column=1, value="Direct Schedule Crashing Cost (NOK)").font = regular_font
-    ws_sim.cell(row=24, column=2, value="=200000 * (B9 / 100)").number_format = "NOK#,##0.00"
+    ws_sim.cell(row=24, column=1, value="Direct Schedule Crashing Cost (USD)").font = regular_font
+    ws_sim.cell(row=24, column=2, value="=20000 * (B9 / 100)").number_format = "$#,##0.00"
     
-    ws_sim.cell(row=25, column=1, value="Net Crashing Trade-off Benefit (NOK)").font = bold_font
-    ws_sim.cell(row=25, column=2, value="=(10 * B8 - B23) - B24").number_format = "NOK#,##0.00"
+    ws_sim.cell(row=25, column=1, value="Net Crashing Trade-off Benefit (USD)").font = bold_font
+    ws_sim.cell(row=25, column=2, value="=(10 * B8 - B23) - B24").number_format = "$#,##0.00"
     ws_sim.cell(row=25, column=2).font = bold_font
     ws_sim.cell(row=25, column=2).fill = ok_fill
     
@@ -501,7 +501,7 @@ def create_excel_report():
             for cell in col:
                 val_str = str(cell.value or '')
                 if val_str.startswith('='): # Don't size based on formulas
-                    val_str = "NOK 1,848,810.00"
+                    val_str = "$184,881.00"
                 max_len = max(max_len, len(val_str))
             ws.column_dimensions[col_letter].width = max(max_len + 3, 10)
             
