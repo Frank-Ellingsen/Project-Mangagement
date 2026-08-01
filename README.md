@@ -1,3 +1,4 @@
+https://frank-ellingsen.github.io/Project-Mangagement/
 # Project Controlling Control Tower
 
 An automated, interactive **Project Controlling & Earned Value Management (EVM) Control Tower** designed for engineering, maritime, and defense sector projects. This workspace integrates analytical data processing, automated agentic auditing, Excel reporting, Power BI compilation, and a Streamlit web dashboard — all governed by **Edward Tufte's Data-Ink Ratio** principles and **PRINCE2** project management standards.
