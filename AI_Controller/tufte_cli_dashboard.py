@@ -117,6 +117,10 @@ def print_tufte_dashboard():
         for rname, role, hours, cost in top_resources:
             print(f"  {rname:<20} ({role:<20}): {hours:>5.1f} hrs  |  {cost:>11,.2f} USD")
         print("-" * 60)
+        print("\nCritical Controlling Audit Commentary (PRJ-001):")
+        print("  Reason: Cost overrun of 356k USD on PRJ-001 (EVM CPI: 0.81), driven by rising")
+        print("          contractor rates for outfitting and engineering design variation orders.")
+        print("  Action: Renegotiate contractor rates, freeze new VOs, reallocate welding team.")
     finally:
         con.close()
 

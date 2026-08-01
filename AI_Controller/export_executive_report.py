@@ -133,10 +133,10 @@ def generate_report_content():
     report.append("\n---")
     
     report.append("\n## 5. Corrective Action Plan & Recommendations")
-    report.append("To safeguard the net margin of the vessel delivery and future project portfolios, we advise the Board to implement the following actions:")
-    report.append("1. **Freeze Variation Orders (VO):** Instigate a strict change-order freeze on WBS 1.0 (PM & Engineering) and WBS 3.0 (Outfitting) to block unbudgeted design features.")
+    report.append("To safeguard the net margin of the vessel delivery and future project portfolios, we advise the Board to implement the following actions for the Red flagged project PRJ-001:")
+    report.append("1. **Outfitting Cost Control (Reason: Contractor Rate Increases & Design Variations):** Audit outfitting contracts and renegotiate hourly rates to control labor burn. Instigate a strict change-order freeze on WBS 1.0 (PM & Engineering) and WBS 3.0 (Outfitting) to block unbudgeted design features.")
     report.append("2. **Contract Penalty Mitigation:** WBS 4.0 (Sea Trials) has slip risk. Enacting a schedule crash (overlapping testing crew shift) costs an extra **$10,000** but saves **$50,000** in liquidated damages penalty (Net Benefit: **+$40,000**).")
-    report.append("3. **Supplier Dual-Sourcing:** Diversify composite carbon suppliers to avoid shipping premium costs identified in the procurement audit.")
+    report.append("3. **Resource Reallocation:** Reallocate excess structural welding capacity to delayed outfitting tasks to optimize yard-wide capacity and reduce overall costs.")
     
     return "\n".join(report)
 

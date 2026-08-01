@@ -48,6 +48,10 @@ class ProjectControllerAgent:
         warnings = [row[1] for row in wbs_metrics if row[5] < 0.95]
         if warnings:
             report.append(f"\n[ALERT] Over Budget WBS Elements Detected: {', '.join(warnings)}")
+            report.append("\n[CRITICAL DEVIATION REPORT - PRJ-001]")
+            report.append("  Reason: Cost overrun of 356k USD on PRJ-001 (EVM CPI: 0.81), driven by rising")
+            report.append("          contractor rates for outfitting and engineering design variation orders.")
+            report.append("  Action: Audit outfitting contracts, renegotiate rates, freeze non-essential VOs.")
             
         return "\n".join(report)
 

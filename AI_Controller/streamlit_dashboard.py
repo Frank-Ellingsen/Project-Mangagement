@@ -486,10 +486,10 @@ else:
                 st.markdown("#### 📋 Active Corrective Action Items")
                 
                 st.error("""
-                **🔴 Audit Materials & Labor Rates (WBS 1.0 & 3.0)**  
+                **🔴 Audit Materials & Labor Rates (WBS 1.0 & 3.0 on PRJ-001)**  
                 * **Priority**: Critical  
-                * **Reason**: Cost overrun of 119k USD in PM & Eng and 140k USD in Outfitting.  
-                * **Action**: Renegotiate contractor rates, freeze non-essential variation orders, and restrict scope expansion.
+                * **Reason**: Cost overrun of 119k USD in PM & Eng and 140k USD in Outfitting on project PRJ-001, caused by rising contractor rates and design variations.  
+                * **Action**: Renegotiate contractor rates, freeze non-essential variation orders (VOs), and restrict scope expansion.
                 """)
                 
                 st.warning("""

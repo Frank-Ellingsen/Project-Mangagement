@@ -267,6 +267,16 @@ def create_excel_report():
         cell.border = double_bottom
         cell.fill = accent_fill
         
+    # Write commentary block below WBS table
+    comment_row = tot_row + 3
+    ws_dash.cell(row=comment_row, column=1, value="Critical Controlling Audit Commentary (PRJ-001)").font = section_font
+    
+    ws_dash.cell(row=comment_row+1, column=1, value="Reason for Red Flag:").font = bold_font
+    ws_dash.cell(row=comment_row+1, column=2, value="Cost overrun of 356k USD on PRJ-001 (EVM CPI: 0.81), driven by rising contractor rates for outfitting and engineering design variation orders.").font = regular_font
+    
+    ws_dash.cell(row=comment_row+2, column=1, value="Recommended Action:").font = bold_font
+    ws_dash.cell(row=comment_row+2, column=2, value="Audit outfitting contracts, renegotiate rates, freeze non-essential VOs, and reallocate welding capacity.").font = regular_font
+
     # ====================================================
     # TAB 2: Schedule & Gantt
     # ====================================================
