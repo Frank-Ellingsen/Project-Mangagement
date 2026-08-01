@@ -109,6 +109,18 @@ if os.path.exists(EXCEL_PATH):
         width="stretch"
     )
 
+# Download PDF Report button in sidebar
+PDF_PATH = os.path.join(BASE_DIR, "Reports", "PRJ-001_Executive_Board_Report.pdf")
+if os.path.exists(PDF_PATH):
+    pdf_bytes = load_file_bytes(PDF_PATH)
+    st.sidebar.download_button(
+        label=":material/download: Download PDF Report",
+        data=pdf_bytes,
+        file_name="PRJ-001_Executive_Board_Report.pdf",
+        mime="application/pdf",
+        width="stretch"
+    )
+
 if data is None:
     st.error("Project database not found. Please run `python AI_Controller/build_duckdb.py` first.")
 else:

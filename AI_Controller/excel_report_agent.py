@@ -9,9 +9,10 @@ from openpyxl.utils import get_column_letter
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DUCKDB_PATH = os.path.join(BASE_DIR, "Data", "DuckDB", "project_controlling.db")
 SQLITE_PATH = os.path.join(BASE_DIR, "Data", "SQLite", "project_controlling.db")
-REPORT_PATH = os.path.join(BASE_DIR, "Data", "vessel_construction_report.xlsx")
+REPORT_PATH = os.path.join(BASE_DIR, "Reports", "vessel_construction_report.xlsx")
 
 def create_excel_report():
+    os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)
     print("Loading data from DuckDB...")
     con_dd = duckdb.connect(DUCKDB_PATH, read_only=True)
     

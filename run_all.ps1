@@ -13,7 +13,7 @@ function Show-Menu {
     Write-Host "  [4] Run Excel Reports Agent"
     Write-Host "  [5] Compile Power BI Project (.pbip)"
     Write-Host "  [6] Run Agentic Control Crew Audits"
-    Write-Host "  [7] Run Executive Board Report Exporter"
+    Write-Host "  [7] Run Executive Board Report Exporters (MD & PDF)"
     Write-Host "  [8] Start Interactive Streamlit Dashboard"
     Write-Host "  [9] Run Pipeline (All steps 1 to 7 in sequence)"
     Write-Host "  [10] Exit"
@@ -52,8 +52,9 @@ do {
             python AI_Controller/run_agents.py
         }
         "7" {
-            Write-Host "--- Running Executive Board Report Exporter ---" -ForegroundColor Yellow
+            Write-Host "--- Running Executive Board Report Exporters (MD & PDF) ---" -ForegroundColor Yellow
             python AI_Controller/export_executive_report.py
+            python AI_Controller/export_pdf_report.py
         }
         "8" {
             Write-Host "--- Starting Agent Control Tower Streamlit App ---" -ForegroundColor Yellow
@@ -83,8 +84,9 @@ do {
             Write-Host "`n[Step 6/7] Executing Agent Crew..." -ForegroundColor Cyan
             python AI_Controller/run_agents.py
             
-            Write-Host "`n[Step 7/7] Exporting Board Report..." -ForegroundColor Cyan
+            Write-Host "`n[Step 7/7] Exporting Board Reports (MD & PDF)..." -ForegroundColor Cyan
             python AI_Controller/export_executive_report.py
+            python AI_Controller/export_pdf_report.py
             
             Write-Host "`n==============================================" -ForegroundColor Green
             Write-Host " PIPELINE SEQUENCE COMPLETED SUCCESSFULLY" -ForegroundColor Green

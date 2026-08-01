@@ -7,7 +7,7 @@ from datetime import datetime
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DUCKDB_PATH = os.path.join(BASE_DIR, "Data", "DuckDB", "project_controlling.db")
 SQLITE_PATH = os.path.join(BASE_DIR, "Data", "SQLite", "project_controlling.db")
-EXPORT_PATH = os.path.join(BASE_DIR, "Data", "PRJ-001_Executive_Board_Report.md")
+EXPORT_PATH = os.path.join(BASE_DIR, "Reports", "PRJ-001_Executive_Board_Report.md")
 
 def generate_report_content():
     # Load DuckDB data
@@ -143,6 +143,7 @@ def generate_report_content():
 def export_report():
     print(f"Generating Executive Board Report...")
     content = generate_report_content()
+    os.makedirs(os.path.dirname(EXPORT_PATH), exist_ok=True)
     with open(EXPORT_PATH, "w", encoding="utf-8") as f:
         f.write(content)
     print(f"Report exported successfully to: {EXPORT_PATH}")

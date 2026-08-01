@@ -337,8 +337,8 @@ def create_presentation():
             p.space_after = Pt(20)
                 
     # Save presentation
-    os.makedirs("Data", exist_ok=True)
-    prs.save("Data/Project_Portfolio_Review.pptx")
+    os.makedirs("Reports", exist_ok=True)
+    prs.save("Reports/Project_Portfolio_Review.pptx")
     print("PowerPoint presentation with Gantt of Gantts generated successfully!")
 
 if __name__ == "__main__":

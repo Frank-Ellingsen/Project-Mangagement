@@ -8,7 +8,7 @@ import streamlit as st
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DUCKDB_PATH = os.path.join(BASE_DIR, "Data", "DuckDB", "project_controlling.db")
 SQLITE_PATH = os.path.join(BASE_DIR, "Data", "SQLite", "project_controlling.db")
-EXCEL_PATH = os.path.join(BASE_DIR, "Data", "vessel_construction_report.xlsx")
+EXCEL_PATH = os.path.join(BASE_DIR, "Reports", "vessel_construction_report.xlsx")
 SKILLS_DIR = os.path.join(BASE_DIR, ".agents", "skills")
 
 
