@@ -590,32 +590,51 @@
           </h2>
         </div>
 
+        <!-- PLAIN ENGLISH PORTFOLIO OVERVIEW -->
+        <div class="section-card" style="margin-bottom: 24px; border-left: 4px solid var(--color-slate); padding-left: 20px;">
+          <h2 style="font-size: 16px; margin-bottom: 12px;">⚓ Executive Portfolio Overview</h2>
+          <p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 10px;">
+            The project portfolio currently consists of <strong>6 projects</strong> spanning maritime vessel fabrication, logistics solutions, and subsea structures. As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of <strong>7,100,000 NOK</strong>, with <strong>5,220,810 NOK</strong> logged in actual costs (AC) and <strong>4,752,500 NOK</strong> earned in physical progress value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at a stable <strong>0.91</strong>. Individual active projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances.
+          </p>
+          <p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-bottom: 6px;">
+            <strong>Project Highlights & Statuses:</strong>
+          </p>
+          <ul style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); padding-left: 20px;">
+            <li><strong>PRJ-001 (Composite Vessel Construction):</strong> Completed with a total spend of 1.85M NOK against a 1.5M NOK budget, resulting in a <strong>-356K NOK cost overrun</strong> (CPI: 0.81).</li>
+            <li><strong>PRJ-002 (Patrol Vessel Carbon Mold):</strong> Planned to start in August 2026 with an approved budget of <strong>800K NOK</strong>. No actuals logged yet.</li>
+            <li><strong>PRJ-003 (Subsea Cable Frame):</strong> Active at 30% progress. Tracking slightly over budget with 382.5K NOK spent to earn 360K NOK (CPI: 0.94).</li>
+            <li><strong>PRJ-004 (Autonomous Workboat Hull):</strong> Active at 70% progress. Showing mild cost pressure with 1.48M NOK spent to achieve 1.4M NOK of value (CPI: 0.95).</li>
+            <li><strong>PRJ-005 (Defense Logistics Pontoon):</strong> Active at 90% progress, managed by Frank Ellingsen. In good financial standing with 927K NOK spent to achieve 900K NOK of value (CPI: 0.97).</li>
+            <li><strong>PRJ-006 (Lightweight Cargo Hatch):</strong> Completed successfully under budget, spending 586.5K NOK on a 600K NOK baseline budget (CPI: 1.02, progress 100%).</li>
+          </ul>
+        </div>
+
         <!-- PORTFOLIO KPI ROW -->
         <div class="kpi-row">
           <div class="kpi-card">
             <span class="label">Total Portfolio BAC</span>
-            <span class="value">1,500,000 NOK</span>
-            <span class="delta neutral">Baseline budget (1 project)</span>
+            <span class="value">7,100,000 NOK</span>
+            <span class="delta neutral">Baseline budget (6 projects)</span>
           </div>
           <div class="kpi-card">
             <span class="label">Total Actual Cost (AC)</span>
-            <span class="value">1,848,810 NOK</span>
-            <span class="delta negative">+348,810 NOK over BAC</span>
+            <span class="value">5,220,810 NOK</span>
+            <span class="delta neutral">-1,879,190 NOK remaining budget</span>
           </div>
           <div class="kpi-card">
             <span class="label">Total Earned Value (EV)</span>
-            <span class="value">1,492,500 NOK</span>
-            <span class="delta neutral">99.5% work complete</span>
+            <span class="value">4,752,500 NOK</span>
+            <span class="delta neutral">66.9% work complete</span>
           </div>
           <div class="kpi-card">
             <span class="label">Portfolio CPI</span>
-            <span class="value text-danger">0.81</span>
-            <span class="delta negative">COST OVERRUN</span>
+            <span class="value text-danger">0.91</span>
+            <span class="delta negative">COST OVERRUN (Threshold: 0.95)</span>
           </div>
           <div class="kpi-card">
             <span class="label">Portfolio Progress</span>
-            <span class="value">99.5%</span>
-            <span class="delta neutral">0.5% remaining</span>
+            <span class="value">66.9%</span>
+            <span class="delta neutral">33.1% remaining</span>
           </div>
         </div>
 
@@ -627,27 +646,27 @@
           <div class="kpi-row">
             <div class="kpi-card">
               <span class="label">Cost Variance (CV)</span>
-              <span class="value text-danger">-356,310 NOK</span>
+              <span class="value text-danger">-468,310 NOK</span>
               <span class="delta negative">EV - AC</span>
             </div>
             <div class="kpi-card">
               <span class="label">EAC (Typical)</span>
-              <span class="value">1,859,559 NOK</span>
+              <span class="value">7,604,218 NOK</span>
               <span class="delta negative">BAC / CPI</span>
             </div>
             <div class="kpi-card">
               <span class="label">EAC (Atypical)</span>
-              <span class="value">1,856,310 NOK</span>
+              <span class="value">7,568,310 NOK</span>
               <span class="delta negative">AC + (BAC - EV)</span>
             </div>
             <div class="kpi-card">
               <span class="label">Variance at Completion (VAC)</span>
-              <span class="value text-danger">-359,559 NOK</span>
-              <span class="delta negative">BAC - EAC</span>
+              <span class="value text-danger">-504,218 NOK</span>
+              <span class="delta negative">BAC - EAC (Typical)</span>
             </div>
             <div class="kpi-card">
               <span class="label">To-Complete PI (TCPI)</span>
-              <span class="value text-danger">0.81</span>
+              <span class="value text-danger">1.25</span>
               <span class="delta negative">(BAC-EV)/(BAC-AC)</span>
             </div>
           </div>
@@ -685,6 +704,66 @@
                 <td class="align-right">99.5%</td>
                 <td class="align-right text-danger">-359,559</td>
                 <td><span class="text-danger">🔴 Over Budget</span></td>
+              </tr>
+              <tr>
+                <td>PRJ-002</td>
+                <td>Patrol Vessel Carbon Mold Design</td>
+                <td>Morten Hansen</td>
+                <td class="align-right">800,000</td>
+                <td class="align-right">0</td>
+                <td class="align-right">0</td>
+                <td class="align-right">1.00</td>
+                <td class="align-right">0.0%</td>
+                <td class="align-right">0</td>
+                <td><span style="color: #7f8c8d;">⚪ Planned</span></td>
+              </tr>
+              <tr>
+                <td>PRJ-003</td>
+                <td>Subsea Cable Installation Frame</td>
+                <td>Erik Johansen</td>
+                <td class="align-right">1,200,000</td>
+                <td class="align-right">382,500</td>
+                <td class="align-right">360,000</td>
+                <td class="align-right text-warning">0.94</td>
+                <td class="align-right">30.0%</td>
+                <td class="align-right text-success">+30,556</td>
+                <td><span class="text-warning">🟡 Overrun Warn</span></td>
+              </tr>
+              <tr>
+                <td>PRJ-004</td>
+                <td>Autonomous Workboat Hull Weldments</td>
+                <td>Astrid Nilsen</td>
+                <td class="align-right">2,000,000</td>
+                <td class="align-right">1,476,000</td>
+                <td class="align-right">1,400,000</td>
+                <td class="align-right text-warning">0.95</td>
+                <td class="align-right">70.0%</td>
+                <td class="align-right text-danger">-156,000</td>
+                <td><span class="text-warning">🟡 Overrun Warn</span></td>
+              </tr>
+              <tr>
+                <td>PRJ-005</td>
+                <td>Defense Logistics Pontoon Build</td>
+                <td>Frank Ellingsen</td>
+                <td class="align-right">1,000,000</td>
+                <td class="align-right">927,000</td>
+                <td class="align-right">900,000</td>
+                <td class="align-right text-warning">0.97</td>
+                <td class="align-right">90.0%</td>
+                <td class="align-right text-danger">-32,714</td>
+                <td><span class="text-success">🟢 Active</span></td>
+              </tr>
+              <tr>
+                <td>PRJ-006</td>
+                <td>Lightweight Composite Cargo Hatch</td>
+                <td>Morten Hansen</td>
+                <td class="align-right">600,000</td>
+                <td class="align-right">586,500</td>
+                <td class="align-right">600,000</td>
+                <td class="align-right text-success">1.02</td>
+                <td class="align-right">100.0%</td>
+                <td class="align-right text-success">+13,500</td>
+                <td><span class="text-success">🟢 Completed</span></td>
               </tr>
             </tbody>
           </table>

@@ -32,7 +32,7 @@ Project Mng/
 ├── Data/
 │   ├── DuckDB/project_controlling.db
 │   └── SQLite/project_controlling.db
-└── run_all.ps1                    # Master launcher script (Option 7)
+└── run_all.ps1                    # Master launcher script (Option 8)
 ```
 
 ---
@@ -67,7 +67,7 @@ From the project root folder, run:
 ```powershell
 streamlit run AI_Controller/agent_skills_app.py
 ```
-*Alternatively, run `./run_all.ps1` and select Option `[7]`.*
+*Alternatively, run `./run_all.ps1` and select Option `[8]`.*
 
 ---
 

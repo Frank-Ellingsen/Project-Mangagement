@@ -19,9 +19,11 @@ To launch the menu, open a PowerShell terminal in the workspace folder and run:
 3. **Print Tufte CLI Performance Dashboard**: Outputs a clean, borderless ASCII EVM dashboard to your console.
 4. **Run Excel Reports Agent**: Generates the interactive, formula-driven [vessel_construction_report.xlsx](file:///c:/Users/frank/Desktop/Project%20Mng/Data/vessel_construction_report.xlsx).
 5. **Compile Power BI Project (.pbip)**: Compiles the [Vessel_Performance.pbip](file:///c:/Users/frank/Desktop/Project%20Mng/Data/PowerBI_Project/Vessel_Performance.pbip) developer structure.
-6. **Run Agentic Control Crew Audits**: Runs audit routines for all 4 agents.
-7. **Start Interactive Streamlit Dashboard**: Launches the local Streamlit visual web dashboard.
-8. **Run Pipeline (1 to 6 in sequence)**: Compiles databases, verifies data, displays CLI statistics, writes Excel workbooks, compiles PBI projects, and runs agent audits in a single sweep.
+6. **Run Agentic Control Crew Audits**: Runs audit routines for all agents.
+7. **Run Executive Board Report Exporter**: Generates the board-ready briefing report.
+8. **Start Interactive Streamlit Dashboard**: Launches the local Streamlit visual web dashboard.
+9. **Run Pipeline (1 to 7 in sequence)**: Executes steps 1 through 7 in sequence automatically.
+10. **Exit**: Exits the orchestrator menu.
 
 ---
 

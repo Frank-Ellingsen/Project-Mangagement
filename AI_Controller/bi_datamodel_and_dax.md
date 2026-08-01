@@ -4,6 +4,20 @@ This guide details the database design, ETL transformation steps, DAX measures, 
 
 ---
 
+## Executive Portfolio Overview
+
+The project portfolio consists of **6 projects** spanning maritime vessel fabrication, logistics solutions, and subsea structures. As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of **7,100,000 NOK**, with **5,220,810 NOK** logged in actual costs (AC) and **4,752,500 NOK** earned in physical progress value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at a stable **0.91**. Individual active projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances.
+
+### Project Status Summary
+* **PRJ-001 (Composite Vessel Construction):** Completed with a total spend of 1.85M NOK against a 1.5M NOK budget, resulting in a **-356K NOK cost overrun** (CPI: 0.81).
+* **PRJ-002 (Patrol Vessel Carbon Mold):** Planned to start in August 2026 with an approved budget of **800K NOK**. No actuals logged yet.
+* **PRJ-003 (Subsea Cable Frame):** Active at 30% progress. Tracking slightly over budget with 382.5K NOK spent to earn 360K NOK (CPI: 0.94).
+* **PRJ-004 (Autonomous Workboat Hull):** Active at 70% progress. Showing mild cost pressure with 1.48M NOK spent to achieve 1.4M NOK of value (CPI: 0.95).
+* **PRJ-005 (Defense Logistics Pontoon):** Active at 90% progress, managed by Frank Ellingsen. In good financial standing with 927K NOK spent to achieve 900K NOK of value (CPI: 0.97).
+* **PRJ-006 (Lightweight Cargo Hatch):** Completed successfully under budget, spending 586.5K NOK on a 600K NOK baseline budget (CPI: 1.02, progress 100%).
+
+---
+
 ## 1. Power BI Data Model (Star Schema)
 
 For optimal query performance, table compression, and clean DAX calculations, the data model must be structured as a **Star Schema** (separating factual transactions from descriptive dimension lookup tables).
@@ -82,6 +96,17 @@ erDiagram
         string MonthName
         int Quarter
         int WeekNo
+    }
+
+    FACT_RAID_LOG {
+        string RiskID PK
+        string Type
+        string Description
+        string Impact
+        string Probability
+        string MitigationStrategy
+        string Owner
+        string Status
     }
 ```
 

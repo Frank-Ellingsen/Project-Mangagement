@@ -116,7 +116,7 @@
             "name": "projects-Partition",
             "source": {
               "type": "m",
-              "expression": "let\n    Source = Csv.Document(File.Contents(\"c:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\projects.csv\"),[Delimiter=\",\", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
+              "expression": "let\n    Source = Csv.Document(File.Contents(\"C:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\projects.csv\"),[Delimiter=\",\", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
             }
           }
         ]
@@ -161,7 +161,7 @@
             "name": "wbs_elements-Partition",
             "source": {
               "type": "m",
-              "expression": "let\n    Source = Csv.Document(File.Contents(\"c:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\wbs_elements.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
+              "expression": "let\n    Source = Csv.Document(File.Contents(\"C:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\wbs_elements.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
             }
           }
         ]
@@ -196,7 +196,7 @@
             "name": "resources-Partition",
             "source": {
               "type": "m",
-              "expression": "let\n    Source = Csv.Document(File.Contents(\"c:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\resources.csv\"),[Delimiter=\",\", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
+              "expression": "let\n    Source = Csv.Document(File.Contents(\"C:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\resources.csv\"),[Delimiter=\",\", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
             }
           }
         ]
@@ -246,7 +246,7 @@
             "name": "timesheets-Partition",
             "source": {
               "type": "m",
-              "expression": "let\n    Source = Csv.Document(File.Contents(\"c:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\timesheets.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),\n    Types = Table.TransformColumnTypes(Headers, {\"HoursWorked\", type number}),\n    MergeRes = Table.NestedJoin(Types, {\"ResourceID\"}, resources, {\"ResourceID\"}, \"res\", JoinKind.LeftOuter),\n    ExpandRes = Table.ExpandTableColumn(MergeRes, \"res\", {\"HourlyRate\"}, {\"HourlyRate\"}),\n    TypeRate = Table.TransformColumnTypes(ExpandRes, {\"HourlyRate\", type number}),\n    AddLabor = Table.AddColumn(TypeRate, \"LaborCost\", each [HoursWorked] * [HourlyRate], type number)\nin\n    AddLabor"
+              "expression": "let\n    Source = Csv.Document(File.Contents(\"C:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\timesheets.csv\"),[Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),\n    Types = Table.TransformColumnTypes(Headers, {\"HoursWorked\", type number}),\n    MergeRes = Table.NestedJoin(Types, {\"ResourceID\"}, resources, {\"ResourceID\"}, \"res\", JoinKind.LeftOuter),\n    ExpandRes = Table.ExpandTableColumn(MergeRes, \"res\", {\"HourlyRate\"}, {\"HourlyRate\"}),\n    TypeRate = Table.TransformColumnTypes(ExpandRes, {\"HourlyRate\", type number}),\n    AddLabor = Table.AddColumn(TypeRate, \"LaborCost\", each [HoursWorked] * [HourlyRate], type number)\nin\n    AddLabor"
             }
           }
         ]
@@ -297,7 +297,7 @@
             "name": "material_costs-Partition",
             "source": {
               "type": "m",
-              "expression": "let\n    Source = Csv.Document(File.Contents(\"c:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\material_costs.csv\"),[Delimiter=\",\", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
+              "expression": "let\n    Source = Csv.Document(File.Contents(\"C:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\material_costs.csv\"),[Delimiter=\",\", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
             }
           }
         ]
@@ -336,7 +336,7 @@
             "name": "physical_progress-Partition",
             "source": {
               "type": "m",
-              "expression": "let\n    Source = Csv.Document(File.Contents(\"c:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\physical_progress.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
+              "expression": "let\n    Source = Csv.Document(File.Contents(\"C:\\Users\\frank\\Desktop\\Project Mng\\Data\\CSV\\physical_progress.csv\"),[Delimiter=\",\", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),\n    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])\nin\n    Headers"
             }
           }
         ]

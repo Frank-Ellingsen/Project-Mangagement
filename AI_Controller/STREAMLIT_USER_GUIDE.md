@@ -24,11 +24,11 @@ When you open the application, you are presented with the **Agent Control Tower 
 
 ### A. Executive KPI Metrics Bar (Top)
 
-- **Budget at Completion (BAC)**: Baseline total budget allocated for the vessel construction (1,500,000 NOK).
-- **Actual Cost (AC)**: Cumulative actual expenditure (1,848,810 NOK).
-- **Earned Value (EV)**: Value of work physically completed to date (1,492,500 NOK).
-- **Project CPI**: Cost Performance Index (`0.81` - highlighted in red to indicate cost overrun).
-- **Physical Progress**: Overall completion percentage (`99.5%`).
+- **Budget at Completion (BAC)**: Baseline total budget allocated across the 6-project portfolio (7,100,000 NOK).
+- **Actual Cost (AC)**: Cumulative actual expenditure (5,220,810 NOK).
+- **Earned Value (EV)**: Value of work physically completed to date (4,752,500 NOK).
+- **Project CPI**: Cost Performance Index (`0.91` - highlighted in red to indicate portfolio-wide overrun).
+- **Physical Progress**: Overall completion percentage (`66.9%`).
 
 ### B. Interactive Schedule & WBS Gantt Chart
 

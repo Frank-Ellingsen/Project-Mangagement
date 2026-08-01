@@ -21,14 +21,33 @@ def create_excel_report():
         FROM v_project_evm_summary
     """).fetchone()
     
-    # 2. WBS Metrics
+    # 2. Project-level Metrics
+    projects_metrics = con_dd.execute("""
+        SELECT 
+            w.ProjectID,
+            p.ProjectName,
+            p.ProjectManager,
+            SUM(m.BAC) as BAC,
+            SUM(m.AC) as AC,
+            SUM(m.EV) as EV,
+            CASE WHEN SUM(m.AC) > 0 THEN SUM(m.EV) / SUM(m.AC) ELSE 1.0 END as CPI,
+            (SUM(m.EV) / SUM(m.BAC)) as Progress,
+            p.Status
+        FROM v_wbs_evm_metrics m
+        JOIN wbs_elements w ON m.WBS_ID = w.WBS_ID
+        JOIN projects p ON w.ProjectID = p.ProjectID
+        GROUP BY w.ProjectID, p.ProjectName, p.ProjectManager, p.Status
+        ORDER BY w.ProjectID
+    """).fetchall()
+    
+    # 3. WBS Metrics
     wbs_metrics = con_dd.execute("""
         SELECT WBS_Code, ElementName, BAC, AC, EV, CPI, PercentComplete, EAC_Typical 
         FROM v_wbs_evm_metrics
         ORDER BY WBS_Code
     """).fetchall()
     
-    # 3. Labor Details
+    # 4. Labor Details
     labor_summary = con_dd.execute("""
         SELECT r.ResourceName, r.Role, r.HourlyRate, SUM(t.HoursWorked) as TotalHours, SUM(t.HoursWorked * r.HourlyRate) as TotalCost
         FROM timesheets t
@@ -37,7 +56,7 @@ def create_excel_report():
         ORDER BY TotalCost DESC
     """).fetchall()
     
-    # 4. Materials Details
+    # 5. Materials Details
     materials_summary = con_dd.execute("""
         SELECT PurchaseDate, PurchaseID, Description, TotalActualCost
         FROM material_costs
@@ -49,7 +68,7 @@ def create_excel_report():
     print("Loading data from SQLite...")
     con_sq = sqlite3.connect(SQLITE_PATH)
     
-    # 5. Overtime
+    # 6. Overtime
     overtime_logs = con_sq.execute("""
         SELECT strftime('%Y-%W', t.WorkDate) as WorkWeek, r.ResourceName, r.Role, SUM(CAST(t.HoursWorked AS REAL)) as TotalHours
         FROM timesheets t
@@ -59,7 +78,7 @@ def create_excel_report():
         ORDER BY WorkWeek DESC, TotalHours DESC
     """).fetchall()
     
-    # 6. RAID Logs
+    # 7. RAID Logs
     raid_logs = con_sq.execute("""
         SELECT RiskID, Type, Description, Impact, Probability, MitigationStrategy, Owner, Status
         FROM raid_log
@@ -108,7 +127,7 @@ def create_excel_report():
     ws_dash["A2"].font = subtitle_font
     ws_dash.row_dimensions[1].height = 28
     
-    # KPI metrics (BAC, AC, EV, CPI, Progress, CV, VAC, TCPI)
+    # KPI metrics (BAC, AC, EV, CPI, Progress)
     kpis = [
         ("BUDGET (BAC)", summary[0], "$#,##0.00"),
         ("ACTUAL COST (AC)", summary[1], "$#,##0.00"),
@@ -126,17 +145,82 @@ def create_excel_report():
         if label == "CPI" and val < 0.95:
             val_cell.fill = alert_fill
             
-    # WBS Table Headers
-    ws_dash.cell(row=8, column=1, value="WBS Element Performance").font = section_font
-    headers = ["WBS Code", "ElementName", "BAC (USD)", "AC (USD)", "EV (USD)", "CPI", "Progress", "EAC Typical (USD)", "Status"]
+    # Executive Portfolio Summary (Plain English Overview)
+    ws_dash.cell(row=7, column=1, value="Executive Portfolio Summary").font = section_font
+    overview_text = (
+        "The project portfolio currently consists of 6 projects spanning maritime vessel fabrication, logistics solutions, "
+        "and subsea structures. As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of "
+        "7,100,000 NOK, with 5,220,810 NOK logged in actual costs (AC) and 4,752,500 NOK earned in physical progress "
+        "value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at a stable 0.91. Individual active "
+        "projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances."
+    )
+    ws_dash.cell(row=8, column=1, value=overview_text).font = regular_font
+    ws_dash.cell(row=8, column=1).alignment = Alignment(wrap_text=True, vertical="top")
+    ws_dash.merge_cells("A8:I9")
+    ws_dash.row_dimensions[8].height = 20
+    ws_dash.row_dimensions[9].height = 20
+    
+    # Portfolio Project Breakdown table
+    ws_dash.cell(row=11, column=1, value="Portfolio Project Breakdown").font = section_font
+    proj_headers = ["Project ID", "Project Name", "Project Manager", "BAC (NOK)", "AC (NOK)", "EV (NOK)", "CPI", "Progress", "Status"]
+    for col_idx, header in enumerate(proj_headers, start=1):
+        cell = ws_dash.cell(row=12, column=col_idx, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center" if col_idx in [1, 9] else ("left" if col_idx in [2, 3] else "right"))
+    ws_dash.row_dimensions[12].height = 22
+    
+    proj_start_row = 13
+    for i, proj in enumerate(projects_metrics):
+        r = proj_start_row + i
+        pid, pname, pmanager, pbac, pac, pev, pcpi, pprogress, pstatus = proj
+        
+        ws_dash.cell(row=r, column=1, value=pid).alignment = Alignment(horizontal="center")
+        ws_dash.cell(row=r, column=2, value=pname).alignment = Alignment(horizontal="left")
+        ws_dash.cell(row=r, column=3, value=pmanager).alignment = Alignment(horizontal="left")
+        ws_dash.cell(row=r, column=4, value=pbac).number_format = "$#,##0.00"
+        ws_dash.cell(row=r, column=5, value=pac).number_format = "$#,##0.00"
+        ws_dash.cell(row=r, column=6, value=pev).number_format = "$#,##0.00"
+        
+        cpi_cell = ws_dash.cell(row=r, column=7, value=pcpi)
+        cpi_cell.number_format = "0.00"
+        cpi_cell.alignment = Alignment(horizontal="right")
+        
+        ws_dash.cell(row=r, column=8, value=pprogress).number_format = "0.0%"
+        
+        # Determine status text
+        status_str = pstatus
+        if pstatus == "Completed":
+            status_str = "🟢 Completed" if pcpi >= 1.0 else "🔴 Over Budget"
+        elif pstatus == "Planned":
+            status_str = "⚪ Planned"
+        else: # Active
+            status_str = "🔴 Overrun Warn" if pcpi < 0.95 else "🟡 Within Margins" if pcpi < 0.98 else "🟢 On Track"
+            
+        status_cell = ws_dash.cell(row=r, column=9, value=status_str)
+        status_cell.alignment = Alignment(horizontal="center")
+        
+        for c in range(1, 10):
+            cell = ws_dash.cell(row=r, column=c)
+            cell.font = regular_font
+            cell.border = thin_bottom
+            if pcpi < 0.95 and c in [7, 9] and pstatus != "Planned":
+                cell.fill = alert_fill
+                
+    # WBS Table Headers (shifted down)
+    wbs_section_row = proj_start_row + len(projects_metrics) + 2
+    ws_dash.cell(row=wbs_section_row, column=1, value="WBS Element Performance Details").font = section_font
+    
+    wbs_header_row = wbs_section_row + 1
+    headers = ["WBS Code", "ElementName", "BAC (NOK)", "AC (NOK)", "EV (NOK)", "CPI", "Progress", "EAC Typical (NOK)", "Status"]
     for col_idx, header in enumerate(headers, start=1):
-        cell = ws_dash.cell(row=9, column=col_idx, value=header)
+        cell = ws_dash.cell(row=wbs_header_row, column=col_idx, value=header)
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center" if col_idx in [1, 9] else ("left" if col_idx == 2 else "right"))
-    ws_dash.row_dimensions[9].height = 22
+    ws_dash.row_dimensions[wbs_header_row].height = 22
     
-    start_row = 10
+    start_row = wbs_header_row + 1
     for i, row in enumerate(wbs_metrics):
         r = start_row + i
         wbs_code, name, bac, ac, ev, cpi, pct, eac = row
@@ -168,13 +252,13 @@ def create_excel_report():
                 
     tot_row = start_row + len(wbs_metrics)
     ws_dash.cell(row=tot_row, column=1, value="TOTAL").alignment = Alignment(horizontal="center")
-    ws_dash.cell(row=tot_row, column=2, value="Project Vessel Summary")
-    ws_dash.cell(row=tot_row, column=3, value=f"=SUM(C10:C{tot_row-1})").number_format = "$#,##0.00"
-    ws_dash.cell(row=tot_row, column=4, value=f"=SUM(D10:D{tot_row-1})").number_format = "$#,##0.00"
-    ws_dash.cell(row=tot_row, column=5, value=f"=SUM(E10:E{tot_row-1})").number_format = "$#,##0.00"
+    ws_dash.cell(row=tot_row, column=2, value="Project Summary")
+    ws_dash.cell(row=tot_row, column=3, value=f"=SUM(C{start_row}:C{tot_row-1})").number_format = "$#,##0.00"
+    ws_dash.cell(row=tot_row, column=4, value=f"=SUM(D{start_row}:D{tot_row-1})").number_format = "$#,##0.00"
+    ws_dash.cell(row=tot_row, column=5, value=f"=SUM(E{start_row}:E{tot_row-1})").number_format = "$#,##0.00"
     ws_dash.cell(row=tot_row, column=6, value=f"=E{tot_row}/D{tot_row}").number_format = "0.00"
     ws_dash.cell(row=tot_row, column=7, value=f"=E{tot_row}/C{tot_row}").number_format = "0.0%"
-    ws_dash.cell(row=tot_row, column=8, value=f"=SUM(H10:H{tot_row-1})").number_format = "$#,##0.00"
+    ws_dash.cell(row=tot_row, column=8, value=f"=SUM(H{start_row}:H{tot_row-1})").number_format = "$#,##0.00"
     ws_dash.cell(row=tot_row, column=9, value=f'=IF(F{tot_row}<0.95, "🔴 Overrun", "🟢 On Track")').alignment = Alignment(horizontal="center")
     
     for c in range(1, 10):

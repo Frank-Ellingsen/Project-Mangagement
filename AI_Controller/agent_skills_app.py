@@ -529,18 +529,39 @@ if view_mode == "Agent Control Tower":
     </div>
     """, unsafe_allow_html=True)
     
+    # --- PLAIN ENGLISH PORTFOLIO OVERVIEW ---
+    with st.container(border=True):
+        st.markdown("### ⚓ Executive Portfolio Overview")
+        st.write(
+            "The project portfolio currently consists of **6 projects** spanning maritime vessel fabrication, logistics solutions, and subsea structures. "
+            "As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of **7,100,000 NOK**, with **5,220,810 NOK** logged in actual costs (AC) "
+            "and **4,752,500 NOK** earned in physical progress value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at **0.91** "
+            "due to historical cost overruns. Individual active projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances."
+        )
+        st.markdown("**Key Project Highlights:**")
+        st.markdown(
+            "- **PRJ-001 (Composite Vessel Construction):** Completed with a total spend of 1.85M NOK against a 1.5M NOK budget, resulting in a **-356K NOK cost overrun** (CPI: 0.81).\n"
+            "- **PRJ-002 (Patrol Vessel Carbon Mold):** Planned to start in August 2026 with an approved budget of **800K NOK**. No actuals logged yet.\n"
+            "- **PRJ-003 (Subsea Cable Frame):** Active at 30% progress. Tracking slightly over budget with 382.5K NOK spent to earn 360K NOK (CPI: 0.94).\n"
+            "- **PRJ-004 (Autonomous Workboat Hull):** Active at 70% progress. Showing mild cost pressure with 1.48M NOK spent to achieve 1.4M NOK of value (CPI: 0.95).\n"
+            "- **PRJ-005 (Defense Logistics Pontoon):** Active at 90% progress, managed by Frank Ellingsen. In good financial standing with 927K NOK spent to achieve 900K NOK of value (CPI: 0.97).\n"
+            "- **PRJ-006 (Lightweight Cargo Hatch):** Completed successfully under budget, spending 586.5K NOK on a 600K NOK baseline budget (CPI: 1.02, progress 100%)."
+        )
+        
+    st.write("")
+    
     # --- PORTFOLIO KPI ROW (Tufte Style) ---
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        st.metric("Total Portfolio BAC", f"{bac:,.0f} NOK", delta="Baseline budget (1 project)")
+        st.metric("Total Portfolio BAC", f"{bac:,.0f} NOK", delta="Baseline budget (6 projects)")
     with col2:
-        st.metric("Total Actual Cost (AC)", f"{ac:,.0f} NOK", delta=f"{ac - bac:,.0f} NOK over BAC", delta_color="inverse")
+        st.metric("Total Actual Cost (AC)", f"{ac:,.0f} NOK", delta=f"{bac - ac:,.0f} NOK remaining budget")
     with col3:
         st.metric("Total Earned Value (EV)", f"{ev:,.0f} NOK", delta=f"{progress:.1f}% work complete")
     with col4:
         st.metric("Portfolio CPI", f"{cpi:.2f}", delta=f"{'🟢 GREEN' if cpi >= 0.98 else '🟡 AMBER' if cpi >= 0.90 else '🔴 RED'}", delta_color="normal" if cpi >= 0.98 else "off" if cpi >= 0.90 else "inverse")
     with col5:
-        st.metric("Portfolio Progress", f"{progress:.1f}%", delta="0.5% remaining")
+        st.metric("Portfolio Progress", f"{progress:.1f}%", delta=f"{100 - progress:.1f}% remaining")
         
     st.write("---")
     
@@ -564,19 +585,55 @@ if view_mode == "Agent Control Tower":
     
     # --- PORTFOLIO PROJECT BREAKDOWN ---
     st.subheader("📋 Portfolio Project Breakdown")
-    portfolio_df = pd.DataFrame([{
-        "Project ID": "PRJ-001",
-        "Project Name": "Composite Maritime Vessel Construction",
-        "Manager": "Morten Hansen",
-        "BAC (NOK)": f"{bac:,.0f}",
-        "AC (NOK)": f"{ac:,.0f}",
-        "EV (NOK)": f"{ev:,.0f}",
-        "CPI": f"{cpi:.2f}",
-        "Progress": f"{progress:.1f}%",
-        "VAC (NOK)": f"{summary['Total_VAC']:,.0f}",
-        "Status": "🔴 Over Budget"
-    }])
-    st.dataframe(portfolio_df, use_container_width=True, hide_index=True)
+    import duckdb
+    from dashboard_data import DUCKDB_PATH
+    con_db = duckdb.connect(DUCKDB_PATH, read_only=True)
+    proj_query = """
+        SELECT 
+            w.ProjectID as "Project ID",
+            p.ProjectName as "Project Name",
+            p.ProjectManager as "Manager",
+            SUM(m.BAC) as "BAC (NOK)",
+            SUM(m.AC) as "AC (NOK)",
+            SUM(m.EV) as "EV (NOK)",
+            CASE WHEN SUM(m.AC) > 0 THEN SUM(m.EV) / SUM(m.AC) ELSE 1.0 END as "CPI",
+            (SUM(m.EV) / SUM(m.BAC)) * 100 as "Progress",
+            SUM(m.BAC) - SUM(m.EAC_Typical) as "VAC (NOK)",
+            p.Status as "Status"
+        FROM v_wbs_evm_metrics m
+        JOIN wbs_elements w ON m.WBS_ID = w.WBS_ID
+        JOIN projects p ON w.ProjectID = p.ProjectID
+        GROUP BY w.ProjectID, p.ProjectName, p.ProjectManager, p.Status
+        ORDER BY w.ProjectID
+    """
+    portfolio_df = con_db.execute(proj_query).df()
+    con_db.close()
+    
+    portfolio_df["BAC (NOK)"] = portfolio_df["BAC (NOK)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["AC (NOK)"] = portfolio_df["AC (NOK)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["EV (NOK)"] = portfolio_df["EV (NOK)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["VAC (NOK)"] = portfolio_df["VAC (NOK)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["Progress"] = portfolio_df["Progress"].apply(lambda x: f"{x:.1f}%")
+    
+    def get_status_indicator(row):
+        stat = row["Status"]
+        cpi_val = float(row["CPI"])
+        if stat == "Completed":
+            return "🟢 Completed" if cpi_val >= 1.0 else "🔴 Over Budget"
+        elif stat == "Planned":
+            return "⚪ Planned"
+        else: # Active
+            if cpi_val < 0.95:
+                return "🔴 Overrun Warn"
+            elif cpi_val < 0.98:
+                return "🟡 Within Margins"
+            else:
+                return "🟢 On Track"
+                
+    portfolio_df["Status"] = portfolio_df.apply(get_status_indicator, axis=1)
+    portfolio_df["CPI"] = portfolio_df["CPI"].apply(lambda x: f"{x:.2f}")
+    
+    st.dataframe(portfolio_df, width="stretch", hide_index=True)
     
     st.write("---")
 

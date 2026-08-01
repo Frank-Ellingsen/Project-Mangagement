@@ -73,6 +73,17 @@ erDiagram
         double PercentComplete "Estimated physical completion percentage (0.0 to 1.0)"
         string ReportedBy "Person who assessed/entered progress"
     }
+
+    RAID_LOG {
+        string RiskID PK "Unique risk/issue identifier"
+        string Type "RAID category (Risk, Assumption, Issue, Dependency)"
+        string Description "Description of the RAID item"
+        string Impact "Impact level (High, Medium, Low)"
+        string Probability "Probability level (High, Medium, Low)"
+        string MitigationStrategy "Mitigation actions or strategy"
+        string Owner "Assigned owner of the RAID entry"
+        string Status "Status of RAID item (Active, Closed)"
+    }
 ```
 
 ## Relational Rules & Integrity

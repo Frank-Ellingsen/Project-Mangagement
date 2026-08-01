@@ -1,56 +1,51 @@
-# 🚢 Project Controlling Control Tower — Multi-Project EVM & Agentic Auditing Ecosystem
+# ⚓ Can you manage a 7,100,000 NOK engineering portfolio with ZERO licensing costs—100% locally?
 
-I'm excited to share a major upgrade to a project I've been building: an **automated, interactive Project Controlling & Earned Value Management (EVM) Control Tower** designed for engineering, maritime, and defense sector projects. 
+I am excited to share a major update to a project I’ve been building: the **Agentic Project Controlling Control Tower**. Originally a single-vessel controller, it has now scaled into a fully automated, local-first **Multi-Project Portfolio Ecosystem**!
 
-Originally built as a single-vessel controller, it has now scaled into a full **Multi-Project Portfolio Ecosystem**!
+Designed specifically for engineering, maritime, and defense sector projects, this platform bridges the gap between raw data transactions and executive-level decision-making.
 
-## 🎯 What It Is
+---
 
-A complete, local-first data pipeline that transforms raw transactional project logs into actionable portfolio intelligence — spanning **analytical databases, automated agentic audits, Excel reporting, Power BI compilation, and a Streamlit web dashboard** — all governed by **Edward Tufte's Data-Ink Ratio** principles, **PRINCE2** standards, and **AACE International** methodologies.
-
-## 📊 Scale of the New Portfolio Ecosystem
-
-The Control Tower now tracks a portfolio of **6 projects** representing different stages of physical completion:
-
+### 📊 The Portfolio Scope (7.1M NOK Under Control)
+The Control Tower now tracks **6 distinct projects** in different stages of completion:
 1. **PRJ-001 (Composite Vessel Construction):** 99.5% complete, facing a 🔴 24.0% cost overrun driven by labor burn rates.
-2. **PRJ-002 (Patrol Vessel Carbon Mold Design):** 0.0% complete, budgeted, and ready for initiation.
-3. **PRJ-003 (Subsea Cable Installation Frame):** 30.0% complete, engineering design active.
-4. **PRJ-004 (Autonomous Workboat Hull Weldments):** 70.0% complete, fabrication phase active.
-5. **PRJ-005 (Defense Logistics Pontoon Build):** 90.0% complete, outfitting phase finishing.
-6. **PRJ-006 (Lightweight Composite Cargo Hatch):** 100.0% completed, delivered 🟢 **under budget** (CPI = 1.02) and fully evaluated.
+2. **PRJ-002 (Patrol Vessel Carbon Mold Design):** 0.0% complete (Planned & ready for launch).
+3. **PRJ-003 (Subsea Cable Frame):** 30.0% complete (Active engineering phase).
+4. **PRJ-004 (Autonomous Workboat Hull):** 70.0% complete (Active fabrication phase).
+5. **PRJ-005 (Defense Logistics Pontoon):** 90.0% complete (Active outfitting phase).
+6. **PRJ-006 (Lightweight Cargo Hatch):** 100.0% completed, delivered 🟢 **under budget** (CPI = 1.02) and fully audited.
 
-## 🤖 Premium Features Just Added
+---
 
-* **Local LLM Narration & Fallback:** Integrated a local LLM agent (**Ollama qwen2.5:latest**) directly in the dashboard to synthesize multi-agent audit logs into concise executive narratives. If Ollama is offline, it automatically falls back to a rule-based deterministic narrator.
+### 🤖 Premium Features Built for Project Controls
+
+Here is what makes this system unique and why it's generating interest in project controlling circles:
+
+* **Local LLM Executive Narration:** An offline AI agent (**Ollama + qwen2.5:latest**) runs locally to analyze multi-agent audit logs and generate concise, plain English board summaries on the dashboard. (No external APIs, no data leaks, no licensing costs).
 * **Interactive Crashing & Delay Simulator:** Upgraded the Streamlit app and the Excel sheets with a schedule-crashing trade-off calculator. It computes the direct cost of adding overtime shifts vs. contract liquidated damages saved to find the net financial benefit.
-* **AI-Guardrailed Write-Back Forms:** Added interactive entry forms in the Streamlit app to log new RAID items. Built-in guardrails block entries that violate project rules (e.g., issues must have high probability; high-impact risks require detailed mitigation strategies), writing data back to both the SQLite database and the source CSV files.
-* **Post-Project Evaluation (Etterkalkyle):** Created a comprehensive close-out audit for PRJ-006 detailing final reconciliations, material nesting software efficiency savings (laser nesting saved 12%), and recommendations.
-* **Interactive Excel Replication:** Replicated all dashboard views (KPIs, Gantt, Cost-Share, RAID logs, and simulators) inside a formula-driven, macro-free Excel workbook.
+* **AI-Guardrailed Write-Back Forms:** Interactive forms let users write RAID log entries directly back to SQLite and source CSVs, with guardrails that block invalid entries (e.g. flagging a high-impact risk without a mitigation strategy).
+* **Post-Project Evaluation (Etterkalkyle):** Unlocked a close-out audit for PRJ-006 detailing how a **12% material saving** was achieved during composite carbon mold fabrication using advanced nesting software.
+* **Tufte-Style Visualization:** Replaced generic dashboards with borderless metric cards and Gantt charts with **zero vertical gridlines**, maximizing the **Data-Ink Ratio** for rapid interpretation.
 
-## 🛠️ Tech Stack
+---
 
-| Layer | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Analytical DB** | DuckDB | High-speed EVM aggregations & portfolio SQL views |
-| **Transactional DB** | SQLite | Transaction logs, RAID audit trails, write-back persistence |
-| **Web Dashboard** | Streamlit + Plotly | Portfolio timelines, interactive Gantt charts, S-Curves, and What-If simulators |
-| **Excel Reports** | OpenPyXL | Multi-tab interactive sheets reproducing the Streamlit dashboard using cell formulas |
-| **BI Platform** | Power BI (.pbip) | Developer-mode star schema, relative M queries, DAX measures |
-| **Agent Framework** | 13 specialized agents + Ollama | Automated audits across finance, risk, quality, engineering, and narrative generation |
+### 🛠️ The Local-First Architecture
 
-## 📈 Standards Compliance
+* **Analytical Layer (DuckDB):** Handles high-speed EVM aggregations and compiles SQL views in milliseconds.
+* **Transactional Layer (SQLite):** Manages audit logs, RAID history, and write-back persistence.
+* **Visual Layer (Streamlit & Plotly):** Houses S-Curves, Gantt charts, and what-if simulators.
+* **Excel Layer (OpenPyXL):** Automatically replicates the entire dashboard layout into a formula-driven, macro-free Excel workbook.
+* **Semantic Layer (Power BI):** A star schema structure with relative M queries and robust DAX measures.
 
-* **AACE International Practice Standard 10S-90** (EVM)
-* **PMI Practice Standard for Earned Value Management**
-* **PRINCE2** project management methodology
-* **Edward Tufte's Data-Ink Ratio** principles for visual design
-* **Chris Croft's** critical path scheduling methodology
+---
 
-## 🔗 Get Involved
+### 💡 Curiosity Builders: How does it work under the hood?
+* How did laser nesting software save 12% in shipyard structural assembly?
+* How does the Project Controller Agent automatically flag welder overtime limit breaches and cost variance slips?
+* How can you dynamically simulate schedule-crashing (overtime vs. liquidated damages saved) using target CPI sliders directly in a web UI?
 
-The entire workspace is open-source on GitHub:
-👉 https://github.com/Frank-Ellingsen/Project-Mangagement
+👉 Explore the full open-source repository here: https://github.com/Frank-Ellingsen/Project-Mangagement
 
-Whether you're in project controls, maritime engineering, or just interested in data-driven project management, I'd love to hear your thoughts!
+Whether you are in project controls, financial controlling, maritime engineering, or building local-first AI systems, I would love to hear your feedback!
 
 #ProjectManagement #EarnedValueManagement #EVM #DataAnalytics #MaritimeEngineering #PowerBI #Streamlit #Python #DuckDB #SQLite #PRINCE2 #Tufte #DataVisualization #ProjectControls #Engineering #Automation #OpenSource #ChrisCroft #AACE #PMI #ControlTower #ProjectAuditing #MultiAgentSystem #Ollama #LocalLLM #AIinProjectManagement #Etterkalkyle
