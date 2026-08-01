@@ -314,7 +314,7 @@ def create_excel_report():
         name, role, rate, hours, cost = row
         ws_cfo.cell(row=r, column=1, value=name).font = regular_font
         ws_cfo.cell(row=r, column=2, value=role).font = regular_font
-        ws_cfo.cell(row=r, column=3, value=float(rate) * 0.10).number_format = "$#,##0.00"
+        ws_cfo.cell(row=r, column=3, value=float(rate)).number_format = "$#,##0.00"
         ws_cfo.cell(row=r, column=4, value=float(hours)).number_format = "#,##0.0"
         ws_cfo.cell(row=r, column=5, value=float(cost)).number_format = "$#,##0.00"
         for c in range(1, 6):
@@ -356,7 +356,7 @@ def create_excel_report():
             
     # Large Procurement Transactions Table
     start_proc_row = 7 + len(overtime_logs) + 3
-    ws_risk.cell(row=start_proc_row-1, column=1, value="Large Procurement Audits (>$5,000)").font = section_font
+    ws_risk.cell(row=start_proc_row-1, column=1, value="Large Procurement Audits (>$50,000)").font = section_font
     proc_headers = ["Purchase Date", "Invoice Number", "Description", "Cost (USD)"]
     for col_idx, h in enumerate(proc_headers, start=1):
         cell = ws_risk.cell(row=start_proc_row, column=col_idx, value=h)
@@ -364,7 +364,7 @@ def create_excel_report():
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center" if col_idx in [1, 2] else ("left" if col_idx == 3 else "right"))
         
-    large_invoices = [inv for inv in materials_summary if inv[3] > 5000]
+    large_invoices = [inv for inv in materials_summary if inv[3] > 50000]
     r = start_proc_row
     for idx, inv in enumerate(large_invoices):
         r = start_proc_row + 1 + idx
@@ -373,7 +373,7 @@ def create_excel_report():
         ws_risk.cell(row=r, column=2, value=inv_id).alignment = Alignment(horizontal="center")
         ws_risk.cell(row=r, column=3, value=desc).alignment = Alignment(horizontal="left")
         cost_cell = ws_risk.cell(row=r, column=4, value=float(cost))
-        cost_cell.number_format = "$#,#0.00"
+        cost_cell.number_format = "$#,##0.00"
         cost_cell.alignment = Alignment(horizontal="right")
         cost_cell.fill = alert_fill
         for c in range(1, 5):
@@ -425,7 +425,7 @@ def create_excel_report():
     inputs = [
         ("Simulated Labor Rate Savings (%)", 0.05, "0.0%"),
         ("Simulated Material Price Savings (%)", 0.10, "0.0%"),
-        ("Contract Delay Penalty (USD/Day)", 1000.0, "$#,##0.00"),
+        ("Contract Delay Penalty (USD/Day)", 10000.0, "$#,##0.00"),
         ("Crash Schedule? (0=No, 5=Crash 5 Days, 10=Crash 10 Days)", 5, "0")
     ]
     
@@ -457,7 +457,7 @@ def create_excel_report():
     # Formulas for simulated cost share
     ws_sim.cell(row=18, column=1, value="Simulated Actual Cost (AC) USD").font = bold_font
     # AC = Current_AC * (1 - Labor_Saving * 0.718 - Material_Saving * 0.282) + Crashing_Cost
-    ac_form = "=B15 * (1 - B6 * 0.718 - B7 * 0.282) + 20000 * (B9 / 100)"
+    ac_form = "=B15 * (1 - B6 * 0.718 - B7 * 0.282) + 200000 * (B9 / 100)"
     ws_sim.cell(row=18, column=2, value=ac_form).number_format = "$#,##0.00"
     ws_sim.cell(row=18, column=2).font = bold_font
     ws_sim.cell(row=18, column=2).fill = accent_fill
@@ -481,7 +481,7 @@ def create_excel_report():
     ws_sim.cell(row=23, column=2, value="=B22 * B8").number_format = "$#,##0.00"
     
     ws_sim.cell(row=24, column=1, value="Direct Schedule Crashing Cost (USD)").font = regular_font
-    ws_sim.cell(row=24, column=2, value="=20000 * (B9 / 100)").number_format = "$#,##0.00"
+    ws_sim.cell(row=24, column=2, value="=200000 * (B9 / 100)").number_format = "$#,##0.00"
     
     ws_sim.cell(row=25, column=1, value="Net Crashing Trade-off Benefit (USD)").font = bold_font
     ws_sim.cell(row=25, column=2, value="=(10 * B8 - B23) - B24").number_format = "$#,##0.00"
@@ -501,7 +501,7 @@ def create_excel_report():
             for cell in col:
                 val_str = str(cell.value or '')
                 if val_str.startswith('='): # Don't size based on formulas
-                    val_str = "$184,881.00"
+                    val_str = "$1,848,810.00"
                 max_len = max(max_len, len(val_str))
             ws.column_dimensions[col_letter].width = max(max_len + 3, 10)
             

@@ -23,15 +23,15 @@ def generate_report_content():
         ORDER BY WBS_Code
     """).fetchall()
     
-    # Material vs Labor Cost share (converted to USD using 1 USD = 10 NOK)
+    # Material vs Labor Cost share (converted to USD using 1 USD = 1 NOK)
     labor_cost = con.execute("""
-        SELECT SUM(t.HoursWorked * r.HourlyRate) * 0.10 
+        SELECT SUM(t.HoursWorked * r.HourlyRate) 
         FROM timesheets t 
         JOIN resources r ON t.ResourceID = r.ResourceID
     """).fetchone()[0] or 0.0
     
     material_cost = con.execute("""
-        SELECT SUM(TotalActualCost) * 0.10 
+        SELECT SUM(TotalActualCost) 
         FROM material_costs
     """).fetchone()[0] or 0.0
     
@@ -50,9 +50,9 @@ def generate_report_content():
     """).fetchall()
     
     large_invoices = conn.execute("""
-        SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) * 0.10 as Cost
+        SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) as Cost
         FROM material_costs
-        WHERE CAST(TotalActualCost AS REAL) * 0.10 > 5000
+        WHERE CAST(TotalActualCost AS REAL) > 50000
         ORDER BY Cost DESC
     """).fetchall()
     
@@ -111,7 +111,7 @@ def generate_report_content():
     else:
         report.append("   * No resource weekly overtime violations detected.")
         
-    report.append("\n2. **High-Value Procurement Invoices (>$5,000):**")
+    report.append("\n2. **High-Value Procurement Invoices (>$50,000):**")
     if large_invoices:
         for pid, desc, cost in large_invoices:
             report.append(f"   * **[AUDIT]** Invoice `{pid}` for `{desc}` was processed at `${cost:,.2f}`.")
@@ -135,7 +135,7 @@ def generate_report_content():
     report.append("\n## 5. Corrective Action Plan & Recommendations")
     report.append("To safeguard the net margin of the vessel delivery and future project portfolios, we advise the Board to implement the following actions:")
     report.append("1. **Freeze Variation Orders (VO):** Instigate a strict change-order freeze on WBS 1.0 (PM & Engineering) and WBS 3.0 (Outfitting) to block unbudgeted design features.")
-    report.append("2. **Contract Penalty Mitigation:** WBS 4.0 (Sea Trials) has slip risk. Enacting a schedule crash (overlapping testing crew shift) costs an extra **$1,000** but saves **$5,000** in liquidated damages penalty (Net Benefit: **+$4,000**).")
+    report.append("2. **Contract Penalty Mitigation:** WBS 4.0 (Sea Trials) has slip risk. Enacting a schedule crash (overlapping testing crew shift) costs an extra **$10,000** but saves **$50,000** in liquidated damages penalty (Net Benefit: **+$40,000**).")
     report.append("3. **Supplier Dual-Sourcing:** Diversify composite carbon suppliers to avoid shipping premium costs identified in the procurement audit.")
     
     return "\n".join(report)

@@ -62,11 +62,11 @@ class CFOAgent:
             FROM v_project_evm_summary
         """).fetchone()
         
-        # Material vs Labor Cost share (converted to USD using 1 USD = 10 NOK)
+        # Material vs Labor Cost share (converted to USD using 1 USD = 1 NOK)
         costs = con.execute("""
             SELECT 
-                (SELECT SUM(HoursWorked * HourlyRate) FROM timesheets t JOIN resources r ON t.ResourceID = r.ResourceID) * 0.10 as Labor,
-                (SELECT SUM(TotalActualCost) FROM material_costs) * 0.10 as Material
+                (SELECT SUM(HoursWorked * HourlyRate) FROM timesheets t JOIN resources r ON t.ResourceID = r.ResourceID) as Labor,
+                (SELECT SUM(TotalActualCost) FROM material_costs) as Material
         """).fetchone()
         con.close()
         
@@ -115,11 +115,11 @@ class RiskAnomalyAgent:
         """)
         overtimes = cursor.fetchall()
         
-        # Query 2: Single invoices > $5,000 USD
+        # Query 2: Single invoices > $50,000 USD
         cursor.execute("""
-            SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) * 0.10 as Cost
+            SELECT PurchaseID, Description, CAST(TotalActualCost AS REAL) as Cost
             FROM material_costs
-            WHERE CAST(TotalActualCost AS REAL) * 0.10 > 5000
+            WHERE CAST(TotalActualCost AS REAL) > 50000
             ORDER BY Cost DESC
         """)
         large_invoices = cursor.fetchall()
@@ -146,12 +146,12 @@ class RiskAnomalyAgent:
         else:
             report.append("  No excessive resource weekly hours logged.")
             
-        report.append("\nLARGE PROCUREMENT TRANSACTION AUDIT (> $5,000):")
+        report.append("\nLARGE PROCUREMENT TRANSACTION AUDIT (> $50,000):")
         if large_invoices:
             for pid, desc, cost in large_invoices:
                 report.append(f"  [AUDIT] Invoice {pid:<8} | {desc:<35} | ${cost:>9,.2f}")
         else:
-            report.append("  No invoices exceeded the $5,000 threshold.")
+            report.append("  No invoices exceeded the $50,000 threshold.")
 
         report.append("\nACTIVE RAID LOG AUDIT (Active Risks/Issues/Dependencies):")
         if active_raid:

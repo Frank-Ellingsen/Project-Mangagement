@@ -75,8 +75,8 @@ print("-" * 95)
 for wbs in wbs_elements:
     wbs_id = wbs["WBS_ID"]
     name = wbs["ElementName"]
-    bac = float(wbs["PlannedCost"]) * 0.10
-    ac = actual_costs_by_wbs.get(wbs_id, 0.0) * 0.10
+    bac = float(wbs["PlannedCost"])
+    ac = actual_costs_by_wbs.get(wbs_id, 0.0)
     
     # Earned Value = BAC * Percent Complete
     progress_info = latest_progress.get(wbs_id, {"Percent": 0.0})

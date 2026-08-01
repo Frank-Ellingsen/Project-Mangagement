@@ -72,31 +72,31 @@ FROM ranked_progress
 WHERE rn = 1;
 """)
 
-# 2. Labor actual costs per WBS (converted to USD using 1 USD = 10 NOK)
+# 2. Labor actual costs per WBS
 cursor.execute("DROP VIEW IF EXISTS v_wbs_labor_actuals;")
 cursor.execute("""
 CREATE VIEW v_wbs_labor_actuals AS
 SELECT 
     t.WBS_ID,
-    SUM(CAST(t.HoursWorked AS REAL) * CAST(r.HourlyRate AS REAL)) * 0.10 as LaborCost,
+    SUM(CAST(t.HoursWorked AS REAL) * CAST(r.HourlyRate AS REAL)) as LaborCost,
     SUM(CAST(t.HoursWorked AS REAL)) as HoursWorked
 FROM timesheets t
 JOIN resources r ON t.ResourceID = r.ResourceID
 GROUP BY t.WBS_ID;
 """)
 
-# 3. Material actual costs per WBS (converted to USD using 1 USD = 10 NOK)
+# 3. Material actual costs per WBS
 cursor.execute("DROP VIEW IF EXISTS v_wbs_material_actuals;")
 cursor.execute("""
 CREATE VIEW v_wbs_material_actuals AS
 SELECT 
     WBS_ID,
-    SUM(CAST(TotalActualCost AS REAL)) * 0.10 as MaterialCost
+    SUM(CAST(TotalActualCost AS REAL)) as MaterialCost
 FROM material_costs
 GROUP BY WBS_ID;
 """)
 
-# 4. Master EVM metrics per WBS element (converted to USD using 1 USD = 10 NOK)
+# 4. Master EVM metrics per WBS element
 cursor.execute("DROP VIEW IF EXISTS v_wbs_evm_metrics;")
 cursor.execute("""
 CREATE VIEW v_wbs_evm_metrics AS
@@ -104,24 +104,24 @@ SELECT
     w.WBS_ID,
     w.WBS_Code,
     w.ElementName,
-    CAST(w.PlannedCost AS REAL) * 0.10 as BAC,
+    CAST(w.PlannedCost AS REAL) as BAC,
     COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0) as AC,
-    (CAST(w.PlannedCost AS REAL) * 0.10) * COALESCE(p.PercentComplete, 0.0) as EV,
-    ((CAST(w.PlannedCost AS REAL) * 0.10) * COALESCE(p.PercentComplete, 0.0)) - (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0)) as CV,
+    CAST(w.PlannedCost AS REAL) * COALESCE(p.PercentComplete, 0.0) as EV,
+    (CAST(w.PlannedCost AS REAL) * COALESCE(p.PercentComplete, 0.0)) - (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0)) as CV,
     CASE 
         WHEN (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0)) > 0 
-        THEN ((CAST(w.PlannedCost AS REAL) * 0.10) * COALESCE(p.PercentComplete, 0.0)) / (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0))
+        THEN (CAST(w.PlannedCost AS REAL) * COALESCE(p.PercentComplete, 0.0)) / (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0))
         ELSE 1.0 
     END as CPI,
     COALESCE(p.PercentComplete, 0.0) as PercentComplete,
     CASE 
-        WHEN (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0)) > 0 AND ((CAST(w.PlannedCost AS REAL) * 0.10) * COALESCE(p.PercentComplete, 0.0)) > 0
-        THEN (CAST(w.PlannedCost AS REAL) * 0.10) / (
-            ((CAST(w.PlannedCost AS REAL) * 0.10) * COALESCE(p.PercentComplete, 0.0)) / (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0))
+        WHEN (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0)) > 0 AND (CAST(w.PlannedCost AS REAL) * COALESCE(p.PercentComplete, 0.0)) > 0
+        THEN CAST(w.PlannedCost AS REAL) / (
+            (CAST(w.PlannedCost AS REAL) * COALESCE(p.PercentComplete, 0.0)) / (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0))
         )
-        ELSE (CAST(w.PlannedCost AS REAL) * 0.10)
+        ELSE CAST(w.PlannedCost AS REAL)
     END as EAC_Typical,
-    (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0)) + ((CAST(w.PlannedCost AS REAL) * 0.10) - ((CAST(w.PlannedCost AS REAL) * 0.10) * COALESCE(p.PercentComplete, 0.0))) as EAC_Atypical
+    (COALESCE(l.LaborCost, 0.0) + COALESCE(m.MaterialCost, 0.0)) + (CAST(w.PlannedCost AS REAL) - (CAST(w.PlannedCost AS REAL) * COALESCE(p.PercentComplete, 0.0))) as EAC_Atypical
 FROM wbs_elements w
 LEFT JOIN v_wbs_labor_actuals l ON w.WBS_ID = l.WBS_ID
 LEFT JOIN v_wbs_material_actuals m ON w.WBS_ID = m.WBS_ID
