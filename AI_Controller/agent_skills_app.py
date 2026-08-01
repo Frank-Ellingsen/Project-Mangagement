@@ -307,15 +307,15 @@ def render_tufte_gantt_chart(project_selection="PRJ-001 (Composite Vessel)", met
                 
         elif metric_focus == "Cost Deviation (BAC vs AC)":
             if is_planned:
-                labels.append(f"BAC: {r['BAC']/1000:.0f}k NOK")
+                labels.append(f"BAC: {r['BAC']/1000:.0f}k USD")
                 colors.append("Planned")
             else:
                 diff = r["AC"] - r["BAC"]
                 if diff > 0:
-                    labels.append(f"+{diff/1000:.1f}k NOK Overrun")
+                    labels.append(f"+{diff/1000:.1f}k USD Overrun")
                     colors.append("🔴 Red (Overrun)")
                 else:
-                    labels.append(f"-{abs(diff)/1000:.1f}k NOK Under")
+                    labels.append(f"-{abs(diff)/1000:.1f}k USD Under")
                     colors.append("🟢 Green (On Track)")
                     
         elif metric_focus == "Hours Deviation (Plan vs Actual)":
@@ -534,18 +534,18 @@ if view_mode == "Agent Control Tower":
         st.markdown("### ⚓ Executive Portfolio Overview")
         st.write(
             "The project portfolio currently consists of **6 projects** spanning maritime vessel fabrication, logistics solutions, and subsea structures. "
-            "As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of **7,100,000 NOK**, with **5,220,810 NOK** logged in actual costs (AC) "
-            "and **4,752,500 NOK** earned in physical progress value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at **0.91** "
+            "As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of **7,100,000 USD**, with **5,220,810 USD** logged in actual costs (AC) "
+            "and **4,752,500 USD** earned in physical progress value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at **0.91** "
             "due to historical cost overruns. Individual active projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances."
         )
         st.markdown("**Key Project Highlights:**")
         st.markdown(
-            "- **PRJ-001 (Composite Vessel Construction):** Completed with a total spend of 1.85M NOK against a 1.5M NOK budget, resulting in a **-356K NOK cost overrun** (CPI: 0.81).\n"
-            "- **PRJ-002 (Patrol Vessel Carbon Mold):** Planned to start in August 2026 with an approved budget of **800K NOK**. No actuals logged yet.\n"
-            "- **PRJ-003 (Subsea Cable Frame):** Active at 30% progress. Tracking slightly over budget with 382.5K NOK spent to earn 360K NOK (CPI: 0.94).\n"
-            "- **PRJ-004 (Autonomous Workboat Hull):** Active at 70% progress. Showing mild cost pressure with 1.48M NOK spent to achieve 1.4M NOK of value (CPI: 0.95).\n"
-            "- **PRJ-005 (Defense Logistics Pontoon):** Active at 90% progress, managed by Frank Ellingsen. In good financial standing with 927K NOK spent to achieve 900K NOK of value (CPI: 0.97).\n"
-            "- **PRJ-006 (Lightweight Cargo Hatch):** Completed successfully under budget, spending 586.5K NOK on a 600K NOK baseline budget (CPI: 1.02, progress 100%)."
+            "- **PRJ-001 (Composite Vessel Construction):** Completed with a total spend of 1.85M USD against a 1.5M USD budget, resulting in a **-356K USD cost overrun** (CPI: 0.81).\n"
+            "- **PRJ-002 (Patrol Vessel Carbon Mold):** Planned to start in August 2026 with an approved budget of **800K USD**. No actuals logged yet.\n"
+            "- **PRJ-003 (Subsea Cable Frame):** Active at 30% progress. Tracking slightly over budget with 382.5K USD spent to earn 360K USD (CPI: 0.94).\n"
+            "- **PRJ-004 (Autonomous Workboat Hull):** Active at 70% progress. Showing mild cost pressure with 1.48M USD spent to achieve 1.4M USD of value (CPI: 0.95).\n"
+            "- **PRJ-005 (Defense Logistics Pontoon):** Active at 90% progress, managed by Frank Ellingsen. In good financial standing with 927K USD spent to achieve 900K USD of value (CPI: 0.97).\n"
+            "- **PRJ-006 (Lightweight Cargo Hatch):** Completed successfully under budget, spending 586.5K USD on a 600K USD baseline budget (CPI: 1.02, progress 100%)."
         )
         
     st.write("")
@@ -553,11 +553,11 @@ if view_mode == "Agent Control Tower":
     # --- PORTFOLIO KPI ROW (Tufte Style) ---
     col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
-        st.metric("Total Portfolio BAC", f"{bac:,.0f} NOK", delta="Baseline budget (6 projects)")
+        st.metric("Total Portfolio BAC", f"{bac:,.0f} USD", delta="Baseline budget (6 projects)")
     with col2:
-        st.metric("Total Actual Cost (AC)", f"{ac:,.0f} NOK", delta=f"{bac - ac:,.0f} NOK remaining budget")
+        st.metric("Total Actual Cost (AC)", f"{ac:,.0f} USD", delta=f"{bac - ac:,.0f} USD remaining budget")
     with col3:
-        st.metric("Total Earned Value (EV)", f"{ev:,.0f} NOK", delta=f"{progress:.1f}% work complete")
+        st.metric("Total Earned Value (EV)", f"{ev:,.0f} USD", delta=f"{progress:.1f}% work complete")
     with col4:
         st.metric("Portfolio CPI", f"{cpi:.2f}", delta=f"{'🟢 GREEN' if cpi >= 0.98 else '🟡 AMBER' if cpi >= 0.90 else '🔴 RED'}", delta_color="normal" if cpi >= 0.98 else "off" if cpi >= 0.90 else "inverse")
     with col5:
@@ -569,14 +569,14 @@ if view_mode == "Agent Control Tower":
     st.subheader("📈 Portfolio Financial Ratios & Forecasts")
     col_r1, col_r2, col_r3, col_r4, col_r5 = st.columns(5)
     with col_r1:
-        st.metric("Cost Variance (CV)", f"{cv:,.0f} NOK", delta="EV - AC", delta_color="inverse")
+        st.metric("Cost Variance (CV)", f"{cv:,.0f} USD", delta="EV - AC", delta_color="inverse")
     with col_r2:
-        st.metric("EAC (Typical)", f"{summary['Total_EAC_Typical']:,.0f} NOK", delta="BAC / CPI", delta_color="inverse")
+        st.metric("EAC (Typical)", f"{summary['Total_EAC_Typical']:,.0f} USD", delta="BAC / CPI", delta_color="inverse")
     with col_r3:
         eac_atypical = ac + (bac - ev)
-        st.metric("EAC (Atypical)", f"{eac_atypical:,.0f} NOK", delta="AC + (BAC - EV)", delta_color="inverse")
+        st.metric("EAC (Atypical)", f"{eac_atypical:,.0f} USD", delta="AC + (BAC - EV)", delta_color="inverse")
     with col_r4:
-        st.metric("Variance at Completion (VAC)", f"{summary['Total_VAC']:,.0f} NOK", delta="BAC - EAC", delta_color="inverse")
+        st.metric("Variance at Completion (VAC)", f"{summary['Total_VAC']:,.0f} USD", delta="BAC - EAC", delta_color="inverse")
     with col_r5:
         tcpi = (bac - ev) / (bac - ac) if (bac - ac) > 0 else 0
         st.metric("To-Complete PI (TCPI)", f"{tcpi:.2f}", delta="(BAC-EV)/(BAC-AC)", delta_color="inverse")
@@ -593,12 +593,12 @@ if view_mode == "Agent Control Tower":
             w.ProjectID as "Project ID",
             p.ProjectName as "Project Name",
             p.ProjectManager as "Manager",
-            SUM(m.BAC) as "BAC (NOK)",
-            SUM(m.AC) as "AC (NOK)",
-            SUM(m.EV) as "EV (NOK)",
+            SUM(m.BAC) as "BAC (USD)",
+            SUM(m.AC) as "AC (USD)",
+            SUM(m.EV) as "EV (USD)",
             CASE WHEN SUM(m.AC) > 0 THEN SUM(m.EV) / SUM(m.AC) ELSE 1.0 END as "CPI",
             (SUM(m.EV) / SUM(m.BAC)) * 100 as "Progress",
-            SUM(m.BAC) - SUM(m.EAC_Typical) as "VAC (NOK)",
+            SUM(m.BAC) - SUM(m.EAC_Typical) as "VAC (USD)",
             p.Status as "Status"
         FROM v_wbs_evm_metrics m
         JOIN wbs_elements w ON m.WBS_ID = w.WBS_ID
@@ -609,10 +609,10 @@ if view_mode == "Agent Control Tower":
     portfolio_df = con_db.execute(proj_query).df()
     con_db.close()
     
-    portfolio_df["BAC (NOK)"] = portfolio_df["BAC (NOK)"].apply(lambda x: f"{x:,.0f}")
-    portfolio_df["AC (NOK)"] = portfolio_df["AC (NOK)"].apply(lambda x: f"{x:,.0f}")
-    portfolio_df["EV (NOK)"] = portfolio_df["EV (NOK)"].apply(lambda x: f"{x:,.0f}")
-    portfolio_df["VAC (NOK)"] = portfolio_df["VAC (NOK)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["BAC (USD)"] = portfolio_df["BAC (USD)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["AC (USD)"] = portfolio_df["AC (USD)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["EV (USD)"] = portfolio_df["EV (USD)"].apply(lambda x: f"{x:,.0f}")
+    portfolio_df["VAC (USD)"] = portfolio_df["VAC (USD)"].apply(lambda x: f"{x:,.0f}")
     portfolio_df["Progress"] = portfolio_df["Progress"].apply(lambda x: f"{x:.1f}%")
     
     def get_status_indicator(row):
@@ -686,40 +686,40 @@ if view_mode == "Agent Control Tower":
         with st.expander("WBS 1.0 - Project Management & Engineering (🟢 Active)"):
             st.markdown("""
             * **Task Breakdown**:
-              * **1.1 Project Controlling & PM**: Planned: 150h | Actual: 180h. Cost: 120,000 NOK.
-              * **1.2 Structural Design & Drafting**: Planned: 200h | Actual: 210.8h. Cost: 210,000 NOK.
-              * **1.3 Systems Integration Planning**: Planned: 50h | Actual: 50h. Cost: 89,230 NOK.
-            * **Performance Metrics**: BAC: 300,000 NOK | AC: 419,230 NOK | CPI: 0.72 (🔴 Cost Overrun).
+              * **1.1 Project Controlling & PM**: Planned: 150h | Actual: 180h. Cost: 120,000 USD.
+              * **1.2 Structural Design & Drafting**: Planned: 200h | Actual: 210.8h. Cost: 210,000 USD.
+              * **1.3 Systems Integration Planning**: Planned: 50h | Actual: 50h. Cost: 89,230 USD.
+            * **Performance Metrics**: BAC: 300,000 USD | AC: 419,230 USD | CPI: 0.72 (🔴 Cost Overrun).
             * **Leading Resource Role**: Senior Design Engineer, Financial Controller.
             """)
             
         with st.expander("WBS 2.0 - Hull Fabrication & Assembly (🟢 Active)"):
             st.markdown("""
             * **Task Breakdown**:
-              * **2.1 Jig Setup & Alignment**: Planned: 300h | Actual: 290h. Cost: 150,000 NOK.
-              * **2.2 Carbon Fiber Infusion**: Planned: 600h | Actual: 150.5h. Cost: 300,000 NOK.
-              * **2.3 Demolding & Inspection**: Planned: 300h | Actual: 73h. Cost: 170,450 NOK.
-            * **Performance Metrics**: BAC: 600,000 NOK | AC: 620,450 NOK | CPI: 0.97 (🟢 On Track).
+              * **2.1 Jig Setup & Alignment**: Planned: 300h | Actual: 290h. Cost: 150,000 USD.
+              * **2.2 Carbon Fiber Infusion**: Planned: 600h | Actual: 150.5h. Cost: 300,000 USD.
+              * **2.3 Demolding & Inspection**: Planned: 300h | Actual: 73h. Cost: 170,450 USD.
+            * **Performance Metrics**: BAC: 600,000 USD | AC: 620,450 USD | CPI: 0.97 (🟢 On Track).
             * **Leading Resource Role**: Composites Lead Technician, Structural Welder.
             """)
             
         with st.expander("WBS 3.0 - Outfitting & Integration (🟢 Active)"):
             st.markdown("""
             * **Task Breakdown**:
-              * **3.1 Propulsion Engine Rigging**: Planned: 300h | Actual: 210.5h. Cost: 180,000 NOK.
-              * **3.2 Piping & Valve Manifolds**: Planned: 300h | Actual: 140.6h. Cost: 220,000 NOK.
-              * **3.3 Electrical & Automation Wiring**: Planned: 200h | Actual: 50h. Cost: 140,445 NOK.
-            * **Performance Metrics**: BAC: 400,000 NOK | AC: 540,445 NOK | CPI: 0.74 (🔴 Cost Overrun).
+              * **3.1 Propulsion Engine Rigging**: Planned: 300h | Actual: 210.5h. Cost: 180,000 USD.
+              * **3.2 Piping & Valve Manifolds**: Planned: 300h | Actual: 140.6h. Cost: 220,000 USD.
+              * **3.3 Electrical & Automation Wiring**: Planned: 200h | Actual: 50h. Cost: 140,445 USD.
+            * **Performance Metrics**: BAC: 400,000 USD | AC: 540,445 USD | CPI: 0.74 (🔴 Cost Overrun).
             * **Leading Resource Role**: Marine Outfitting Supervisor, Marine Electrician.
             """)
             
         with st.expander("WBS 4.0 - Sea Trials & Handover (🟢 Active)"):
             st.markdown("""
             * **Task Breakdown**:
-              * **4.1 Pier-Side Machinery Checkout**: Planned: 100h | Actual: 90.5h. Cost: 80,000 NOK.
-              * **4.2 Sea Endurance Trials**: Planned: 150h | Actual: 160h. Cost: 120,000 NOK.
-              * **4.3 Survey Certification (DNV)**: Planned: 50h | Actual: 30h. Cost: 68,685 NOK.
-            * **Performance Metrics**: BAC: 200,000 NOK | AC: 268,685 NOK | CPI: 0.74 (🔴 Cost Overrun).
+              * **4.1 Pier-Side Machinery Checkout**: Planned: 100h | Actual: 90.5h. Cost: 80,000 USD.
+              * **4.2 Sea Endurance Trials**: Planned: 150h | Actual: 160h. Cost: 120,000 USD.
+              * **4.3 Survey Certification (DNV)**: Planned: 50h | Actual: 30h. Cost: 68,685 USD.
+            * **Performance Metrics**: BAC: 200,000 USD | AC: 268,685 USD | CPI: 0.74 (🔴 Cost Overrun).
             * **Leading Resource Role**: Sea Trials Captain, DNV Class Surveyor.
             """)
 
@@ -732,9 +732,9 @@ if view_mode == "Agent Control Tower":
             sim_eac = ac + sim_etc
             sim_vac = bac - sim_eac
             
-            st.metric("Simulated ETC (Estimate To Complete)", f"{sim_etc:,.0f} NOK")
-            st.metric("Simulated EAC (Estimate At Completion)", f"{sim_eac:,.0f} NOK")
-            st.metric("Simulated VAC (Variance At Completion)", f"{sim_vac:,.0f} NOK", delta_color="normal" if sim_vac >= 0 else "inverse")
+            st.metric("Simulated ETC (Estimate To Complete)", f"{sim_etc:,.0f} USD")
+            st.metric("Simulated EAC (Estimate At Completion)", f"{sim_eac:,.0f} USD")
+            st.metric("Simulated VAC (Variance At Completion)", f"{sim_vac:,.0f} USD", delta_color="normal" if sim_vac >= 0 else "inverse")
             
         with col_sim2:
             fig_waterfall = go.Figure(go.Waterfall(
@@ -761,8 +761,8 @@ if view_mode == "Agent Control Tower":
         
         col_cfo1, col_cfo2 = st.columns([2, 3])
         with col_cfo1:
-            st.metric("Total Labor Cost", f"{total_labor:,.0f} NOK", f"{total_labor/ac*100:.1f}% of total AC")
-            st.metric("Total Material Cost", f"{total_material:,.0f} NOK", f"{total_material/ac*100:.1f}% of total AC")
+            st.metric("Total Labor Cost", f"{total_labor:,.0f} USD", f"{total_labor/ac*100:.1f}% of total AC")
+            st.metric("Total Material Cost", f"{total_material:,.0f} USD", f"{total_material/ac*100:.1f}% of total AC")
             st.markdown("> **[CFO Commentary]** Labor cost is the dominant overrun driver due to design changes & extra outfitting hours.")
             
         with col_cfo2:
@@ -779,10 +779,10 @@ if view_mode == "Agent Control Tower":
                 overtime_df['Total Hours'] = overtime_df['TotalHours'].apply(lambda x: f"{x:.1f} hrs")
                 st.table(overtime_df[['WorkWeek', 'ResourceName', 'Role', 'Total Hours']])
         with col_risk2:
-            st.subheader("💳 Large Procurement Audit (>50,000 NOK)")
+            st.subheader("💳 Large Procurement Audit (>50,000 USD)")
             large_mats = material_df[material_df['TotalActualCost'] > 50000].sort_values(by='TotalActualCost', ascending=False)
-            large_mats['Cost (NOK)'] = large_mats['TotalActualCost'].apply(lambda x: f"{x:,.2f}")
-            st.table(large_mats[['PurchaseDate', 'InvoiceNumber', 'ItemDescription', 'Cost (NOK)']])
+            large_mats['Cost (USD)'] = large_mats['TotalActualCost'].apply(lambda x: f"{x:,.2f}")
+            st.table(large_mats[['PurchaseDate', 'InvoiceNumber', 'ItemDescription', 'Cost (USD)']])
             
         st.subheader("📋 Active RAID Log Register")
         if raid_df is not None and not raid_df.empty:
@@ -855,7 +855,7 @@ if view_mode == "Agent Control Tower":
         with rec_col1:
             st.markdown("### 📋 Active Action Items")
             if cpi < 0.95:
-                st.error("🔴 **Audit Materials & Rates (WBS 1.0 & 3.0)**\n\n* **Priority:** Critical\n* **Reason:** Cost overrun of 119k NOK in PM & Eng and 140k NOK in Outfitting.\n* **Action:** Renegotiate contractor rates, enforce strict scope controls on drawings, and freeze non-essential variation orders.")
+                st.error("🔴 **Audit Materials & Rates (WBS 1.0 & 3.0)**\n\n* **Priority:** Critical\n* **Reason:** Cost overrun of 119k USD in PM & Eng and 140k USD in Outfitting.\n* **Action:** Renegotiate contractor rates, enforce strict scope controls on drawings, and freeze non-essential variation orders.")
                 st.warning("🟡 **Yard Resource Optimization (WBS 2.0)**\n\n* **Priority:** Medium\n* **Reason:** Fabricated 10 days early but slightly exceeded BAC.\n* **Action:** Review labor efficiency; shift excess yard operators to outfitting tasks.")
             if progress < 100.0 and cpi < 0.90:
                 st.error("🔴 **Accelerate Sea Trials Handover (WBS 4.0)**\n\n* **Priority:** High\n* **Reason:** Schedule slipped by 10 days.\n* **Action:** Deploy overlapping shifts for final testing and pre-commissioning checks.")
@@ -870,7 +870,7 @@ if view_mode == "Agent Control Tower":
             material_saving = st.slider("Simulated Material Price Reduction (%)", 0.0, 30.0, 0.0, step=1.0)
             
             st.markdown("#### 📅 Schedule Crashing & Contract Penalty Trade-off")
-            penalty_per_day = st.slider("Contract Delay Penalty (NOK/Day)", 0, 50000, 10000, step=1000)
+            penalty_per_day = st.slider("Contract Delay Penalty (USD/Day)", 0, 50000, 10000, step=1000)
             schedule_crash = st.selectbox("Crash WBS 4.0 Schedule (Add Overtime Shifts)", ["No (Normal - 10 days delay)", "Yes (5% extra cost, 5 days saved)", "Yes (10% extra cost, 10 days saved)"])
             
             # Original BAC = 1,300,000. Original AC = 1,848,810.
@@ -906,10 +906,10 @@ if view_mode == "Agent Control Tower":
             metric_c1, metric_c2 = st.columns(2)
             with metric_c1:
                 st.metric("Simulated CPI", f"{sim_cpi:.2f}", delta=f"{sim_cpi - cpi:+.2f} Improvement" if sim_cpi > cpi else None)
-                st.metric("Simulated EAC", f"{sim_eac:,.0f} NOK", delta=f"{sim_eac - 1859559:,.0f} NOK vs Current" if sim_eac != 1859559 else None)
+                st.metric("Simulated EAC", f"{sim_eac:,.0f} USD", delta=f"{sim_eac - 1859559:,.0f} USD vs Current" if sim_eac != 1859559 else None)
             with metric_c2:
-                st.metric("Liquidated Damages", f"{sim_penalty:,.0f} NOK", delta=f"-{penalty_savings:,.0f} NOK Saved" if penalty_savings > 0 else None, delta_color="normal")
-                st.metric("Net Crashing Trade-off", f"{net_benefit:+,.0f} NOK", delta=f"Crashing Cost: {crashing_cost:,.0f} NOK", delta_color="normal" if net_benefit >= 0 else "inverse")
+                st.metric("Liquidated Damages", f"{sim_penalty:,.0f} USD", delta=f"-{penalty_savings:,.0f} USD Saved" if penalty_savings > 0 else None, delta_color="normal")
+                st.metric("Net Crashing Trade-off", f"{net_benefit:+,.0f} USD", delta=f"Crashing Cost: {crashing_cost:,.0f} USD", delta_color="normal" if net_benefit >= 0 else "inverse")
 
     with tab6:
         st.subheader("📚 Earned Value Management (EVM) Glossary")
@@ -969,21 +969,21 @@ elif view_mode == "👥 Stakeholder Reports":
         """, unsafe_allow_html=True)
         exec_col1, exec_col2, exec_col3, exec_col4 = st.columns(4)
         with exec_col1:
-            st.metric("Baseline Budget (BAC)", f"{bac:,.0f} NOK")
+            st.metric("Baseline Budget (BAC)", f"{bac:,.0f} USD")
         with exec_col2:
-            st.metric("Projected Total Cost (EAC)", f"{1859559:,.0f} NOK")
+            st.metric("Projected Total Cost (EAC)", f"{1859559:,.0f} USD")
         with exec_col3:
-            st.metric("Projected Overrun (VAC)", f"-359,559 NOK", delta="-24.0% Overrun", delta_color="inverse")
+            st.metric("Projected Overrun (VAC)", f"-359,559 USD", delta="-24.0% Overrun", delta_color="inverse")
         with exec_col4:
             st.metric("Portfolio Risk Exposure", "HIGH", delta="3 Active RAID Risks", delta_color="inverse")
             
         st.subheader("Financial Performance Summary")
         st.markdown(f"""
-        * **Project Cost Variance**: Net loss variance of **{cv:,.2f} NOK** across the 1.5M NOK baseline budget.
-        * **Cost Performance Index (CPI)**: Currently at **{cpi:.2f}**, indicating that for every 1.00 NOK spent, the project generates only 0.81 NOK of value.
+        * **Project Cost Variance**: Net loss variance of **{cv:,.2f} USD** across the 1.5M USD baseline budget.
+        * **Cost Performance Index (CPI)**: Currently at **{cpi:.2f}**, indicating that for every 1.00 USD spent, the project generates only 0.81 USD of value.
         * **Capital Allocation Breakdown**:
-          * Labor Costs: **1,326,810 NOK** (71.8% of total expenditure).
-          * Procurement & Materials: **522,000 NOK** (28.2% of total expenditure).
+          * Labor Costs: **1,326,810 USD** (71.8% of total expenditure).
+          * Procurement & Materials: **522,000 USD** (28.2% of total expenditure).
         * **Margin Mitigation Action**: Freeze all unapproved variation requests and require CFO approval for engineering design revisions.
         """)
         
@@ -998,7 +998,7 @@ elif view_mode == "👥 Stakeholder Reports":
         with pm_col1:
             st.metric("Overall Progress", f"{progress:.1f}%")
         with pm_col2:
-            st.metric("Earned Value (EV)", f"{ev:,.0f} NOK")
+            st.metric("Earned Value (EV)", f"{ev:,.0f} USD")
         with pm_col3:
             st.metric("Schedule Variance", "ON SCHEDULE", delta="Sea trials complete", delta_color="normal")
         with pm_col4:
@@ -1031,9 +1031,9 @@ elif view_mode == "👥 Stakeholder Reports":
         
         eng_col1, eng_col2, eng_col3 = st.columns(3)
         with eng_col1:
-            st.metric("WBS 1.0 Budget (BAC)", "300,000 NOK")
+            st.metric("WBS 1.0 Budget (BAC)", "300,000 USD")
         with eng_col2:
-            st.metric("Actual Engineering Cost", f"{total_eng_cost:,.0f} NOK", delta=f"{total_eng_cost - 300000:,.0f} NOK Over", delta_color="inverse")
+            st.metric("Actual Engineering Cost", f"{total_eng_cost:,.0f} USD", delta=f"{total_eng_cost - 300000:,.0f} USD Over", delta_color="inverse")
         with eng_col3:
             st.metric("Engineering Design Progress", "97.5%")
             
@@ -1075,13 +1075,13 @@ elif view_mode == "👥 Stakeholder Reports":
         total_mat_cost = material_df['TotalActualCost'].sum()
         mat_col1, mat_col2 = st.columns(2)
         with mat_col1:
-            st.metric("Total Material Spend", f"{total_mat_cost:,.0f} NOK")
+            st.metric("Total Material Spend", f"{total_mat_cost:,.0f} USD")
         with mat_col2:
-            st.metric("Major Purchases (>50k NOK)", f"{len(material_df[material_df['TotalActualCost'] > 50000])}")
+            st.metric("Major Purchases (>50k USD)", f"{len(material_df[material_df['TotalActualCost'] > 50000])}")
             
         st.subheader("Material Purchases Breakdown")
-        material_df['Cost (NOK)'] = material_df['TotalActualCost'].apply(lambda x: f"{x:,.2f}")
-        st.table(material_df[['PurchaseDate', 'InvoiceNumber', 'ItemDescription', 'Cost (NOK)']])
+        material_df['Cost (USD)'] = material_df['TotalActualCost'].apply(lambda x: f"{x:,.2f}")
+        st.table(material_df[['PurchaseDate', 'InvoiceNumber', 'ItemDescription', 'Cost (USD)']])
 
     elif "Quality & Class Inspector" in stakeholder:
         st.markdown("""
@@ -1203,14 +1203,14 @@ elif view_mode == "Live Crew Execution":
 #### **Project Health Overview**
 * **Project Reference:** PRJ-001 (Composite Maritime Vessel Construction)
 * **Physical Progress:** **{progress:.1f}%**
-* **Budget Status:** The project is **over budget** by **{ac - bac:,.0f} NOK** (Actual Cost: **{ac:,.0f} NOK** vs. Baseline BAC: **{bac:,.0f} NOK**).
+* **Budget Status:** The project is **over budget** by **{ac - bac:,.0f} USD** (Actual Cost: **{ac:,.0f} USD** vs. Baseline BAC: **{bac:,.0f} USD**).
 * **Cost Performance Index (CPI):** **{cpi:.2f}** (indicating poor cost efficiency).
-* **Estimate at Completion (EAC Typical):** **{summary['Total_EAC_Typical']:,.0f} NOK** (a projected variance at completion of **{summary['Total_VAC']:,.0f} NOK**).
+* **Estimate at Completion (EAC Typical):** **{summary['Total_EAC_Typical']:,.0f} USD** (a projected variance at completion of **{summary['Total_VAC']:,.0f} USD**).
 
 #### **Key Cost & Anomaly Drivers**
-1. **Labor Overruns (71.8% of spend):** WBS 1.0 (PM & Engineering) is overspent by **{total_labor - 300000:,.0f} NOK** (Actual cost: **{total_labor:,.0f} NOK**). This was driven by design changes and overtime.
+1. **Labor Overruns (71.8% of spend):** WBS 1.0 (PM & Engineering) is overspent by **{total_labor - 300000:,.0f} USD** (Actual cost: **{total_labor:,.0f} USD**). This was driven by design changes and overtime.
 2. **Shop-Floor Overtime:** Detected **{overtime_count}** instances of resources exceeding weekly limits of 45 hours, representing potential burn-out and rate inflation.
-3. **High-Value Procurement:** Identified **{large_inv_count}** single material invoices exceeding the 50,000 NOK threshold, primarily related to carbon composite sheet logistics.
+3. **High-Value Procurement:** Identified **{large_inv_count}** single material invoices exceeding the 50,000 USD threshold, primarily related to carbon composite sheet logistics.
 
 #### **Immediate Corrective Actions Recommended**
 * **Enforce Variation Order (VO) Freeze:** Immediately restrict unapproved engineering modifications to prevent further margin erosion in Outfitting and Systems Integration.

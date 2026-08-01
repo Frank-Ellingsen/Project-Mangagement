@@ -62,7 +62,7 @@ class CFOAgent:
             FROM v_project_evm_summary
         """).fetchone()
         
-        # Material vs Labor Cost share (converted to USD using 1 USD = 1 NOK)
+        # Material vs Labor Cost share (converted to USD using 1 USD = 1 USD)
         costs = con.execute("""
             SELECT 
                 (SELECT SUM(HoursWorked * HourlyRate) FROM timesheets t JOIN resources r ON t.ResourceID = r.ResourceID) as Labor,

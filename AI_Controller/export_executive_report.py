@@ -23,7 +23,7 @@ def generate_report_content():
         ORDER BY WBS_Code
     """).fetchall()
     
-    # Material vs Labor Cost share (converted to USD using 1 USD = 1 NOK)
+    # Material vs Labor Cost share (converted to USD using 1 USD = 1 USD)
     labor_cost = con.execute("""
         SELECT SUM(t.HoursWorked * r.HourlyRate) 
         FROM timesheets t 

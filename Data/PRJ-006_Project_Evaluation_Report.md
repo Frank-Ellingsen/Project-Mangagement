@@ -14,19 +14,19 @@ This section reconciles the project's baseline targets (Planned) against final f
 
 | Metric | Baseline Target (Planned) | Final Actuals | Variance (Diff) | Status |
 | :--- | :---: | :---: | :---: | :---: |
-| **Total Cost** | 600,000.00 NOK | 586,500.00 NOK | -13,500.00 NOK | 🟢 Under Budget |
+| **Total Cost** | 600,000.00 USD | 586,500.00 USD | -13,500.00 USD | 🟢 Under Budget |
 | **Total Hours** | 700.0 hrs | 670.0 hrs | -30.0 hrs | 🟢 Ahead of Schedule |
 | **Cost Performance Index (CPI)** | 1.00 | 1.02 | +0.02 | 🟢 Highly Efficient |
 
 ### WBS Breakdown:
 * **WBS 1.0 (Engineering & FEA):**
-  * Planned: 200,000.00 NOK (200.0 hrs)
-  * Actual: 180,500.00 NOK (190.0 hrs by senior designer Erik Johansen)
-  * Status: **🟢 Under Budget (-19,500.00 NOK)**
+  * Planned: 200,000.00 USD (200.0 hrs)
+  * Actual: 180,500.00 USD (190.0 hrs by senior designer Erik Johansen)
+  * Status: **🟢 Under Budget (-19,500.00 USD)**
 * **WBS 2.0 (Molding & Testing):**
-  * Planned: 400,000.00 NOK (500.0 hrs)
-  * Actual: 406,000.00 NOK (480.0 welder/fabricator hours Astrid Nilsen + 70,000.00 NOK testing resin materials)
-  * Status: **🟡 Muted Cost Overrun (+6,000.00 NOK)**
+  * Planned: 400,000.00 USD (500.0 hrs)
+  * Actual: 406,000.00 USD (480.0 welder/fabricator hours Astrid Nilsen + 70,000.00 USD testing resin materials)
+  * Status: **🟡 Muted Cost Overrun (+6,000.00 USD)**
 
 ---
 
@@ -38,8 +38,8 @@ Based on timesheet audits, material consumption logs, and shop-floor productivit
    * *Observation:* Mold manufacturing was completed 4 days ahead of schedule.
    * *Learning:* Pre-assembling structural supports for the cargo hatch composite mold in the welding shop prior to demolding setup saved substantial assembly line time.
 2. **Laser Nesting Carbon Sheets (Material Efficiency):**
-   * *Observation:* Material actual cost was 70,000.00 NOK against a material budget allowance of 83,500.00 NOK.
-   * *Learning:* Applying nesting software algorithms on the composite carbon fiber cutting table reduced scrap rate by **12%**, netting a direct material saving of **13,500.00 NOK**.
+   * *Observation:* Material actual cost was 70,000.00 USD against a material budget allowance of 83,500.00 USD.
+   * *Learning:* Applying nesting software algorithms on the composite carbon fiber cutting table reduced scrap rate by **12%**, netting a direct material saving of **13,500.00 USD**.
 3. **Overtime Compliance & Morale:**
    * *Observation:* Zero overtime limit violations were logged during timesheet audits (max weekly hours logged was 40.0h).
    * *Learning:* Structuring labor shifts with regular intervals maintained shop-floor morale, resulting in zero weld rework incidents (100% initial NDT inspection pass rate).

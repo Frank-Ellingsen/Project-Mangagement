@@ -8,22 +8,22 @@ An automated, interactive **Project Controlling & Earned Value Management (EVM) 
 
 Originally built around a single vessel project, the Control Tower now aggregates and tracks a **6-project portfolio** spanning various stages of execution:
 
-1. **PRJ-001 (Composite Vessel Construction):** Baseline BAC 1,500,000 NOK. Currently **99.5% complete**, suffering from a 🔴 24.0% cost overrun driven by WBS 1.0 labor rates.
-2. **PRJ-002 (Patrol Vessel Carbon Mold Design):** Baseline BAC 800,000 NOK. **0.0% complete** (Planned).
-3. **PRJ-003 (Subsea Cable Installation Frame):** Baseline BAC 1,200,000 NOK. **30.0% complete** (Active).
-4. **PRJ-004 (Autonomous Workboat Hull Weldments):** Baseline BAC 2,000,000 NOK. **70.0% complete** (Active).
-5. **PRJ-005 (Defense Logistics Pontoon Build):** Baseline BAC 1,000,000 NOK. **90.0% complete** (Active).
-6. **PRJ-006 (Lightweight Composite Cargo Hatch):** Baseline BAC 600,000 NOK. **100.0% complete** (Delivered 🟢 under budget at 586,500 NOK).
+1. **PRJ-001 (Composite Vessel Construction):** Baseline BAC 1,500,000 USD. Currently **99.5% complete**, suffering from a 🔴 24.0% cost overrun driven by WBS 1.0 labor rates.
+2. **PRJ-002 (Patrol Vessel Carbon Mold Design):** Baseline BAC 800,000 USD. **0.0% complete** (Planned).
+3. **PRJ-003 (Subsea Cable Installation Frame):** Baseline BAC 1,200,000 USD. **30.0% complete** (Active).
+4. **PRJ-004 (Autonomous Workboat Hull Weldments):** Baseline BAC 2,000,000 USD. **70.0% complete** (Active).
+5. **PRJ-005 (Defense Logistics Pontoon Build):** Baseline BAC 1,000,000 USD. **90.0% complete** (Active).
+6. **PRJ-006 (Lightweight Composite Cargo Hatch):** Baseline BAC 600,000 USD. **100.0% complete** (Delivered 🟢 under budget at 586,500 USD).
 
 ### Current Portfolio Health Snapshot
 
 | Metric                           | Value         | Status                |
 | :------------------------------- | :------------ | :-------------------- |
-| **Total Portfolio BAC**          | 7,100,000 NOK | Baseline              |
-| **Total Portfolio AC**           | 5,220,810 NOK | Active Spend          |
-| **Total Portfolio EV**           | 4,752,500 NOK | Value Earned          |
+| **Total Portfolio BAC**          | 7,100,000 USD | Baseline              |
+| **Total Portfolio AC**           | 5,220,810 USD | Active Spend          |
+| **Total Portfolio EV**           | 4,752,500 USD | Value Earned          |
 | **Portfolio CPI**                | 0.91          | 🟡 Muted Cost Overrun |
-| **Portfolio Cost Variance (CV)** | -468,310 NOK  | 🔴 9% budget overrun  |
+| **Portfolio Cost Variance (CV)** | -468,310 USD  | 🔴 9% budget overrun  |
 | **Overall Portfolio Progress**   | 66.9%         | In-progress           |
 
 ---

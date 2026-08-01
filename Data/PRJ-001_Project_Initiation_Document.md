@@ -9,7 +9,7 @@
 ## 1. Executive Summary & Business Case
 The objective of this project is to construct a lightweight, high-speed composite vessel for maritime logistics and defense-support services. Composite materials reduce overall weight by 35% compared to aluminum hulls, providing superior fuel efficiency and speed parameters.
 
-* **Target Budget (BAC)**: 1,500,000.00 NOK
+* **Target Budget (BAC)**: 1,500,000.00 USD
 * **Target Timeline**: 2026-01-01 to 2026-06-30
 * **Target Margin**: 15% net profitability baseline
 
@@ -35,10 +35,10 @@ The project scope is baselined into four key Work Packages:
 
 | WBS Code | Element Name | Planned Cost (BAC) | Planned Hours | Start Date | End Date |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **1.0** | Project Management & Engineering | 300,000.00 NOK | 400 hrs | 2026-01-01 | 2026-06-30 |
-| **2.0** | Hull Fabrication & Assembly | 600,000.00 NOK | 1200 hrs | 2026-02-01 | 2026-04-15 |
-| **3.0** | Outfitting & Integration | 400,000.00 NOK | 800 hrs | 2026-04-01 | 2026-05-31 |
-| **4.0** | Sea Trials & Handover | 200,000.00 NOK | 300 hrs | 2026-06-01 | 2026-06-30 |
+| **1.0** | Project Management & Engineering | 300,000.00 USD | 400 hrs | 2026-01-01 | 2026-06-30 |
+| **2.0** | Hull Fabrication & Assembly | 600,000.00 USD | 1200 hrs | 2026-02-01 | 2026-04-15 |
+| **3.0** | Outfitting & Integration | 400,000.00 USD | 800 hrs | 2026-04-01 | 2026-05-31 |
+| **4.0** | Sea Trials & Handover | 200,000.00 USD | 300 hrs | 2026-06-01 | 2026-06-30 |
 
 ---
 

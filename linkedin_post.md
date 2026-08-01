@@ -1,4 +1,4 @@
-# ⚓ Can you manage a 7,100,000 NOK engineering portfolio with ZERO licensing costs—100% locally?
+# ⚓ Can you manage a 7,100,000 USD engineering portfolio with ZERO licensing costs—100% locally?
 
 I am excited to share a major update to a project I’ve been building: the **Agentic Project Controlling Control Tower**. Originally a single-vessel controller, it has now scaled into a fully automated, local-first **Multi-Project Portfolio Ecosystem**!
 
@@ -6,7 +6,7 @@ Designed specifically for engineering, maritime, and defense sector projects, th
 
 ---
 
-### 📊 The Portfolio Scope (7.1M NOK Under Control)
+### 📊 The Portfolio Scope (7.1M USD Under Control)
 The Control Tower now tracks **6 distinct projects** in different stages of completion:
 1. **PRJ-001 (Composite Vessel Construction):** 99.5% complete, facing a 🔴 24.0% cost overrun driven by labor burn rates.
 2. **PRJ-002 (Patrol Vessel Carbon Mold Design):** 0.0% complete (Planned & ready for launch).

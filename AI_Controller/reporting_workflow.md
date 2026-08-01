@@ -82,7 +82,7 @@ graph TD
 * **AI Analysis Agent (Local LLM)**: 
   * A Python script queries the database for WBS elements where `CPI < 0.95` (over budget) or `SPI < 0.90` (behind schedule).
   * The script feeds these rows to a local LLM via **Ollama** (e.g., Llama 3) or the **Gemini API**.
-  * The AI drafts an automated anomaly explanation: *"WBS 1.0 (Engineering) is currently at a CPI of 0.70. Actual hours exceed the plan by 40% due to an extended design iteration in Jan-Feb. Expected cost overrun is 119k NOK."*
+  * The AI drafts an automated anomaly explanation: *"WBS 1.0 (Engineering) is currently at a CPI of 0.70. Actual hours exceed the plan by 40% due to an extended design iteration in Jan-Feb. Expected cost overrun is 119k USD."*
 
 ### Step 5: Tailored Stakeholder Reporting
 

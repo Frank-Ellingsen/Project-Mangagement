@@ -150,7 +150,7 @@ def create_excel_report():
     overview_text = (
         "The project portfolio currently consists of 6 projects spanning maritime vessel fabrication, logistics solutions, "
         "and subsea structures. As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of "
-        "7,100,000 NOK, with 5,220,810 NOK logged in actual costs (AC) and 4,752,500 NOK earned in physical progress "
+        "7,100,000 USD, with 5,220,810 USD logged in actual costs (AC) and 4,752,500 USD earned in physical progress "
         "value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at a stable 0.91. Individual active "
         "projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances."
     )
@@ -162,7 +162,7 @@ def create_excel_report():
     
     # Portfolio Project Breakdown table
     ws_dash.cell(row=11, column=1, value="Portfolio Project Breakdown").font = section_font
-    proj_headers = ["Project ID", "Project Name", "Project Manager", "BAC (NOK)", "AC (NOK)", "EV (NOK)", "CPI", "Progress", "Status"]
+    proj_headers = ["Project ID", "Project Name", "Project Manager", "BAC (USD)", "AC (USD)", "EV (USD)", "CPI", "Progress", "Status"]
     for col_idx, header in enumerate(proj_headers, start=1):
         cell = ws_dash.cell(row=12, column=col_idx, value=header)
         cell.font = header_font
@@ -212,7 +212,7 @@ def create_excel_report():
     ws_dash.cell(row=wbs_section_row, column=1, value="WBS Element Performance Details").font = section_font
     
     wbs_header_row = wbs_section_row + 1
-    headers = ["WBS Code", "ElementName", "BAC (NOK)", "AC (NOK)", "EV (NOK)", "CPI", "Progress", "EAC Typical (NOK)", "Status"]
+    headers = ["WBS Code", "ElementName", "BAC (USD)", "AC (USD)", "EV (USD)", "CPI", "Progress", "EAC Typical (USD)", "Status"]
     for col_idx, header in enumerate(headers, start=1):
         cell = ws_dash.cell(row=wbs_header_row, column=col_idx, value=header)
         cell.font = header_font

@@ -24,9 +24,9 @@ When you open the application, you are presented with the **Agent Control Tower 
 
 ### A. Executive KPI Metrics Bar (Top)
 
-- **Budget at Completion (BAC)**: Baseline total budget allocated across the 6-project portfolio (7,100,000 NOK).
-- **Actual Cost (AC)**: Cumulative actual expenditure (5,220,810 NOK).
-- **Earned Value (EV)**: Value of work physically completed to date (4,752,500 NOK).
+- **Budget at Completion (BAC)**: Baseline total budget allocated across the 6-project portfolio (7,100,000 USD).
+- **Actual Cost (AC)**: Cumulative actual expenditure (5,220,810 USD).
+- **Earned Value (EV)**: Value of work physically completed to date (4,752,500 USD).
 - **Project CPI**: Cost Performance Index (`0.91` - highlighted in red to indicate portfolio-wide overrun).
 - **Physical Progress**: Overall completion percentage (`66.9%`).
 
@@ -43,7 +43,7 @@ When you open the application, you are presented with the **Agent Control Tower 
 
 - **📊 Project Controller (EVM & Forecasts)**: View detailed WBS performance matrix and run the **Dynamic EAC/VAC Forecast Simulator** using interactive target CPI sliders.
 - **💼 CFO & Profitability Audit**: View Labor vs. Material cost split donut charts (71.8% labor share) and top resource hourly burn rates.
-- **📜 Contract, Risk & Anomaly Audit**: Audit resource overtime (>45 hrs/wk), large purchases (>50k NOK), and active RAID log items.
+- **📜 Contract, Risk & Anomaly Audit**: Audit resource overtime (>45 hrs/wk), large purchases (>50k USD), and active RAID log items.
 - **🏗️ Production & Quality Control**: Inspect physical assembly completion bar charts per WBS element.
 
 ---
@@ -54,11 +54,11 @@ Select **`👥 Stakeholder Reports`** in the sidebar to generate tailored execut
 
 | Stakeholder Persona                               | Key Information & Metrics Focus                                                                                                           |
 | :------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------- |
-| **👑 Executive Steering Committee (CFO & Board)** | High-level financial risk, capital exposure, BAC vs EAC (1.86M NOK), VAC overrun (-359.5k NOK / 24%), and CFO margin mitigation guidance. |
+| **👑 Executive Steering Committee (CFO & Board)** | High-level financial risk, capital exposure, BAC vs EAC (1.86M USD), VAC overrun (-359.5k USD / 24%), and CFO margin mitigation guidance. |
 | **🎯 Project Manager (Operational Control)**      | Physical progress %, Earned Value (EV), WBS matrix, critical path schedule, and active RAID log items.                                    |
-| **📐 Engineering Lead (Design & Hours)**          | WBS 1.0 budget vs actuals (300k vs 419k NOK), design progress (97.5%), and resource-level engineering hours burn rates.                   |
+| **📐 Engineering Lead (Design & Hours)**          | WBS 1.0 budget vs actuals (300k vs 419k USD), design progress (97.5%), and resource-level engineering hours burn rates.                   |
 | **🏗️ Yard & Production Manager**                  | Hull assembly (100%), Outfitting (100%), welder/electrician labor logs, and shop-floor overtime alerts.                                   |
-| **📦 Procurement Lead**                           | Material spend breakdown (522k NOK), high-value supplier invoices (>50k NOK), and carbon sheet delivery risks.                            |
+| **📦 Procurement Lead**                           | Material spend breakdown (522k USD), high-value supplier invoices (>50k USD), and carbon sheet delivery risks.                            |
 | **🛡️ Quality & Class Inspector (DNV)**            | DNV milestone verification, non-destructive weld testing results, and Sea Trials readiness (WBS 4.0).                                     |
 
 ---

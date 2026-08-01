@@ -130,9 +130,9 @@ else:
         
         # Total Portfolio KPI Row
         kpi_cols = st.columns(5)
-        kpi_cols[0].metric("Total Portfolio BAC", f"{summary['Total_BAC']:,.0f} NOK", help="Baseline budget (1 project)")
-        kpi_cols[1].metric("Total Actual Cost (AC)", f"{summary['Total_AC']:,.0f} NOK", f"+{summary['Total_AC'] - summary['Total_BAC']:,.0f} over BAC", delta_color="inverse")
-        kpi_cols[2].metric("Total Earned Value (EV)", f"{summary['Total_EV']:,.0f} NOK", "99.5% work complete")
+        kpi_cols[0].metric("Total Portfolio BAC", f"{summary['Total_BAC']:,.0f} USD", help="Baseline budget (1 project)")
+        kpi_cols[1].metric("Total Actual Cost (AC)", f"{summary['Total_AC']:,.0f} USD", f"+{summary['Total_AC'] - summary['Total_BAC']:,.0f} over BAC", delta_color="inverse")
+        kpi_cols[2].metric("Total Earned Value (EV)", f"{summary['Total_EV']:,.0f} USD", "99.5% work complete")
         
         cpi = summary["Project_CPI"]
         cpi_status = "COST OVERRUN" if cpi < 0.95 else "ON TRACK"
@@ -142,12 +142,12 @@ else:
         # Financial Ratios Row
         st.markdown("##### 📈 Portfolio Financial Ratios & Forecasts")
         ratio_cols = st.columns(5)
-        ratio_cols[0].metric("Cost Variance (CV)", f"{summary['Total_CV']:,.0f} NOK", "EV - AC", delta_color="off")
-        ratio_cols[1].metric("EAC (Typical)", f"{summary['Total_EAC_Typical']:,.0f} NOK", "BAC / CPI", delta_color="off")
+        ratio_cols[0].metric("Cost Variance (CV)", f"{summary['Total_CV']:,.0f} USD", "EV - AC", delta_color="off")
+        ratio_cols[1].metric("EAC (Typical)", f"{summary['Total_EAC_Typical']:,.0f} USD", "BAC / CPI", delta_color="off")
         
         atypical_eac = summary["Total_AC"] + (summary["Total_BAC"] - summary["Total_EV"])
-        ratio_cols[2].metric("EAC (Atypical)", f"{atypical_eac:,.0f} NOK", "AC + (BAC - EV)", delta_color="off")
-        ratio_cols[3].metric("Variance at Completion (VAC)", f"{summary['Total_VAC']:,.0f} NOK", "BAC - EAC", delta_color="off")
+        ratio_cols[2].metric("EAC (Atypical)", f"{atypical_eac:,.0f} USD", "AC + (BAC - EV)", delta_color="off")
+        ratio_cols[3].metric("Variance at Completion (VAC)", f"{summary['Total_VAC']:,.0f} USD", "BAC - EAC", delta_color="off")
         
         tcpi = (summary["Total_BAC"] - summary["Total_EV"]) / (summary["Total_BAC"] - summary["Total_AC"]) if (summary["Total_BAC"] - summary["Total_AC"]) != 0 else 0.81
         ratio_cols[4].metric("To-Complete PI (TCPI)", f"{tcpi:.2f}", "(BAC-EV)/(BAC-AC)", delta_color="off")
@@ -172,10 +172,10 @@ else:
             wbs_disp = wbs.copy()
             wbs_disp["PercentComplete"] = (wbs_disp["PercentComplete"] * 100).map("{:.1f}%".format)
             wbs_disp["CPI"] = wbs_disp["CPI"].map("{:.2f}".format)
-            wbs_disp["BAC"] = wbs_disp["BAC"].map("{:,.0f} NOK".format)
-            wbs_disp["AC"] = wbs_disp["AC"].map("{:,.0f} NOK".format)
-            wbs_disp["EV"] = wbs_disp["EV"].map("{:,.0f} NOK".format)
-            wbs_disp["EAC_Typical"] = wbs_disp["EAC_Typical"].map("{:,.0f} NOK".format)
+            wbs_disp["BAC"] = wbs_disp["BAC"].map("{:,.0f} USD".format)
+            wbs_disp["AC"] = wbs_disp["AC"].map("{:,.0f} USD".format)
+            wbs_disp["EV"] = wbs_disp["EV"].map("{:,.0f} USD".format)
+            wbs_disp["EAC_Typical"] = wbs_disp["EAC_Typical"].map("{:,.0f} USD".format)
             
             st.dataframe(
                 wbs_disp[["WBS_Code", "ElementName", "BAC", "AC", "EV", "CPI", "PercentComplete", "EAC_Typical"]],
@@ -188,41 +188,41 @@ else:
             
             with st.expander("📂 WBS 1.0 - Project Management & Engineering (🟢 Active)"):
                 st.markdown("""
-                * **1.1 Project Controlling & PM**: Planned: 150h | Actual: 180h. Cost: 120,000 NOK.
-                * **1.2 Structural Design & Drafting**: Planned: 200h | Actual: 210.8h. Cost: 210,000 NOK.
-                * **1.3 Systems Integration Planning**: Planned: 50h | Actual: 50h. Cost: 89,230 NOK.
+                * **1.1 Project Controlling & PM**: Planned: 150h | Actual: 180h. Cost: 120,000 USD.
+                * **1.2 Structural Design & Drafting**: Planned: 200h | Actual: 210.8h. Cost: 210,000 USD.
+                * **1.3 Systems Integration Planning**: Planned: 50h | Actual: 50h. Cost: 89,230 USD.
                 
-                **Performance Metrics**: BAC: 300,000 NOK | AC: 419,230 NOK | CPI: 0.72 (🔴 Cost Overrun).  
+                **Performance Metrics**: BAC: 300,000 USD | AC: 419,230 USD | CPI: 0.72 (🔴 Cost Overrun).  
                 **Leading Resource Role**: Senior Design Engineer, Financial Controller.
                 """)
                 
             with st.expander("📂 WBS 2.0 - Hull Fabrication & Assembly (🟢 Active)"):
                 st.markdown("""
-                * **2.1 Jig Setup & Alignment**: Planned: 300h | Actual: 290h. Cost: 150,000 NOK.
-                * **2.2 Carbon Fiber Infusion**: Planned: 600h | Actual: 150.5h. Cost: 300,000 NOK.
-                * **2.3 Demolding & Inspection**: Planned: 300h | Actual: 73h. Cost: 170,450 NOK.
+                * **2.1 Jig Setup & Alignment**: Planned: 300h | Actual: 290h. Cost: 150,000 USD.
+                * **2.2 Carbon Fiber Infusion**: Planned: 600h | Actual: 150.5h. Cost: 300,000 USD.
+                * **2.3 Demolding & Inspection**: Planned: 300h | Actual: 73h. Cost: 170,450 USD.
                 
-                **Performance Metrics**: BAC: 600,000 NOK | AC: 620,450 NOK | CPI: 0.97 (🟢 On Track).  
+                **Performance Metrics**: BAC: 600,000 USD | AC: 620,450 USD | CPI: 0.97 (🟢 On Track).  
                 **Leading Resource Role**: Composites Lead Technician, Structural Welder.
                 """)
                 
             with st.expander("📂 WBS 3.0 - Outfitting & Integration (🟢 Active)"):
                 st.markdown("""
-                * **3.1 Propulsion Engine Rigging**: Planned: 300h | Actual: 210.5h. Cost: 180,000 NOK.
-                * **3.2 Piping & Valve Manifolds**: Planned: 300h | Actual: 140.6h. Cost: 220,000 NOK.
-                * **3.3 Electrical & Automation Wiring**: Planned: 200h | Actual: 50h. Cost: 140,445 NOK.
+                * **3.1 Propulsion Engine Rigging**: Planned: 300h | Actual: 210.5h. Cost: 180,000 USD.
+                * **3.2 Piping & Valve Manifolds**: Planned: 300h | Actual: 140.6h. Cost: 220,000 USD.
+                * **3.3 Electrical & Automation Wiring**: Planned: 200h | Actual: 50h. Cost: 140,445 USD.
                 
-                **Performance Metrics**: BAC: 400,000 NOK | AC: 540,445 NOK | CPI: 0.74 (🔴 Cost Overrun).  
+                **Performance Metrics**: BAC: 400,000 USD | AC: 540,445 USD | CPI: 0.74 (🔴 Cost Overrun).  
                 **Leading Resource Role**: Marine Outfitting Supervisor, Marine Electrician.
                 """)
                 
             with st.expander("📂 WBS 4.0 - Sea Trials & Handover (🟢 Active)"):
                 st.markdown("""
-                * **4.1 Pier-Side Machinery Checkout**: Planned: 100h | Actual: 90.5h. Cost: 80,000 NOK.
-                * **4.2 Sea Endurance Trials**: Planned: 150h | Actual: 160h. Cost: 120,000 NOK.
-                * **4.3 Survey Certification (DNV)**: Planned: 50h | Actual: 30h. Cost: 68,685 NOK.
+                * **4.1 Pier-Side Machinery Checkout**: Planned: 100h | Actual: 90.5h. Cost: 80,000 USD.
+                * **4.2 Sea Endurance Trials**: Planned: 150h | Actual: 160h. Cost: 120,000 USD.
+                * **4.3 Survey Certification (DNV)**: Planned: 50h | Actual: 30h. Cost: 68,685 USD.
                 
-                **Performance Metrics**: BAC: 200,000 NOK | AC: 268,685 NOK | CPI: 0.74 (🔴 Cost Overrun).  
+                **Performance Metrics**: BAC: 200,000 USD | AC: 268,685 USD | CPI: 0.74 (🔴 Cost Overrun).  
                 **Leading Resource Role**: Sea Trials Captain, DNV Class Surveyor.
                 """)
                 
@@ -295,10 +295,10 @@ else:
             with col_left:
                 st.markdown("#### Audit Ratios & Spent")
                 cfo_df = pd.DataFrame([
-                    {"Audit Indicator": "Projected Margin Variance (VAC)", "Value / Metric": "-359,559 NOK", "Status": "Macro Risk"},
-                    {"Audit Indicator": "Typical Estimate at Completion (EAC)", "Value / Metric": "1,859,559 NOK", "Status": "Forecasted"},
-                    {"Audit Indicator": "Labor Costs Allocation", "Value / Metric": "1,326,810 NOK", "Status": "71.8% Share"},
-                    {"Audit Indicator": "Materials & Procurement Costs", "Value / Metric": "522,000 NOK", "Status": "28.2% Share"}
+                    {"Audit Indicator": "Projected Margin Variance (VAC)", "Value / Metric": "-359,559 USD", "Status": "Macro Risk"},
+                    {"Audit Indicator": "Typical Estimate at Completion (EAC)", "Value / Metric": "1,859,559 USD", "Status": "Forecasted"},
+                    {"Audit Indicator": "Labor Costs Allocation", "Value / Metric": "1,326,810 USD", "Status": "71.8% Share"},
+                    {"Audit Indicator": "Materials & Procurement Costs", "Value / Metric": "522,000 USD", "Status": "28.2% Share"}
                 ])
                 st.dataframe(cfo_df, hide_index=True)
                 
@@ -326,7 +326,7 @@ else:
                 st.dataframe(overtime, hide_index=True)
                 
             with col_right:
-                st.markdown("#### 💳 Large Procurement Audit (>50,000 NOK)")
+                st.markdown("#### 💳 Large Procurement Audit (>50,000 USD)")
                 large_materials = build_material_audit_table(materials)
                 st.dataframe(large_materials, hide_index=True)
                 
@@ -354,7 +354,7 @@ else:
                 st.error("""
                 **🔴 Audit Materials & Labor Rates (WBS 1.0 & 3.0)**  
                 * **Priority**: Critical  
-                * **Reason**: Cost overrun of 119k NOK in PM & Eng and 140k NOK in Outfitting.  
+                * **Reason**: Cost overrun of 119k USD in PM & Eng and 140k USD in Outfitting.  
                 * **Action**: Renegotiate contractor rates, freeze non-essential variation orders, and restrict scope expansion.
                 """)
                 
@@ -402,7 +402,7 @@ else:
                 
                 st.markdown("##### 📊 Simulated Results")
                 st.metric("Simulated CPI", f"{sim_cpi:.2f}")
-                st.metric("Simulated EAC", f"{sim_eac:,.0f} NOK")
+                st.metric("Simulated EAC", f"{sim_eac:,.0f} USD")
 
         # TAB 6: Glossary
         with tab_glossary:
@@ -439,16 +439,16 @@ else:
             st.info("Focuses on high-level financial risk, capital exposure, projected margin at completion, and macro cost drivers.")
             
             cols = st.columns(4)
-            cols[0].metric("Baseline Budget (BAC)", "1,500,000 NOK")
-            cols[1].metric("Projected Total Cost (EAC)", "1,859,559 NOK")
-            cols[2].metric("Projected Overrun (VAC)", "-359,559 NOK", "-24.0% Overrun")
+            cols[0].metric("Baseline Budget (BAC)", "1,500,000 USD")
+            cols[1].metric("Projected Total Cost (EAC)", "1,859,559 USD")
+            cols[2].metric("Projected Overrun (VAC)", "-359,559 USD", "-24.0% Overrun")
             cols[3].metric("Portfolio Risk Exposure", "HIGH", "3 Active RAID Risks")
             
             st.markdown("""
             #### Financial Performance Summary
-            * **Project Cost Variance**: Net loss variance of **-356,310 NOK** across the 1.5M NOK baseline budget.
-            * **Cost Performance Index (CPI)**: Currently at **0.81**, indicating that for every 1.00 NOK spent, the project generates only 0.81 NOK of value.
-            * **Capital Allocation Breakdown**: Labor: 1,326,810 NOK (71.8%) | Materials: 522,000 NOK (28.2%)
+            * **Project Cost Variance**: Net loss variance of **-356,310 USD** across the 1.5M USD baseline budget.
+            * **Cost Performance Index (CPI)**: Currently at **0.81**, indicating that for every 1.00 USD spent, the project generates only 0.81 USD of value.
+            * **Capital Allocation Breakdown**: Labor: 1,326,810 USD (71.8%) | Materials: 522,000 USD (28.2%)
             * **Mitigation Action**: Freeze all unapproved variation requests.
             """)
             
@@ -458,7 +458,7 @@ else:
             
             cols = st.columns(4)
             cols[0].metric("Overall Progress", "99.5%")
-            cols[1].metric("Earned Value (EV)", "1,492,500 NOK")
+            cols[1].metric("Earned Value (EV)", "1,492,500 USD")
             cols[2].metric("Schedule Variance", "ON SCHEDULE")
             cols[3].metric("WBS Status", "1 On Track / 3 Over Budget")
             
@@ -467,17 +467,17 @@ else:
             st.info("Focuses on WBS 1.0 (Project Management & Engineering), engineering hours burn rate, and drawing releases.")
             
             cols = st.columns(3)
-            cols[0].metric("WBS 1.0 Budget (BAC)", "300,000 NOK")
-            cols[1].metric("Actual Engineering Cost", "419,230 NOK")
+            cols[0].metric("WBS 1.0 Budget (BAC)", "300,000 USD")
+            cols[1].metric("Actual Engineering Cost", "419,230 USD")
             cols[2].metric("Design Progress", "97.5%")
             
             st.markdown("""
             #### Engineering Hours Burn Rate
             """)
             eng_df = pd.DataFrame([
-                {"Resource": "Erik Johansen", "Role": "Senior Design Engineer", "Hours Logged": "312.0 hrs", "Total Cost": "296,400 NOK"},
-                {"Resource": "Frank Ellingsen", "Role": "Project Controller", "Hours Logged": "86.0 hrs", "Total Cost": "73,100 NOK"},
-                {"Resource": "Morten Hansen", "Role": "Project Manager", "Hours Logged": "49.7 hrs", "Total Cost": "49,700 NOK"}
+                {"Resource": "Erik Johansen", "Role": "Senior Design Engineer", "Hours Logged": "312.0 hrs", "Total Cost": "296,400 USD"},
+                {"Resource": "Frank Ellingsen", "Role": "Project Controller", "Hours Logged": "86.0 hrs", "Total Cost": "73,100 USD"},
+                {"Resource": "Morten Hansen", "Role": "Project Manager", "Hours Logged": "49.7 hrs", "Total Cost": "49,700 USD"}
             ])
             st.dataframe(eng_df, hide_index=True)
             
@@ -498,8 +498,8 @@ else:
             st.info("Focuses on material purchases, supplier lead times, committed costs, and invoice audits.")
             
             cols = st.columns(2)
-            cols[0].metric("Total Material Spend", "522,000 NOK")
-            cols[1].metric("Major Purchases (>50k NOK)", len(materials[materials["TotalActualCost"] > 50000]))
+            cols[0].metric("Total Material Spend", "522,000 USD")
+            cols[1].metric("Major Purchases (>50k USD)", len(materials[materials["TotalActualCost"] > 50000]))
             
             st.markdown("#### Material Purchases Breakdown")
             st.dataframe(materials, hide_index=True)
@@ -551,8 +551,8 @@ else:
 [CONTROLLER AGENT] WBS 3.0 (Outfitting & Integration) CPI is 0.74 (BAC: 400,000 | AC: 540,445)
 [CONTROLLER AGENT] WBS 4.0 (Sea Trials) CPI is 0.74 (BAC: 200,000 | AC: 268,685)
 [CFO AGENT] Auditing labor and material cost allocations...
-[CFO AGENT] Total Project Cost: 1,848,810 NOK.
-[CFO AGENT] Labor: 1,326,810 NOK (71.8%) | Materials: 522,000 NOK (28.2%)
+[CFO AGENT] Total Project Cost: 1,848,810 USD.
+[CFO AGENT] Labor: 1,326,810 USD (71.8%) | Materials: 522,000 USD (28.2%)
 [CONTRACT AGENT] Querying SQLite project_controlling.db for RAID Log issues...
 [CONTRACT AGENT] Active Risks found: 3 active, 1 closed. RiskIDs: R-001, I-001, D-001
 [PRODUCTION AGENT] Auditing timesheets and shipyard logs for overtime exceptions...

@@ -166,17 +166,17 @@ def build_wbs_display_table(wbs_df, currency_decimals=2):
     display = wbs_df.copy()
     display["Status"] = display["CPI"].apply(lambda x: "🟢 Green" if x >= 0.98 else "🟡 Amber" if x >= 0.90 else "🔴 Red")
 
-    display["BAC (NOK)"] = display["BAC"].apply(lambda x: _format_currency(x, currency_decimals))
-    display["AC (NOK)"] = display["AC"].apply(lambda x: _format_currency(x, currency_decimals))
-    display["EV (NOK)"] = display["EV"].apply(lambda x: _format_currency(x, currency_decimals))
+    display["BAC (USD)"] = display["BAC"].apply(lambda x: _format_currency(x, currency_decimals))
+    display["AC (USD)"] = display["AC"].apply(lambda x: _format_currency(x, currency_decimals))
+    display["EV (USD)"] = display["EV"].apply(lambda x: _format_currency(x, currency_decimals))
     if "EAC_Typical" in display.columns:
-        display["EAC Typical (NOK)"] = display["EAC_Typical"].apply(lambda x: _format_currency(x, currency_decimals))
+        display["EAC Typical (USD)"] = display["EAC_Typical"].apply(lambda x: _format_currency(x, currency_decimals))
     display["CPI"] = display["CPI"].apply(lambda x: f"{x:.2f}")
     display["Progress %"] = display["PercentComplete"].apply(lambda x: f"{x:.1f}%")
 
-    columns = ["WBS_Code", "ElementName", "BAC (NOK)", "AC (NOK)", "EV (NOK)", "CPI", "Progress %", "Status"]
-    if "EAC Typical (NOK)" in display.columns:
-        columns.insert(5, "EAC Typical (NOK)")
+    columns = ["WBS_Code", "ElementName", "BAC (USD)", "AC (USD)", "EV (USD)", "CPI", "Progress %", "Status"]
+    if "EAC Typical (USD)" in display.columns:
+        columns.insert(5, "EAC Typical (USD)")
 
     return display[columns]
 
@@ -187,8 +187,8 @@ def build_material_audit_table(material_df, threshold=50000):
         return None
 
     large_materials = material_df[material_df["TotalActualCost"] > threshold].sort_values(by="TotalActualCost", ascending=False).copy()
-    large_materials["Cost (NOK)"] = large_materials["TotalActualCost"].apply(lambda x: _format_currency(x, 2))
-    return large_materials[["PurchaseDate", "InvoiceNumber", "ItemDescription", "Cost (NOK)"]]
+    large_materials["Cost (USD)"] = large_materials["TotalActualCost"].apply(lambda x: _format_currency(x, 2))
+    return large_materials[["PurchaseDate", "InvoiceNumber", "ItemDescription", "Cost (USD)"]]
 
 
 @st.cache_data(ttl=900)

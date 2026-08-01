@@ -6,15 +6,15 @@ This guide details the database design, ETL transformation steps, DAX measures, 
 
 ## Executive Portfolio Overview
 
-The project portfolio consists of **6 projects** spanning maritime vessel fabrication, logistics solutions, and subsea structures. As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of **7,100,000 NOK**, with **5,220,810 NOK** logged in actual costs (AC) and **4,752,500 NOK** earned in physical progress value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at a stable **0.91**. Individual active projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances.
+The project portfolio consists of **6 projects** spanning maritime vessel fabrication, logistics solutions, and subsea structures. As of the latest reporting cycle, the portfolio has a total baseline budget (BAC) of **7,100,000 USD**, with **5,220,810 USD** logged in actual costs (AC) and **4,752,500 USD** earned in physical progress value (EV). The aggregate portfolio Cost Performance Index (CPI) stands at a stable **0.91**. Individual active projects exhibit cost and schedule pressures, but overall execution remains within manageable tolerances.
 
 ### Project Status Summary
-* **PRJ-001 (Composite Vessel Construction):** Completed with a total spend of 1.85M NOK against a 1.5M NOK budget, resulting in a **-356K NOK cost overrun** (CPI: 0.81).
-* **PRJ-002 (Patrol Vessel Carbon Mold):** Planned to start in August 2026 with an approved budget of **800K NOK**. No actuals logged yet.
-* **PRJ-003 (Subsea Cable Frame):** Active at 30% progress. Tracking slightly over budget with 382.5K NOK spent to earn 360K NOK (CPI: 0.94).
-* **PRJ-004 (Autonomous Workboat Hull):** Active at 70% progress. Showing mild cost pressure with 1.48M NOK spent to achieve 1.4M NOK of value (CPI: 0.95).
-* **PRJ-005 (Defense Logistics Pontoon):** Active at 90% progress, managed by Frank Ellingsen. In good financial standing with 927K NOK spent to achieve 900K NOK of value (CPI: 0.97).
-* **PRJ-006 (Lightweight Cargo Hatch):** Completed successfully under budget, spending 586.5K NOK on a 600K NOK baseline budget (CPI: 1.02, progress 100%).
+* **PRJ-001 (Composite Vessel Construction):** Completed with a total spend of 1.85M USD against a 1.5M USD budget, resulting in a **-356K USD cost overrun** (CPI: 0.81).
+* **PRJ-002 (Patrol Vessel Carbon Mold):** Planned to start in August 2026 with an approved budget of **800K USD**. No actuals logged yet.
+* **PRJ-003 (Subsea Cable Frame):** Active at 30% progress. Tracking slightly over budget with 382.5K USD spent to earn 360K USD (CPI: 0.94).
+* **PRJ-004 (Autonomous Workboat Hull):** Active at 70% progress. Showing mild cost pressure with 1.48M USD spent to achieve 1.4M USD of value (CPI: 0.95).
+* **PRJ-005 (Defense Logistics Pontoon):** Active at 90% progress, managed by Frank Ellingsen. In good financial standing with 927K USD spent to achieve 900K USD of value (CPI: 0.97).
+* **PRJ-006 (Lightweight Cargo Hatch):** Completed successfully under budget, spending 586.5K USD on a 600K USD baseline budget (CPI: 1.02, progress 100%).
 
 ---
 

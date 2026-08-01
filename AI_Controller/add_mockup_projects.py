@@ -139,10 +139,10 @@ def add_mockup_projects():
     append_rows_if_missing("timesheets.csv", "TimesheetID", ts)
     
     # 5. Material Costs (Actual Material)
-    # PRJ-003: 50,000 NOK steel frame pre-payment.
-    # PRJ-004: 250,000 NOK welding raw materials.
-    # PRJ-005: 180,000 NOK paint and plates.
-    # PRJ-006: 70,000 NOK composite fibers.
+    # PRJ-003: 50,000 USD steel frame pre-payment.
+    # PRJ-004: 250,000 USD welding raw materials.
+    # PRJ-005: 180,000 USD paint and plates.
+    # PRJ-006: 70,000 USD composite fibers.
     mats = [
         {"PurchaseID": "MAT-3001", "WBS_ID": "WBS-008", "PurchaseDate": "2026-05-10", "Description": "Steel Frame Pre-payment Deposit", "Quantity": "1", "UnitPrice": "50000.00", "TotalActualCost": "50000.00"},
         {"PurchaseID": "MAT-4001", "WBS_ID": "WBS-010", "PurchaseDate": "2026-03-25", "Description": "Consumables & Steel Plates", "Quantity": "1", "UnitPrice": "250000.00", "TotalActualCost": "250000.00"},
