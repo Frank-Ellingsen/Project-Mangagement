@@ -277,6 +277,9 @@ def create_excel_report():
     
     ws_dash.cell(row=comment_row+2, column=1, value="Recommended Action:").font = bold_font
     ws_dash.cell(row=comment_row+2, column=2, value="Audit outfitting contracts, renegotiate rates, freeze non-essential VOs, and reallocate welding capacity.").font = regular_font
+    
+    ws_dash.cell(row=comment_row+3, column=1, value="Completion Status:").font = bold_font
+    ws_dash.cell(row=comment_row+3, column=2, value="Project is overall at 99.5% physical progress. WBS 1.0 (Project Management & Engineering) is at 97.5% due to outstanding closeout docs, final as-built drawing revisions, and class approval compilation. All other WBS packages (2.0, 3.0, 4.0) are 100% complete.").font = regular_font
 
     # ====================================================
     # TAB 2: Schedule & Gantt

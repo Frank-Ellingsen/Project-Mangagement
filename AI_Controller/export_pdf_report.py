@@ -2,6 +2,7 @@ import os
 import sqlite3
 import duckdb
 from datetime import datetime
+import datetime as dt
 from fpdf import FPDF
 
 # Define paths
@@ -105,6 +106,91 @@ def generate_pdf():
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(5)
 
+    # --- PORTFOLIO GANTT OF GANTTS TIMELINE ---
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.set_text_color(26, 37, 47)
+    pdf.cell(0, 8, "Portfolio Gantt of Gantts Timeline (Oct 2025 - Dec 2026)", ln=1)
+    pdf.ln(1)
+    
+    start_date = dt.date(2025, 10, 1)
+    end_date = dt.date(2026, 12, 31)
+    total_days = (end_date - start_date).days
+    
+    # Draw Timeline Quarters text labels (Tufte style: no vertical gridlines)
+    pdf.set_font("Helvetica", "B", 7.5)
+    pdf.set_text_color(120, 125, 130)
+    
+    quarters = [
+        ("Q4 2025", dt.date(2025, 10, 1), dt.date(2025, 12, 31)),
+        ("Q1 2026", dt.date(2026, 1, 1), dt.date(2026, 3, 31)),
+        ("Q2 2026", dt.date(2026, 4, 1), dt.date(2026, 6, 30)),
+        ("Q3 2026", dt.date(2026, 7, 1), dt.date(2026, 9, 30)),
+        ("Q4 2026", dt.date(2026, 10, 1), dt.date(2026, 12, 31))
+    ]
+    
+    y_gantt_start = pdf.get_y()
+    
+    for q_name, q_start, q_end in quarters:
+        q_days_start = (q_start - start_date).days
+        q_days_end = (q_end - start_date).days
+        x_start = 55 + 135 * (q_days_start / total_days)
+        x_end = 55 + 135 * (q_days_end / total_days)
+        x_center = (x_start + x_end) / 2
+        pdf.text(x_center - 5, y_gantt_start + 3, q_name)
+        
+    pdf.ln(5)
+    
+    portfolio_projects = [
+        {"id": "PRJ-006", "name": "Cargo Hatch", "pStart": "2025-10-01", "pEnd": "2026-03-31", "aStart": "2025-10-01", "aEnd": "2026-03-31", "progress": 1.0, "status": "Green"},
+        {"id": "PRJ-001", "name": "Composite Vessel", "pStart": "2026-01-01", "pEnd": "2026-06-30", "aStart": "2026-01-01", "aEnd": "2026-06-30", "progress": 0.995, "status": "Red"},
+        {"id": "PRJ-005", "name": "Logistics Pontoon", "pStart": "2026-02-01", "pEnd": "2026-07-31", "aStart": "2026-02-01", "aEnd": "2026-07-31", "progress": 0.90, "status": "Green"},
+        {"id": "PRJ-004", "name": "Workboat Hull", "pStart": "2026-03-01", "pEnd": "2026-08-31", "aStart": "2026-03-01", "aEnd": "2026-08-31", "progress": 0.70, "status": "Green"},
+        {"id": "PRJ-003", "name": "Subsea Frame", "pStart": "2026-05-01", "pEnd": "2026-10-31", "aStart": "2026-05-01", "aEnd": "2026-10-31", "progress": 0.30, "status": "Green"},
+        {"id": "PRJ-002", "name": "Patrol Vessel", "pStart": "2026-08-01", "pEnd": "2026-12-31", "aStart": "2026-08-01", "aEnd": "2026-12-31", "progress": 0.0, "status": "Green"}
+    ]
+    
+    y_curr = pdf.get_y()
+    for proj in portfolio_projects:
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_text_color(51, 65, 85)
+        pdf.text(10, y_curr + 4, f"{proj['id']}: {proj['name']}")
+        
+        p_s = datetime.strptime(proj["pStart"], "%Y-%m-%d").date()
+        p_e = datetime.strptime(proj["pEnd"], "%Y-%m-%d").date()
+        x_p_start = 55 + 135 * ((p_s - start_date).days / total_days)
+        x_p_end = 55 + 135 * ((p_e - start_date).days / total_days)
+        w_p = max(0.5, x_p_end - x_p_start)
+        
+        pdf.set_fill_color(220, 225, 230)
+        pdf.rect(x_p_start, y_curr + 1.5, w_p, 1, style="F")
+        
+        a_s = datetime.strptime(proj["aStart"], "%Y-%m-%d").date()
+        a_e = datetime.strptime(proj["aEnd"], "%Y-%m-%d").date()
+        x_a_start = 55 + 135 * ((a_s - start_date).days / total_days)
+        x_a_end = 55 + 135 * ((a_e - start_date).days / total_days)
+        w_a = max(0.5, x_a_end - x_a_start)
+        w_prog = w_a * proj["progress"]
+        
+        if proj["status"] == "Red":
+            pdf.set_fill_color(254, 226, 226)
+            pdf.rect(x_a_start, y_curr + 3, w_a, 2.5, style="F")
+            if w_prog > 0:
+                pdf.set_fill_color(231, 76, 60)
+                pdf.rect(x_a_start, y_curr + 3, w_prog, 2.5, style="F")
+        else:
+            pdf.set_fill_color(240, 243, 246)
+            pdf.rect(x_a_start, y_curr + 3, w_a, 2.5, style="F")
+            if w_prog > 0:
+                pdf.set_fill_color(46, 204, 113)
+                pdf.rect(x_a_start, y_curr + 3, w_prog, 2.5, style="F")
+                
+        y_curr += 6.5
+        
+    pdf.set_y(y_curr + 2)
+    pdf.set_draw_color(226, 232, 240)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(5)
+
     # 1. Executive Summary
     pdf.set_font("Helvetica", "B", 12)
     pdf.set_text_color(26, 37, 47)
@@ -160,13 +246,13 @@ def generate_pdf():
         pdf.ln()
     
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(6)
 
-    # 2. WBS Performance Matrix Table
+    # --- PAGE 2: WBS PERFORMANCE MATRIX ---
+    pdf.add_page()
     pdf.set_font("Helvetica", "B", 12)
     pdf.set_text_color(26, 37, 47)
     pdf.cell(0, 8, "2. Work Breakdown Structure (WBS) Performance Matrix", ln=1)
-    pdf.ln(1)
+    pdf.ln(2)
 
     # Table Header (Tufte style)
     # WBS (15), Name (50), BAC (30), AC (30), EV (30), CPI (15), Status (20)
@@ -204,9 +290,23 @@ def generate_pdf():
         pdf.set_text_color(51, 65, 85)
         pdf.ln()
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(6)
+    pdf.ln(5)
+    
+    pdf.set_font("Helvetica", "B", 10.5)
+    pdf.set_text_color(26, 37, 47)
+    pdf.cell(0, 6, "WBS Completion Analysis: Why PRJ-001 is at 99.5% Progress", ln=1)
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(51, 65, 85)
+    pdf.multi_cell(0, 5, 
+        "Although physical construction is complete, the project remains at 99.5% overall physical progress due to unfinished closeout elements under WBS 1.0:\n"
+        "  * WBS 1.0 (Project Management & Engineering) - 97.5% Complete: Held up by outstanding closeout documentation, compilation of final as-built drawing revisions, and class documentation packaging required for final DNV classification approval.\n"
+        "  * WBS 2.0 (Hull Fabrication & Assembly) - 100.0% Complete: Structural welding, composite molding, and painting are fully certified.\n"
+        "  * WBS 3.0 (Outfitting & Integration) - 100.0% Complete: Engine installation and systems outfitting are fully integrated.\n"
+        "  * WBS 4.0 (Sea Trials & Handover) - 100.0% Complete: Sea trials completed successfully at end of June 2026."
+    )
 
-    # 3. Financial Cost-Share Drivers
+    # --- PAGE 3: FINANCIAL DRIVERS, RAID, RECOMMENDATIONS ---
+    pdf.add_page()
     pdf.set_font("Helvetica", "B", 12)
     pdf.set_text_color(26, 37, 47)
     pdf.cell(0, 8, "3. Financial Cost-Share Drivers", ln=1)
@@ -222,13 +322,12 @@ def generate_pdf():
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(26, 37, 47)
     pdf.cell(0, 6, "Resource & Audit Anomalies", ln=1)
-    pdf.set_font("Helvetica", "", 9)
-    pdf.set_text_color(51, 65, 85)
     
     # Overtime
     pdf.set_font("Helvetica", "B", 9)
     pdf.cell(0, 5, "Labor Overtime Violations (>45 hrs/week):", ln=1)
     pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(51, 65, 85)
     if overtimes:
         for name, role, week, hours in overtimes:
             pdf.cell(0, 5, f"  * [ALERT] Resource {name} ({role}) logged {hours:.1f} hours during Week {week}.", ln=1)
@@ -240,6 +339,7 @@ def generate_pdf():
     pdf.set_font("Helvetica", "B", 9)
     pdf.cell(0, 5, "High-Value Procurement Invoices (>$50,000):", ln=1)
     pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(51, 65, 85)
     if large_invoices:
         for pid, desc, cost in large_invoices:
             pdf.cell(0, 5, f"  * [AUDIT] Invoice {pid} for '{desc}' was processed at ${cost:,.2f}.", ln=1)

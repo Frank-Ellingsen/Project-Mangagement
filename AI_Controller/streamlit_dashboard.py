@@ -204,7 +204,8 @@ else:
                 * **1.2 Structural Design & Drafting**: Planned: 200h | Actual: 210.8h. Cost: 210,000 USD.
                 * **1.3 Systems Integration Planning**: Planned: 50h | Actual: 50h. Cost: 89,230 USD.
                 
-                **Performance Metrics**: BAC: 300,000 USD | AC: 419,230 USD | CPI: 0.72 (🔴 Cost Overrun).  
+                **Performance Metrics**: BAC: 300,000 USD | AC: 419,230 USD | CPI: 0.72 (🔴 Cost Overrun) | Progress: 97.5%.  
+                **Status Explanation**: Remaining 2.5% is held up by compiling final as-built drawing revisions, outstanding closeout documentation, and assembling the classification package for final DNV certification approval.
                 **Leading Resource Role**: Senior Design Engineer, Financial Controller.
                 """)
                 

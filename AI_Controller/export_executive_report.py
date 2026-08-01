@@ -96,6 +96,13 @@ def generate_report_content():
         wbs_status = "🔴 Overrun" if cpi < 0.95 else "🟢 On Track"
         report.append(f"| {wbs_code} | {name} | ${bac:,.2f} | ${ac:,.2f} | ${ev:,.2f} | {cpi:.2f} | {wbs_status} |")
     
+    report.append("\n### 🔍 WBS Completion Analysis: Why PRJ-001 is at 99.5% Progress")
+    report.append("Although physical construction is complete, the project remains at **99.5% overall physical progress** due to unfinished administrative and closeout tasks in the engineering package:")
+    report.append("* **WBS 1.0 - Project Management & Engineering (97.5% Complete):** Held up by outstanding closeout documentation, compilation of final as-built drawing updates, and class documentation packaging required for final DNV classification approval.")
+    report.append("* **WBS 2.0 - Hull Fabrication & Assembly (100.0% Complete):** Fully complete and certified.")
+    report.append("* **WBS 3.0 - Outfitting & Integration (100.0% Complete):** Fully integrated and certified.")
+    report.append("* **WBS 4.0 - Sea Trials & Handover (100.0% Complete):** Sea trials completed successfully at end of June 2026.")
+    
     report.append("\n---")
     
     report.append("\n## 3. Financial Cost-Share Drivers")
