@@ -1,10 +1,17 @@
 import os
-import sqlite3
-import duckdb
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+
+from dashboard_data import (
+    BASE_DIR,
+    build_wbs_display_table,
+    load_duckdb_data,
+    load_sqlite_data,
+    load_skill_markdown,
+)
 
 # ==========================================
 # PAGE CONFIGURATION & TUFTE DESIGN SYSTEM
@@ -100,13 +107,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# PATH INITIALIZATION & DATA RETRIEVAL
-# ==========================================
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DUCKDB_PATH = os.path.join(BASE_DIR, "Data", "DuckDB", "project_controlling.db")
-SQLITE_PATH = os.path.join(BASE_DIR, "Data", "SQLite", "project_controlling.db")
-
-# ==========================================
 # HELPER FUNCTIONS FOR WRITE-BACK AND AI NARRATIVE
 # ==========================================
 import csv
@@ -140,52 +140,6 @@ def generate_ollama_narrative(prompt):
     except Exception as e:
         return f"Ollama Connection Error: {str(e)}"
 
-@st.cache_data(ttl=60)
-def load_duckdb_data():
-    if not os.path.exists(DUCKDB_PATH):
-        return None, None, None, None
-    con = duckdb.connect(DUCKDB_PATH, read_only=True)
-    
-    summary = con.execute("SELECT * FROM v_project_evm_summary").df().iloc[0]
-    wbs = con.execute("SELECT WBS_Code, ElementName, BAC, AC, EV, CPI, PercentComplete, EAC_Typical FROM v_wbs_evm_metrics ORDER BY WBS_Code").df()
-    
-    timesheets = con.execute("""
-        SELECT t.WorkDate, t.WBS_ID, w.ElementName, r.ResourceName, r.Role, r.HourlyRate, t.HoursWorked,
-               (t.HoursWorked * r.HourlyRate) as LaborCost
-        FROM timesheets t
-        JOIN resources r ON t.ResourceID = r.ResourceID
-        JOIN wbs_elements w ON t.WBS_ID = w.WBS_ID
-        ORDER BY t.WorkDate
-    """).df()
-    
-    materials = con.execute("""
-        SELECT m.PurchaseDate, m.WBS_ID, w.ElementName, m.Description as ItemDescription, m.PurchaseID as InvoiceNumber, m.TotalActualCost
-        FROM material_costs m
-        JOIN wbs_elements w ON m.WBS_ID = w.WBS_ID
-        ORDER BY m.PurchaseDate
-    """).df()
-    
-    con.close()
-    return summary, wbs, timesheets, materials
-
-@st.cache_data(ttl=60)
-def load_sqlite_data():
-    if not os.path.exists(SQLITE_PATH):
-        return None, None
-    con = sqlite3.connect(SQLITE_PATH)
-    
-    raid = pd.read_sql_query("SELECT RiskID as RAID_ID, Type as Category, Description, Impact, Probability, MitigationStrategy, Owner, Status FROM raid_log ORDER BY RiskID DESC", con)
-    overtime = pd.read_sql_query("""
-        SELECT strftime('%Y-%W', t.WorkDate) as WorkWeek, r.ResourceName, r.Role, SUM(t.HoursWorked) as TotalHours
-        FROM timesheets t
-        JOIN resources r ON t.ResourceID = r.ResourceID
-        GROUP BY WorkWeek, r.ResourceName, r.Role
-        HAVING TotalHours > 45
-        ORDER BY WorkWeek DESC, TotalHours DESC
-    """, con)
-    
-    con.close()
-    return raid, overtime
 
 summary, wbs_df, timesheet_df, material_df = load_duckdb_data()
 raid_df, overtime_df = load_sqlite_data()
@@ -298,6 +252,7 @@ AGENT_SKILLS = {
 # ==========================================
 # INTERACTIVE GANTT CHART GENERATOR
 # ==========================================
+@st.cache_data(ttl=600)
 def render_tufte_gantt_chart(project_selection="PRJ-001 (Composite Vessel)", metric_focus="Schedule Progress %"):
     # Generate schedule datasets (Planned vs Actual/Forecast)
     tasks_prj001 = [
@@ -412,12 +367,12 @@ def render_tufte_gantt_chart(project_selection="PRJ-001 (Composite Vessel)", met
     
     return fig_gantt
 
+@st.cache_data(ttl=60)
 def render_tufte_scurve_chart():
     # Build daily cumulative EV, AC, and PV
     dates = pd.date_range(start="2026-01-01", end="2026-06-30", freq="D")
     
     # 1. Cumulative PV (Sigmoid representation of 1.5M baseline spend)
-    import numpy as np
     t = np.linspace(-3, 3, len(dates))
     sigmoid = 1 / (1 + np.exp(-t))
     cum_pv = sigmoid * 1500000
@@ -449,18 +404,26 @@ def render_tufte_scurve_chart():
     con.close()
     
     progress_hist['RecordDate'] = pd.to_datetime(progress_hist['RecordDate'])
+    progress_hist = progress_hist.sort_values(["WBS_ID", "RecordDate"])
     wbs_bac_map = dict(zip(wbs_bac['WBS_ID'], wbs_bac['BAC']))
-    
-    ev_vals = []
-    for d in dates:
-        current_ev = 0.0
-        for wbs_id, bac_val in wbs_bac_map.items():
-            sub = progress_hist[(progress_hist['WBS_ID'] == wbs_id) & (progress_hist['RecordDate'] <= d)]
-            if not sub.empty:
-                latest_pct = sub.iloc[-1]['PercentComplete']
-                current_ev += bac_val * latest_pct
-        ev_vals.append(current_ev)
-        
+
+    dates_df = pd.DataFrame({"Date": dates})
+    ev_components = []
+    for wbs_id, bac_val in wbs_bac_map.items():
+        wbs_progress = (
+            progress_hist.loc[progress_hist["WBS_ID"] == wbs_id, ["RecordDate", "PercentComplete"]]
+            .rename(columns={"RecordDate": "Date"})
+            .sort_values("Date")
+        )
+        if wbs_progress.empty:
+            ev_components.append(np.zeros(len(dates), dtype=float))
+            continue
+
+        merged_progress = pd.merge_asof(dates_df, wbs_progress, on="Date", direction="backward")
+        ev_components.append(merged_progress["PercentComplete"].fillna(0.0).to_numpy(dtype=float) * bac_val)
+
+    ev_vals = np.sum(ev_components, axis=0) if ev_components else np.zeros(len(dates), dtype=float)
+
     df_scurve['PV'] = cum_pv
     df_scurve['EV'] = ev_vals
     
@@ -651,16 +614,9 @@ if view_mode == "Agent Control Tower":
     
     with tab1:
         st.subheader("WBS Element Performance Matrix")
-        wbs_display = wbs_df.copy()
-        wbs_display['Status'] = wbs_display['CPI'].apply(lambda x: "🟢 Green" if x >= 0.98 else "🟡 Amber" if x >= 0.90 else "🔴 Red")
-        wbs_display['BAC (NOK)'] = wbs_display['BAC'].apply(lambda x: f"{x:,.2f}")
-        wbs_display['AC (NOK)'] = wbs_display['AC'].apply(lambda x: f"{x:,.2f}")
-        wbs_display['EV (NOK)'] = wbs_display['EV'].apply(lambda x: f"{x:,.2f}")
-        wbs_display['EAC Typical (NOK)'] = wbs_display['EAC_Typical'].apply(lambda x: f"{x:,.2f}")
-        wbs_display['CPI'] = wbs_display['CPI'].apply(lambda x: f"{x:.2f}")
-        wbs_display['Progress %'] = wbs_display['PercentComplete'].apply(lambda x: f"{x:.1f}%")
+        wbs_display = build_wbs_display_table(wbs_df)
         
-        st.table(wbs_display[['WBS_Code', 'ElementName', 'BAC (NOK)', 'AC (NOK)', 'EV (NOK)', 'EAC Typical (NOK)', 'CPI', 'Progress %', 'Status']])
+        st.table(wbs_display)
         
         st.write("---")
         fig_scurve = render_tufte_scurve_chart()
@@ -1012,7 +968,7 @@ elif view_mode == "👥 Stakeholder Reports":
                 <p>Focuses on WBS 1.0 (Project Management & Engineering), engineering hours burn rate, and drawing releases.</p>
             </div>
         """, unsafe_allow_html=True)
-        eng_timesheets = timesheet_df[timesheet_df['WBS_ID'] == 1]
+        eng_timesheets = timesheet_df[timesheet_df['WBS_ID'] == 'WBS-001']
         total_eng_hours = eng_timesheets['HoursWorked'].sum()
         total_eng_cost = eng_timesheets['LaborCost'].sum()
         
@@ -1099,14 +1055,12 @@ elif view_mode == "Individual Agent Skill Inspector":
     st.title(f"{agent_info['icon']} {agent_info['title']}")
     st.caption(f"Category: {agent_info['category']} | Skill File: {agent_info['file']}")
     st.markdown("---")
-    
-    full_skill_path = os.path.join(BASE_DIR, agent_info['file'].replace("/", "\\"))
-    if os.path.exists(full_skill_path):
-        with open(full_skill_path, "r", encoding="utf-8") as f:
-            skill_content = f.read()
+
+    skill_content = load_skill_markdown(agent_info['file'])
+    if skill_content:
         st.markdown(skill_content)
     else:
-        st.warning(f"Skill instruction file not found at path: `{full_skill_path}`")
+        st.warning(f"Skill instruction file not found at path: `{agent_info['file']}`")
 
 # ==========================================
 # 4. LIVE CREW EXECUTION

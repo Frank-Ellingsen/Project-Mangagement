@@ -1,9 +1,19 @@
 import streamlit as st
-import duckdb
 import sqlite3
 import pandas as pd
 import plotly.graph_objects as go
 import os
+
+from dashboard_data import (
+    BASE_DIR,
+    EXCEL_PATH,
+    SKILLS_DIR,
+    build_material_audit_table,
+    load_file_bytes,
+    load_markdown_text,
+    load_project_data,
+    prepare_progress_history_for_chart,
+)
 
 # Set page config
 st.set_page_config(
@@ -11,13 +21,6 @@ st.set_page_config(
     page_icon=":material/anchor:",
     layout="wide"
 )
-
-# Base Paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DUCKDB_PATH = os.path.join(BASE_DIR, "Data", "DuckDB", "project_controlling.db")
-SQLITE_PATH = os.path.join(BASE_DIR, "Data", "SQLite", "project_controlling.db")
-EXCEL_PATH = os.path.join(BASE_DIR, "Data", "vessel_construction_report.xlsx")
-SKILLS_DIR = os.path.join(BASE_DIR, ".agents", "skills")
 
 # Custom CSS for clean Tufte styling
 st.markdown("""
@@ -83,108 +86,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Data Loading Functions
-@st.cache_data(ttl="5m", show_spinner="Loading data from databases...")
-def load_project_data():
-    if not os.path.exists(DUCKDB_PATH):
-        return None
-    
-    con = duckdb.connect(DUCKDB_PATH, read_only=True)
-    
-    # 1. Project Summary
-    summary = con.execute("SELECT * FROM v_project_evm_summary").df().iloc[0].to_dict()
-    
-    # 2. WBS Metrics
-    wbs = con.execute("SELECT WBS_Code, ElementName, BAC, AC, EV, CPI, PercentComplete, EAC_Typical FROM v_wbs_evm_metrics ORDER BY WBS_Code").df()
-    
-    # 3. Materials
-    materials = con.execute("SELECT PurchaseDate, InvoiceNumber, ItemDescription, TotalActualCost, WBS_ID FROM material_costs ORDER BY PurchaseDate").df()
-    
-    # 4. Timesheets for Labor Cost share
-    timesheets = con.execute("""
-        SELECT t.WorkDate, t.WBS_ID, t.HoursWorked, r.ResourceName, r.Role, r.HourlyRate, (t.HoursWorked * r.HourlyRate) as LaborCost
-        FROM timesheets t
-        JOIN resources r ON t.ResourceID = r.ResourceID
-    """).df()
-    
-    # 5. Daily cost details for cumulative charts
-    progress_history = con.execute("""
-        WITH wbs_dates AS (
-            SELECT DISTINCT RecordDate as DateVal FROM physical_progress
-            UNION
-            SELECT DISTINCT WorkDate as DateVal FROM timesheets
-            UNION
-            SELECT DISTINCT PurchaseDate as DateVal FROM material_costs
-        ),
-        daily_labor AS (
-            SELECT t.WorkDate, SUM(t.HoursWorked * r.HourlyRate) as DailyLabor
-            FROM timesheets t
-            JOIN resources r ON t.ResourceID = r.ResourceID
-            GROUP BY t.WorkDate
-        ),
-        daily_material AS (
-            SELECT PurchaseDate, SUM(TotalActualCost) as DailyMat
-            FROM material_costs
-            GROUP BY PurchaseDate
-        ),
-        daily_progress AS (
-            SELECT p.RecordDate, SUM(w.PlannedCost * p.PercentComplete) as ProgressValue
-            FROM physical_progress p
-            JOIN wbs_elements w ON p.WBS_ID = w.WBS_ID
-            GROUP BY p.RecordDate
-        ),
-        dates_filled AS (
-            SELECT 
-                d.DateVal,
-                COALESCE(l.DailyLabor, 0.0) as Labor,
-                COALESCE(m.DailyMat, 0.0) as Mat,
-                COALESCE(p.ProgressValue, 0.0) as EV_Val
-            FROM wbs_dates d
-            LEFT JOIN daily_labor l ON d.DateVal = l.WorkDate
-            LEFT JOIN daily_material m ON d.DateVal = m.PurchaseDate
-            LEFT JOIN daily_progress p ON d.DateVal = p.RecordDate
-        )
-        SELECT 
-            DateVal,
-            SUM(Labor + Mat) OVER(ORDER BY DateVal) as AC_Cum,
-            EV_Val
-        FROM dates_filled
-        ORDER BY DateVal
-    """).df()
-    
-    con.close()
-    
-    # Load SQLite specific items
-    overtime = pd.DataFrame()
-    raid = pd.DataFrame()
-    if os.path.exists(SQLITE_PATH):
-        con_sq = sqlite3.connect(SQLITE_PATH)
-        overtime = pd.read_sql_query("""
-            SELECT strftime('%Y-%W', t.WorkDate) as WorkWeek, r.ResourceName, r.Role, SUM(CAST(t.HoursWorked AS REAL)) as TotalHours
-            FROM timesheets t
-            JOIN resources r ON t.ResourceID = r.ResourceID
-            GROUP BY WorkWeek, r.ResourceName, r.Role
-            HAVING TotalHours > 45
-            ORDER BY WorkWeek DESC, TotalHours DESC
-        """, con_sq)
-        
-        raid = pd.read_sql_query("""
-            SELECT RiskID, Type as Category, Description, Impact, Probability, MitigationStrategy, Owner, Status
-            FROM raid_log
-            ORDER BY RiskID DESC
-        """, con_sq)
-        con_sq.close()
-        
-    return {
-        "summary": summary,
-        "wbs": wbs,
-        "materials": materials,
-        "timesheets": timesheets,
-        "progress_history": progress_history,
-        "overtime": overtime,
-        "raid": raid
-    }
-
 data = load_project_data()
 
 # ----------------- SIDEBAR NAVIGATION -----------------
@@ -199,8 +100,7 @@ nav_choice = st.sidebar.radio(
 
 # Download Excel Report button in sidebar
 if os.path.exists(EXCEL_PATH):
-    with open(EXCEL_PATH, "rb") as f:
-        excel_bytes = f.read()
+    excel_bytes = load_file_bytes(EXCEL_PATH)
     st.sidebar.download_button(
         label=":material/download: Download Excel Report",
         data=excel_bytes,
@@ -344,8 +244,8 @@ else:
                 pv_values.append(val)
                 
             pv_df = pd.DataFrame({"Date": pv_dates, "PV_Cum": pv_values})
-            progress_history['DateVal'] = pd.to_datetime(progress_history['DateVal'])
-            chart_df = pd.merge_asof(pv_df, progress_history.rename(columns={"DateVal": "Date"}), on="Date", direction="backward")
+            progress_history_chart = prepare_progress_history_for_chart(progress_history)
+            chart_df = pd.merge_asof(pv_df, progress_history_chart.rename(columns={"DateVal": "Date"}), on="Date", direction="backward")
             ev_clean = chart_df['EV_Val'].interpolate().fillna(0)
             
             fig = go.Figure()
@@ -427,11 +327,8 @@ else:
                 
             with col_right:
                 st.markdown("#### 💳 Large Procurement Audit (>50,000 NOK)")
-                large_materials = materials[materials["TotalActualCost"] > 50000].sort_values(by="TotalActualCost", ascending=False)
-                st.dataframe(
-                    large_materials[["PurchaseDate", "InvoiceNumber", "ItemDescription", "TotalActualCost"]],
-                    hide_index=True
-                )
+                large_materials = build_material_audit_table(materials)
+                st.dataframe(large_materials, hide_index=True)
                 
             st.markdown("#### 📋 Active RAID Log Register")
             st.dataframe(raid, hide_index=True)
@@ -634,14 +531,7 @@ else:
             
             skill_md_path = os.path.join(SKILLS_DIR, selected_skill, "SKILL.md")
             if os.path.exists(skill_md_path):
-                with open(skill_md_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-                # Remove YAML frontmatter if present
-                if content.startswith("---"):
-                    parts = content.split("---", 2)
-                    if len(parts) >= 3:
-                        content = parts[2]
-                st.markdown(content)
+                st.markdown(load_markdown_text(skill_md_path))
             else:
                 st.warning("SKILL.md not found in this skill directory.")
         else:
