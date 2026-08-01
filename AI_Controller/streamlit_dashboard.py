@@ -229,7 +229,141 @@ else:
             # Gantt Chart & S-Curve Section
             st.markdown("#### 📅 Interactive Schedule & WBS Gantt Chart")
             
+            gantt_proj = st.selectbox(
+                "Select Project Context:",
+                options=["PORTFOLIO", "PRJ-001", "PRJ-002", "PRJ-003", "PRJ-004", "PRJ-005", "PRJ-006"],
+                format_func=lambda x: {
+                    "PORTFOLIO": "Portfolio Level (Gantt of Gantts)",
+                    "PRJ-001": "PRJ-001 (Composite Vessel)",
+                    "PRJ-002": "PRJ-002 (Patrol Vessel)",
+                    "PRJ-003": "PRJ-003 (Subsea Frame)",
+                    "PRJ-004": "PRJ-004 (Workboat Hull)",
+                    "PRJ-005": "PRJ-005 (Logistics Pontoon)",
+                    "PRJ-006": "PRJ-006 (Cargo Hatch)"
+                }[x]
+            )
+            
+            gantt_metric = st.selectbox(
+                "Deviation Focus:",
+                options=["Schedule", "Cost", "Hours"],
+                format_func=lambda x: {
+                    "Schedule": "Schedule Progress %",
+                    "Cost": "Cost Deviation (BAC vs AC)",
+                    "Hours": "Hours Deviation (Plan vs Actual)"
+                }[x]
+            )
+            
+            gantt_data_dict = {
+                'PORTFOLIO': [
+                    {"task": "PRJ-001 Composite Maritime Vessel", "plannedStart": "2026-01-01", "plannedFinish": "2026-06-30", "actualStart": "2026-01-01", "actualFinish": "2026-06-30", "progress": 99.5, "status": "Red", "bac": 1500000, "ac": 1848810, "plannedHours": 2700, "actualHours": 1435.9},
+                    {"task": "PRJ-002 Patrol Vessel Mold", "plannedStart": "2026-08-01", "plannedFinish": "2026-12-31", "actualStart": "2026-08-01", "actualFinish": "2026-12-31", "progress": 0.0, "status": "Green", "bac": 800000, "ac": 0, "plannedHours": 300, "actualHours": 0},
+                    {"task": "PRJ-003 Subsea Cable Frame", "plannedStart": "2026-05-01", "plannedFinish": "2026-10-31", "actualStart": "2026-05-01", "actualFinish": "2026-10-31", "progress": 30.0, "status": "Green", "bac": 1200000, "ac": 382500, "plannedHours": 1400, "actualHours": 350},
+                    {"task": "PRJ-004 Autonomous Workboat Hull", "plannedStart": "2026-03-01", "plannedFinish": "2026-08-31", "actualStart": "2026-03-01", "actualFinish": "2026-08-31", "progress": 70.0, "status": "Green", "bac": 2000000, "ac": 1476000, "plannedHours": 2500, "actualHours": 1580},
+                    {"task": "PRJ-005 Defense Logistics Pontoon", "plannedStart": "2026-02-01", "plannedFinish": "2026-07-31", "actualStart": "2026-02-01", "actualFinish": "2026-07-31", "progress": 90.0, "status": "Green", "bac": 1000000, "ac": 927000, "plannedHours": 1250, "actualHours": 1020},
+                    {"task": "PRJ-006 Lightweight Cargo Hatch", "plannedStart": "2025-10-01", "plannedFinish": "2026-03-31", "actualStart": "2025-10-01", "actualFinish": "2026-03-31", "progress": 100.0, "status": "Green", "bac": 600000, "ac": 586500, "plannedHours": 700, "actualHours": 670}
+                ],
+                'PRJ-001': [
+                    {"task": "1.0 PM & Engineering", "plannedStart": "2026-01-01", "plannedFinish": "2026-06-30", "actualStart": "2026-01-01", "actualFinish": "2026-06-30", "progress": 97.5, "status": "Red", "bac": 300000, "ac": 419230, "plannedHours": 400.0, "actualHours": 440.8},
+                    {"task": "2.0 Hull Fabrication", "plannedStart": "2026-02-01", "plannedFinish": "2026-04-30", "actualStart": "2026-02-01", "actualFinish": "2026-04-20", "progress": 100.0, "status": "Green", "bac": 600000, "ac": 620450, "plannedHours": 1200.0, "actualHours": 513.5},
+                    {"task": "3.0 Outfitting & Integration", "plannedStart": "2026-04-01", "plannedFinish": "2026-05-30", "actualStart": "2026-04-01", "actualFinish": "2026-05-25", "progress": 100.0, "status": "Red", "bac": 400000, "ac": 540445, "plannedHours": 800.0, "actualHours": 401.1},
+                    {"task": "4.0 Sea Trials & Handover", "plannedStart": "2026-06-01", "plannedFinish": "2026-06-20", "actualStart": "2026-06-01", "actualFinish": "2026-06-30", "progress": 100.0, "status": "Red", "bac": 200000, "ac": 268685, "plannedHours": 300.0, "actualHours": 280.5}
+                ],
+                'PRJ-002': [
+                    {"task": "1.0 Design & CFD Analysis", "plannedStart": "2026-08-01", "plannedFinish": "2026-10-15", "actualStart": "2026-08-01", "actualFinish": "2026-10-15", "progress": 0.0, "status": "Green", "bac": 300000, "ac": 0, "plannedHours": 300.0, "actualHours": 0.0},
+                    {"task": "2.0 Material Procurement", "plannedStart": "2026-10-01", "plannedFinish": "2026-12-31", "actualStart": "2026-10-01", "actualFinish": "2026-12-31", "progress": 0.0, "status": "Green", "bac": 500000, "ac": 0, "plannedHours": 0.0, "actualHours": 0.0}
+                ],
+                'PRJ-003': [
+                    {"task": "1.0 Structural Frame Engineering", "plannedStart": "2026-05-01", "plannedFinish": "2026-07-15", "actualStart": "2026-05-01", "actualFinish": "2026-07-20", "progress": 90.0, "status": "Green", "bac": 400000, "ac": 332500, "plannedHours": 400.0, "actualHours": 350.0},
+                    {"task": "2.0 Steel Fabrication", "plannedStart": "2026-07-01", "plannedFinish": "2026-10-31", "actualStart": "2026-07-01", "actualFinish": "2026-10-31", "progress": 0.0, "status": "Green", "bac": 800000, "ac": 50000, "plannedHours": 1000.0, "actualHours": 0.0}
+                ],
+                'PRJ-004': [
+                    {"task": "1.0 Engineering & Class Approval", "plannedStart": "2026-03-01", "plannedFinish": "2026-05-15", "actualStart": "2026-03-01", "actualFinish": "2026-05-15", "progress": 100.0, "status": "Green", "bac": 500000, "ac": 456000, "plannedHours": 500.0, "actualHours": 480.0},
+                    {"task": "2.0 Hull Welding & Assembly", "plannedStart": "2026-05-01", "plannedFinish": "2026-08-31", "actualStart": "2026-05-01", "actualFinish": "2026-08-31", "progress": 60.0, "status": "Green", "bac": 1500000, "ac": 1020000, "plannedHours": 2000.0, "actualHours": 1100.0}
+                ],
+                'PRJ-005': [
+                    {"task": "1.0 Project Control & PM", "plannedStart": "2026-02-01", "plannedFinish": "2026-07-31", "actualStart": "2026-02-01", "actualFinish": "2026-07-31", "progress": 100.0, "status": "Green", "bac": 200000, "ac": 187000, "plannedHours": 250.0, "actualHours": 220.0},
+                    {"task": "2.0 Pontoon Assembly & Painting", "plannedStart": "2026-03-01", "plannedFinish": "2026-07-15", "actualStart": "2026-03-01", "actualFinish": "2026-07-20", "progress": 87.5, "status": "Green", "bac": 800000, "ac": 740000, "plannedHours": 1000.0, "actualHours": 800.0}
+                ],
+                'PRJ-006': [
+                    {"task": "1.0 Hatch Engineering & FEA", "plannedStart": "2025-10-01", "plannedFinish": "2025-12-15", "actualStart": "2025-10-01", "actualFinish": "2025-12-10", "progress": 100.0, "status": "Green", "bac": 200000, "ac": 180500, "plannedHours": 200.0, "actualHours": 190.0},
+                    {"task": "2.0 Molding & Testing", "plannedStart": "2025-12-01", "plannedFinish": "2026-03-31", "actualStart": "2025-12-01", "actualFinish": "2026-03-25", "progress": 100.0, "status": "Green", "bac": 400000, "ac": 406000, "plannedHours": 500.0, "actualHours": 480.0}
+                ]
+            }
+            
+            tasks = gantt_data_dict[gantt_proj]
+            gantt_fig = go.Figure()
+            
+            for t in reversed(tasks):
+                p_duration = (pd.to_datetime(t["plannedFinish"]) - pd.to_datetime(t["plannedStart"])).days
+                a_duration = (pd.to_datetime(t["actualFinish"]) - pd.to_datetime(t["actualStart"])).days
+                
+                # Planned bar
+                gantt_fig.add_trace(go.Bar(
+                    name="Planned Baseline",
+                    y=[t["task"]],
+                    x=[p_duration],
+                    base=t["plannedStart"],
+                    orientation="h",
+                    marker=dict(color="#cbd5e1"),
+                    width=0.25,
+                    hoverinfo="text",
+                    text=f"Planned: {t['plannedStart']} to {t['plannedFinish']}"
+                ))
+                
+                if gantt_metric == "Schedule":
+                    actual_label = f"{t['progress']:.1f}%"
+                    actual_color = "#e74c3c" if t["status"] == "Red" else "#2c3e50"
+                elif gantt_metric == "Cost":
+                    diff = t["ac"] - t["bac"]
+                    if diff > 0:
+                        actual_label = f"+{diff/1000:.1f}k USD Overrun"
+                        actual_color = "#e74c3c"
+                    else:
+                        actual_label = f"-{abs(diff)/1000:.1f}k USD Under"
+                        actual_color = "#2c3e50"
+                elif gantt_metric == "Hours":
+                    diff = t["actualHours"] - t["plannedHours"]
+                    if diff > 0:
+                        actual_label = f"+{diff:.1f}h Over"
+                        actual_color = "#e74c3c"
+                    else:
+                        actual_label = f"{diff:.1f}h Under"
+                        actual_color = "#2c3e50"
+                        
+                gantt_fig.add_trace(go.Bar(
+                    name="Actual / Earned",
+                    y=[t["task"]],
+                    x=[a_duration],
+                    base=t["actualStart"],
+                    orientation="h",
+                    marker=dict(color=actual_color),
+                    width=0.4,
+                    hoverinfo="text",
+                    text=f"Actual: {t['actualStart']} to {t['actualFinish']} | {actual_label}"
+                ))
+                
+            gantt_fig.update_layout(
+                barmode="overlay",
+                showlegend=False,
+                plot_bgcolor="white",
+                paper_bgcolor="white",
+                xaxis=dict(
+                    type="date", 
+                    showgrid=False, 
+                    linecolor="#e2e8f0"
+                ),
+                yaxis=dict(
+                    showgrid=False,
+                    tickfont=dict(size=12, family="Inter", color="#1a252f")
+                ),
+                margin=dict(l=10, r=10, t=10, b=10),
+                height=80 + 50 * len(tasks)
+            )
+            
+            st.plotly_chart(gantt_fig)
+            
             # S-Curve Chart
+            st.markdown("##### 📈 Cumulative Earned Value S-Curve (PRJ-001)")
             pv_dates = pd.date_range(start="2026-01-01", end="2026-06-30", freq="W")
             pv_values = []
             for d in pv_dates:

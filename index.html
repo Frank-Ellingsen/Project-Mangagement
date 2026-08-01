@@ -786,9 +786,13 @@
                   margin-right: 12px;
                 "
               >
+                <option value="PORTFOLIO">Portfolio Level (Gantt of Gantts)</option>
                 <option value="PRJ-001">PRJ-001 (Composite Vessel)</option>
                 <option value="PRJ-002">PRJ-002 (Patrol Vessel)</option>
-                <option value="ALL">Multi-Project Portfolio View</option>
+                <option value="PRJ-003">PRJ-003 (Subsea Frame)</option>
+                <option value="PRJ-004">PRJ-004 (Workboat Hull)</option>
+                <option value="PRJ-005">PRJ-005 (Logistics Pontoon)</option>
+                <option value="PRJ-006">PRJ-006 (Cargo Hatch)</option>
               </select>
               Deviation Focus:
               <select
@@ -5044,18 +5048,96 @@
 
       // 3. Gantt Chart Context Data & Timeline Math
       const projectTimelines = {
-        'PRJ-001': {
-          start: new Date('2026-01-01'),
-          end: new Date('2026-06-30'),
-        },
-        'PRJ-002': {
-          start: new Date('2026-05-01'),
-          end: new Date('2026-12-15'),
-        },
-        ALL: { start: new Date('2026-01-01'), end: new Date('2026-12-15') },
+        'PRJ-001': { start: new Date('2026-01-01'), end: new Date('2026-06-30') },
+        'PRJ-002': { start: new Date('2026-08-01'), end: new Date('2026-12-31') },
+        'PRJ-003': { start: new Date('2026-05-01'), end: new Date('2026-10-31') },
+        'PRJ-004': { start: new Date('2026-03-01'), end: new Date('2026-08-31') },
+        'PRJ-005': { start: new Date('2026-02-01'), end: new Date('2026-07-31') },
+        'PRJ-006': { start: new Date('2025-10-01'), end: new Date('2026-03-31') },
+        'PORTFOLIO': { start: new Date('2025-10-01'), end: new Date('2026-12-31') },
       };
 
       const ganttData = {
+        'PORTFOLIO': [
+          {
+            task: 'PRJ-001 Composite Maritime Vessel',
+            plannedStart: '2026-01-01',
+            plannedFinish: '2026-06-30',
+            actualStart: '2026-01-01',
+            actualFinish: '2026-06-30',
+            progress: 99.5,
+            status: 'Red',
+            bac: 1500000,
+            ac: 1848810,
+            plannedHours: 2700,
+            actualHours: 1435.9,
+          },
+          {
+            task: 'PRJ-002 Patrol Vessel Mold',
+            plannedStart: '2026-08-01',
+            plannedFinish: '2026-12-31',
+            actualStart: '2026-08-01',
+            actualFinish: '2026-12-31',
+            progress: 0.0,
+            status: 'Green',
+            bac: 800000,
+            ac: 0,
+            plannedHours: 300,
+            actualHours: 0,
+          },
+          {
+            task: 'PRJ-003 Subsea Cable Frame',
+            plannedStart: '2026-05-01',
+            plannedFinish: '2026-10-31',
+            actualStart: '2026-05-01',
+            actualFinish: '2026-10-31',
+            progress: 30.0,
+            status: 'Green',
+            bac: 1200000,
+            ac: 382500,
+            plannedHours: 1400,
+            actualHours: 350,
+          },
+          {
+            task: 'PRJ-004 Autonomous Workboat Hull',
+            plannedStart: '2026-03-01',
+            plannedFinish: '2026-08-31',
+            actualStart: '2026-03-01',
+            actualFinish: '2026-08-31',
+            progress: 70.0,
+            status: 'Green',
+            bac: 2000000,
+            ac: 1476000,
+            plannedHours: 2500,
+            actualHours: 1580,
+          },
+          {
+            task: 'PRJ-005 Defense Logistics Pontoon',
+            plannedStart: '2026-02-01',
+            plannedFinish: '2026-07-31',
+            actualStart: '2026-02-01',
+            actualFinish: '2026-07-31',
+            progress: 90.0,
+            status: 'Green',
+            bac: 1000000,
+            ac: 927000,
+            plannedHours: 1250,
+            actualHours: 1020,
+          },
+          {
+            task: 'PRJ-006 Lightweight Cargo Hatch',
+            plannedStart: '2025-10-01',
+            plannedFinish: '2026-03-31',
+            actualStart: '2025-10-01',
+            actualFinish: '2026-03-31',
+            progress: 100.0,
+            status: 'Green',
+            bac: 600000,
+            ac: 586500,
+            plannedHours: 700,
+            actualHours: 670,
+          }
+        ],
         'PRJ-001': [
           {
             task: '1.0 PM & Engineering',
@@ -5112,43 +5194,142 @@
         ],
         'PRJ-002': [
           {
-            task: '1.0 Hull Design & CFD',
-            plannedStart: '2026-05-01',
-            plannedFinish: '2026-08-15',
-            actualStart: '2026-05-01',
-            actualFinish: '2026-08-15',
-            progress: 75.0,
-            status: 'Green',
-            bac: 450000,
-            ac: 320000,
-            plannedHours: 500.0,
-            actualHours: 380.0,
-          },
-          {
-            task: '2.0 Carbon Fiber Molding',
-            plannedStart: '2026-07-01',
-            plannedFinish: '2026-10-30',
-            actualStart: '2026-07-01',
-            actualFinish: '2026-10-30',
-            progress: 20.0,
-            status: 'Green',
-            bac: 850000,
-            ac: 170000,
-            plannedHours: 1000.0,
-            actualHours: 210.0,
-          },
-          {
-            task: '3.0 Autonomous Avionics',
-            plannedStart: '2026-09-01',
-            plannedFinish: '2026-12-15',
-            actualStart: '2026-09-01',
-            actualFinish: '2026-12-15',
+            task: '1.0 Design & CFD Analysis',
+            plannedStart: '2026-08-01',
+            plannedFinish: '2026-10-15',
+            actualStart: '2026-08-01',
+            actualFinish: '2026-10-15',
             progress: 0.0,
             status: 'Green',
-            bac: 650000,
+            bac: 300000,
             ac: 0,
-            plannedHours: 800.0,
+            plannedHours: 300.0,
             actualHours: 0.0,
+          },
+          {
+            task: '2.0 Material Procurement',
+            plannedStart: '2026-10-01',
+            plannedFinish: '2026-12-31',
+            actualStart: '2026-10-01',
+            actualFinish: '2026-12-31',
+            progress: 0.0,
+            status: 'Green',
+            bac: 500000,
+            ac: 0,
+            plannedHours: 0.0,
+            actualHours: 0.0,
+          },
+        ],
+        'PRJ-003': [
+          {
+            task: '1.0 Structural Frame Engineering',
+            plannedStart: '2026-05-01',
+            plannedFinish: '2026-07-15',
+            actualStart: '2026-05-01',
+            actualFinish: '2026-07-20',
+            progress: 90.0,
+            status: 'Green',
+            bac: 400000,
+            ac: 332500,
+            plannedHours: 400.0,
+            actualHours: 350.0,
+          },
+          {
+            task: '2.0 Steel Fabrication',
+            plannedStart: '2026-07-01',
+            plannedFinish: '2026-10-31',
+            actualStart: '2026-07-01',
+            actualFinish: '2026-10-31',
+            progress: 0.0,
+            status: 'Green',
+            bac: 800000,
+            ac: 50000,
+            plannedHours: 1000.0,
+            actualHours: 0.0,
+          },
+        ],
+        'PRJ-004': [
+          {
+            task: '1.0 Engineering & Class Approval',
+            plannedStart: '2026-03-01',
+            plannedFinish: '2026-05-15',
+            actualStart: '2026-03-01',
+            actualFinish: '2026-05-15',
+            progress: 100.0,
+            status: 'Green',
+            bac: 500000,
+            ac: 456000,
+            plannedHours: 500.0,
+            actualHours: 480.0,
+          },
+          {
+            task: '2.0 Hull Welding & Assembly',
+            plannedStart: '2026-05-01',
+            plannedFinish: '2026-08-31',
+            actualStart: '2026-05-01',
+            actualFinish: '2026-08-31',
+            progress: 60.0,
+            status: 'Green',
+            bac: 1500000,
+            ac: 1020000,
+            plannedHours: 2000.0,
+            actualHours: 1100.0,
+          },
+        ],
+        'PRJ-005': [
+          {
+            task: '1.0 Project Control & PM',
+            plannedStart: '2026-02-01',
+            plannedFinish: '2026-07-31',
+            actualStart: '2026-02-01',
+            actualFinish: '2026-07-31',
+            progress: 100.0,
+            status: 'Green',
+            bac: 200000,
+            ac: 187000,
+            plannedHours: 250.0,
+            actualHours: 220.0,
+          },
+          {
+            task: '2.0 Pontoon Assembly & Painting',
+            plannedStart: '2026-03-01',
+            plannedFinish: '2026-07-15',
+            actualStart: '2026-03-01',
+            actualFinish: '2026-07-20',
+            progress: 87.5,
+            status: 'Green',
+            bac: 800000,
+            ac: 740000,
+            plannedHours: 1000.0,
+            actualHours: 800.0,
+          },
+        ],
+        'PRJ-006': [
+          {
+            task: '1.0 Hatch Engineering & FEA',
+            plannedStart: '2025-10-01',
+            plannedFinish: '2025-12-15',
+            actualStart: '2025-10-01',
+            actualFinish: '2025-12-10',
+            progress: 100.0,
+            status: 'Green',
+            bac: 200000,
+            ac: 180500,
+            plannedHours: 200.0,
+            actualHours: 190.0,
+          },
+          {
+            task: '2.0 Molding & Testing',
+            plannedStart: '2025-12-01',
+            plannedFinish: '2026-03-31',
+            actualStart: '2025-12-01',
+            actualFinish: '2026-03-25',
+            progress: 100.0,
+            status: 'Green',
+            bac: 400000,
+            ac: 406000,
+            plannedHours: 500.0,
+            actualHours: 480.0,
           },
         ],
       };
@@ -5158,15 +5339,10 @@
         container.innerHTML = '';
 
         const metric = document.getElementById('gantt-metric-select').value;
-        const timeline = projectTimelines[proj] || projectTimelines['PRJ-001'];
+        const timeline = projectTimelines[proj] || projectTimelines['PORTFOLIO'];
         const totalMs = timeline.end.getTime() - timeline.start.getTime();
 
-        let tasks = [];
-        if (proj === 'ALL') {
-          tasks = [...ganttData['PRJ-001'], ...ganttData['PRJ-002']];
-        } else {
-          tasks = ganttData[proj] || [];
-        }
+        const tasks = ganttData[proj] || [];
 
         tasks.forEach((t) => {
           const row = document.createElement('div');
@@ -5281,7 +5457,7 @@
       }
 
       // Initialize Gantt Chart
-      updateGantt('PRJ-001');
+      updateGantt('PORTFOLIO');
 
       // Populate Tables
       // WBS Table
