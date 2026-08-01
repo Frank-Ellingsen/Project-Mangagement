@@ -17,14 +17,14 @@ Originally built around a single vessel project, the Control Tower now aggregate
 
 ### Current Portfolio Health Snapshot
 
-| Metric                           | Value         | Status                   |
-| :------------------------------- | :------------ | :----------------------- |
-| **Total Portfolio BAC**          | 7,100,000 NOK | Baseline                 |
-| **Total Portfolio AC**           | 5,220,810 NOK | Active Spend             |
-| **Total Portfolio EV**           | 4,752,500 NOK | Value Earned             |
-| **Portfolio CPI**                | 0.91          | 🟡 Muted Cost Overrun    |
-| **Portfolio Cost Variance (CV)** | -468,310 NOK  | 🔴 9% budget overrun     |
-| **Overall Portfolio Progress**   | 66.9%         | In-progress              |
+| Metric                           | Value         | Status                |
+| :------------------------------- | :------------ | :-------------------- |
+| **Total Portfolio BAC**          | 7,100,000 NOK | Baseline              |
+| **Total Portfolio AC**           | 5,220,810 NOK | Active Spend          |
+| **Total Portfolio EV**           | 4,752,500 NOK | Value Earned          |
+| **Portfolio CPI**                | 0.91          | 🟡 Muted Cost Overrun |
+| **Portfolio Cost Variance (CV)** | -468,310 NOK  | 🔴 9% budget overrun  |
+| **Overall Portfolio Progress**   | 66.9%         | In-progress           |
 
 ---
 
@@ -183,18 +183,18 @@ You can run the entire workspace using the **PowerShell Master Orchestrator**:
 
 This launches an interactive menu with 10 options:
 
-| Option  | Action                                |
-| :------ | :------------------------------------ |
-| **[1]** | Build Databases (DuckDB & SQLite)     |
-| **[2]** | Run EVM Data Verification check       |
-| **[3]** | Print Tufte CLI Performance Dashboard |
-| **[4]** | Run Excel Reports Agent               |
-| **[5]** | Compile Power BI Project (.pbip)      |
-| **[6]** | Run Agentic Control Crew Audits       |
-| **[7]** | Run Executive Board Report Exporter   |
-| **[8]** | Start Interactive Streamlit Dashboard |
-| **[9]** | Run Full Pipeline (1–7 in sequence)   |
-| **[10]**| Exit                                  |
+| Option   | Action                                |
+| :------- | :------------------------------------ |
+| **[1]**  | Build Databases (DuckDB & SQLite)     |
+| **[2]**  | Run EVM Data Verification check       |
+| **[3]**  | Print Tufte CLI Performance Dashboard |
+| **[4]**  | Run Excel Reports Agent               |
+| **[5]**  | Compile Power BI Project (.pbip)      |
+| **[6]**  | Run Agentic Control Crew Audits       |
+| **[7]**  | Run Executive Board Report Exporter   |
+| **[8]**  | Start Interactive Streamlit Dashboard |
+| **[9]**  | Run Full Pipeline (1–7 in sequence)   |
+| **[10]** | Exit                                  |
 
 _Alternatively, you can run individual components manually:_
 
@@ -346,7 +346,20 @@ The workspace follows a local-first, deterministic data pipeline:
 7. Power BI Project (.pbip) → 8. Streamlit Dashboard (Web UI)
 ```
 
-The **PowerShell Master Orchestrator** (`run_all.ps1`) can execute the full pipeline (steps 1–6) in sequence via menu option **[8]**.
+The **PowerShell Master Orchestrator** (`run_all.ps1`) can execute the full pipeline (steps 1–7) in sequence via menu option **[9]**.
+
+---
+
+## ✅ Pre-publication Quality Gate
+
+Before publishing to GitHub, run this quick release smoke flow locally:
+
+1. Compile Python modules (`compileall`) to catch syntax/import issues.
+2. Rebuild both databases (`build_duckdb.py`, `build_sqlite.py`).
+3. Verify EVM data integrity (`verify_dataset.py`).
+4. Run reporting and control scripts (`tufte_cli_dashboard.py`, `excel_report_agent.py`, `build_pbi_project.py`, `run_agents.py`, `export_executive_report.py`).
+
+This repository also includes an automated GitHub Actions CI workflow to run the same core smoke checks on every push and pull request.
 
 ---
 

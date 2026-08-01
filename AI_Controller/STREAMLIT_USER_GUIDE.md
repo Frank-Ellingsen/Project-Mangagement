@@ -111,8 +111,8 @@ python AI_Controller/build_sqlite.py
 
 From the project root folder, run:
 
-```In powershell:
+```powershell
 streamlit run AI_Controller/agent_skills_app.py
 ```
 
-_Alternatively, run `./run_all.ps1` and select Option `[7]`._
+_Alternatively, run `./run_all.ps1` and select Option `[8]`._
