@@ -1,88 +1,41 @@
 table projects
-	lineageTag: 02221ddf-deff-4d29-b95b-e7c8e9b83726
 
 	column ProjectID
 		dataType: string
-		lineageTag: 6b354251-0890-4f11-bfa0-87aa3f951655
-		summarizeBy: none
 		sourceColumn: ProjectID
-
-		annotation SummarizationSetBy = Automatic
 
 	column ProjectName
 		dataType: string
-		lineageTag: 851fce5c-0f77-40d6-8024-e8f7bab768ca
-		summarizeBy: none
 		sourceColumn: ProjectName
-
-		annotation SummarizationSetBy = Automatic
 
 	column ProjectManager
 		dataType: string
-		lineageTag: 088e4ee2-6971-42c6-a1c6-7f65ff1a4c2b
-		summarizeBy: none
 		sourceColumn: ProjectManager
 
-		annotation SummarizationSetBy = Automatic
-
 	column BudgetAtCompletion_BAC
-		dataType: int64
-		formatString: 0
-		lineageTag: e6a4d958-5beb-4bce-9e4f-ae097a355cac
-		summarizeBy: sum
+		dataType: double
+		formatString: "$#,##0.00"
 		sourceColumn: BudgetAtCompletion_BAC
-
-		annotation SummarizationSetBy = Automatic
 
 	column StartDate
 		dataType: dateTime
-		formatString: Long Date
-		lineageTag: 74d6ccb2-1644-4b67-9869-3e5c648ce163
-		summarizeBy: none
+		formatString: "yyyy-MM-dd"
 		sourceColumn: StartDate
-
-		variation Variation
-			isDefault
-			relationship: 9b5b2d4e-23a4-478c-9810-c5f1c79668ad
-			defaultHierarchy: LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation UnderlyingDateTimeDataType = Date
 
 	column EndDate
 		dataType: dateTime
-		formatString: Long Date
-		lineageTag: 3f4ff2b4-d65d-48cf-a579-2e548cc40441
-		summarizeBy: none
+		formatString: "yyyy-MM-dd"
 		sourceColumn: EndDate
-
-		variation Variation
-			isDefault
-			relationship: db5a71fe-670a-4a9c-834b-f167e60b35f4
-			defaultHierarchy: LocalDateTable_bf72194c-77a7-451a-a50b-2500ed598415.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation UnderlyingDateTimeDataType = Date
 
 	column Status
 		dataType: string
-		lineageTag: 529ead10-2414-40d0-90e2-e47561709f3d
-		summarizeBy: none
 		sourceColumn: Status
 
-		annotation SummarizationSetBy = Automatic
-
-	partition projects = m
+	partition projects-Partition = m
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\projects.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
-				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ProjectID", type text}, {"ProjectName", type text}, {"ProjectManager", type text}, {"BudgetAtCompletion_BAC", Int64.Type}, {"StartDate", type date}, {"EndDate", type date}, {"Status", type text}})
+				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/projects.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
 				in
-				    #"Changed Type"
-
-	annotation PBI_ResultType = Table
-
+				    Headers

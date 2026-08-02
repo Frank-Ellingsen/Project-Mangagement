@@ -1,9 +1,13 @@
 table ScenarioSelection
-	lineageTag: 57a46f38-f474-4f90-8e33-d51744b2f2b2
 
 	column Scenario
 		dataType: string
-		isHidden: false
-		lineageTag: 6f0e9ed9-4c2c-4f79-b63f-0d6f0f0b16fb
+		sourceColumn: Scenario
 
-	annotation PBI_ResultType = Table
+	partition ScenarioSelection-Partition = m
+		mode: import
+		source =
+				let
+				    Source = #table({"Scenario"}, {{"Conservative"}, {"Baseline"}, {"Aggressive"}})
+				in
+				    Source

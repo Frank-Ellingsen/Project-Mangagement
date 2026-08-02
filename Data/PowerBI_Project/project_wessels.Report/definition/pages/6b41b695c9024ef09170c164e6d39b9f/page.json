@@ -34,10 +34,7 @@
       "field": "ScenarioSelection[Scenario]",
       "placement": "top-right",
       "style": "button-group",
-      "compact": true,
-      "subtitle": "Choose Conservative, Baseline, or Aggressive",
-      "emphasis": "high",
-      "headerSize": "small"
+      "compact": true
     },
     {
       "type": "variance-card",

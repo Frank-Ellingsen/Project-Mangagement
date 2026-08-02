@@ -1,73 +1,45 @@
 table timesheets
-	lineageTag: 672df3da-6530-437e-82d2-9fee653310f4
 
 	column TimesheetID
 		dataType: string
-		lineageTag: 263110b1-5c46-4077-ad03-eff2e626cd3a
-		summarizeBy: none
 		sourceColumn: TimesheetID
-
-		annotation SummarizationSetBy = Automatic
 
 	column ResourceID
 		dataType: string
-		lineageTag: 4a913624-b499-45d2-a792-408b07fc4e2a
-		summarizeBy: none
 		sourceColumn: ResourceID
-
-		annotation SummarizationSetBy = Automatic
 
 	column WBS_ID
 		dataType: string
-		lineageTag: eeaa5614-381e-4ae1-b3a5-2433a6e430d7
-		summarizeBy: none
 		sourceColumn: WBS_ID
-
-		annotation SummarizationSetBy = Automatic
 
 	column WorkDate
 		dataType: dateTime
-		formatString: Long Date
-		lineageTag: f85ddd81-968c-450f-ae2e-9279dada361e
-		summarizeBy: none
+		formatString: "yyyy-MM-dd"
 		sourceColumn: WorkDate
-
-		variation Variation
-			isDefault
-			relationship: 497f12a1-abb8-4cd8-bfa7-ff85623b97a2
-			defaultHierarchy: LocalDateTable_4d534e28-6860-422d-88ab-bfbd4a58ad66.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation UnderlyingDateTimeDataType = Date
 
 	column HoursWorked
 		dataType: double
-		lineageTag: 0334d6e5-dc32-42ce-b9af-a87e27610f95
-		summarizeBy: sum
 		sourceColumn: HoursWorked
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column ApprovalStatus
 		dataType: string
-		lineageTag: 60405514-1c49-4fa8-972f-e45f021b72d4
-		summarizeBy: none
 		sourceColumn: ApprovalStatus
 
-		annotation SummarizationSetBy = Automatic
+	column LaborCost
+		dataType: double
+		formatString: "$#,##0.00"
+		sourceColumn: LaborCost
 
-	partition timesheets = m
+	partition timesheets-Partition = m
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\timesheets.csv"),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
-				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"TimesheetID", type text}, {"ResourceID", type text}, {"WBS_ID", type text}, {"WorkDate", type date}, {"HoursWorked", type number}, {"ApprovalStatus", type text}})
+				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/timesheets.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+				    Types = Table.TransformColumnTypes(Headers, {"HoursWorked", type number}),
+				    MergeRes = Table.NestedJoin(Types, {"ResourceID"}, resources, {"ResourceID"}, "res", JoinKind.LeftOuter),
+				    ExpandRes = Table.ExpandTableColumn(MergeRes, "res", {"HourlyRate"}, {"HourlyRate"}),
+				    TypeRate = Table.TransformColumnTypes(ExpandRes, {"HourlyRate", type number}),
+				    AddLabor = Table.AddColumn(TypeRate, "LaborCost", each [HoursWorked] * [HourlyRate], type number)
 				in
-				    #"Changed Type"
-
-	annotation PBI_ResultType = Table
-
+				    AddLabor
