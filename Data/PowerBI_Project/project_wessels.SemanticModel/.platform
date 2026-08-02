@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "project_wessels"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "84fcbdaa-5cc8-4575-829d-07cb9683bceb"
+  }
+}
