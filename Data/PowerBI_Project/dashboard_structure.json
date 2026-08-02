@@ -1,0 +1,44 @@
+{
+  "reportName": "project_wessels",
+  "designPrinciples": [
+    "Tufte-inspired minimalism",
+    "Direct labels and clear KPI thresholds",
+    "Executive narrative over decoration"
+  ],
+  "pages": [
+    {
+      "id": "49e7f05a2a176419458c",
+      "displayName": "Executive Overview",
+      "description": "Portfolio health, KPI cards and milestone status"
+    },
+    {
+      "id": "6b41b695c9024ef09170c164e6d39b9f",
+      "displayName": "Financial Control",
+      "description": "CPI, CV, EAC and S-curve trend analysis"
+    },
+    {
+      "id": "8ed314e6a2da43fdaf1b63ef8e4f52d9c",
+      "displayName": "Client Delivery",
+      "description": "Progress, milestones and delivery narrative"
+    }
+  ],
+  "coreMeasures": [
+    "BAC",
+    "AC",
+    "EV",
+    "CV",
+    "CPI",
+    "SPI",
+    "EAC (Typical)",
+    "VAC",
+    "Latest Percent Complete"
+  ],
+  "dataSources": [
+    "projects",
+    "wbs_elements",
+    "timesheets",
+    "material_costs",
+    "physical_progress",
+    "resources"
+  ]
+}

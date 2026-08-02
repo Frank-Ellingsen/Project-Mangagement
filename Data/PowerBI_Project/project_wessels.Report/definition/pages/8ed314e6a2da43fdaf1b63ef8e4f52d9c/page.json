@@ -1,9 +1,9 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
-  "name": "49e7f05a2a176419458c",
-  "displayName": "Executive Overview",
+  "name": "8ed314e6a2da43fdaf1b63ef8e4f52d9c",
+  "displayName": "Client Delivery",
   "displayOption": "FitToPage",
   "height": 720,
   "width": 1280,
-  "description": "Portfolio health, KPI cards and milestone status"
+  "description": "Progress, milestones and delivery narrative"
 }

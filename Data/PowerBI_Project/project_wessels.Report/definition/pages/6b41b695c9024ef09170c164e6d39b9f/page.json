@@ -1,9 +1,9 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
-  "name": "49e7f05a2a176419458c",
-  "displayName": "Executive Overview",
+  "name": "6b41b695c9024ef09170c164e6d39b9f",
+  "displayName": "Financial Control",
   "displayOption": "FitToPage",
   "height": 720,
   "width": 1280,
-  "description": "Portfolio health, KPI cards and milestone status"
+  "description": "CPI, CV, EAC and S-curve trend analysis"
 }
