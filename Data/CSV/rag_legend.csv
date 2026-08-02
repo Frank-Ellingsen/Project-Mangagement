@@ -1,0 +1,4 @@
+"sort_order","indicator","meaning","owner_status"
+"1","RED","Overdue / immediate action required","Escalated issue owner action"
+"2","AMBER","Due soon / monitor closely","In progress or assigned"
+"3","GREEN","On track","Completed or controlled"

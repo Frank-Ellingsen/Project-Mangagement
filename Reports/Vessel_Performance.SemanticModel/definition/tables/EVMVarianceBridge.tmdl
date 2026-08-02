@@ -1,0 +1,37 @@
+table EVMVarianceBridge
+	lineageTag: 3c4d5e6f-7890-1234-abcd-ef4567890123
+
+	measure 'Variance Value' = SUM(EVMVarianceBridge[value])
+		formatString: #,0
+		lineageTag: 3c4d5e6f-7890-1234-abcd-ef4567890124
+
+	column project_id
+		dataType: string
+		isNullable: false
+		lineageTag: 3c4d5e6f-7890-1234-abcd-ef4567890125
+		sourceColumn: project_id
+
+	column project_name
+		dataType: string
+		lineageTag: 3c4d5e6f-7890-1234-abcd-ef4567890126
+		sourceColumn: project_name
+
+	column sort_order
+		dataType: int64
+		lineageTag: 3c4d5e6f-7890-1234-abcd-ef4567890127
+		sourceColumn: sort_order
+
+	column driver
+		dataType: string
+		lineageTag: 3c4d5e6f-7890-1234-abcd-ef4567890128
+		sourceColumn: driver
+
+	column value
+		dataType: decimal
+		lineageTag: 3c4d5e6f-7890-1234-abcd-ef4567890129
+		sourceColumn: value
+
+	partition EVMVarianceBridge = m
+		mode: import
+		source = let Source = Csv.Document(File.Contents("C:\\Users\\frank\\Desktop\\AI learn\\project controller\\data\\powerbi\\evm_variance_bridge.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]), Types = Table.TransformColumnTypes(Headers, {{"project_id", type text}, {"project_name", type text}, {"sort_order", Int64.Type}, {"driver", type text}, {"value", Currency.Type}}) in Types
+

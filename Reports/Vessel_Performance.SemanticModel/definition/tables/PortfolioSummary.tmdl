@@ -1,0 +1,32 @@
+table PortfolioSummary
+	lineageTag: 0c2c9f6b-bb1a-4e41-9ce1-84ee2bdfda5f
+
+	column project_count
+		dataType: int64
+		lineageTag: 0ccf61ee-943b-4130-96e5-f2aa58383965
+		sourceColumn: project_count
+
+	column total_budget_cost
+		dataType: decimal
+		lineageTag: bfa538d9-6ce2-48d6-a142-e75583105ff6
+		sourceColumn: total_budget_cost
+
+	column total_actual_cost
+		dataType: decimal
+		lineageTag: 6ae20890-637c-4356-b6b3-e53abf19a4d8
+		sourceColumn: total_actual_cost
+
+	column total_eac_cost
+		dataType: decimal
+		lineageTag: b6353d08-b620-4c13-8550-d4e50c0ebc3b
+		sourceColumn: total_eac_cost
+
+	column open_risk_signals
+		dataType: int64
+		lineageTag: c253cdc3-98a1-4369-b8bd-0663400abb7a
+		sourceColumn: open_risk_signals
+
+	partition PortfolioSummary = m
+		mode: import
+		source = let Source = Csv.Document(File.Contents("C:\\Users\\frank\\Desktop\\AI learn\\project controller\\data\\powerbi\\portfolio_summary.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]), Types = Table.TransformColumnTypes(Headers, {{"project_count", Int64.Type}, {"total_budget_cost", Currency.Type}, {"total_actual_cost", Currency.Type}, {"total_eac_cost", Currency.Type}, {"open_risk_signals", Int64.Type}}) in Types
+

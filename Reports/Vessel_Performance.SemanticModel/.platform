@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Vessel_Performance"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "50b183ab-5f98-43d9-9e53-25f939582383"
+  }
+}

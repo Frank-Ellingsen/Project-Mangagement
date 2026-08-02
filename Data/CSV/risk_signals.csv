@@ -1,0 +1,5 @@
+"risk_id","project_id","project_name","severity","risk_type","message"
+"R-001","PRJ-001","Composite Maritime Vessel Construction","High","Risk","Delay in composite carbon sheet deliveries from overseas supplier"
+"A-001","PRJ-001","Composite Maritime Vessel Construction","Medium","Assumption","Subcontractor electrician rates remain fixed under contract"
+"I-001","PRJ-001","Composite Maritime Vessel Construction","Medium","Issue","Astrid Nilsen welder overtime limit breached due to recovery fabrication schedule"
+"D-001","PRJ-001","Composite Maritime Vessel Construction","High","Dependency","Sea trials (WBS 4.0) depend on DNV safety and compliance certification approval"

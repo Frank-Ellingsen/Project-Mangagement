@@ -1,0 +1,27 @@
+model Model
+	culture: nb-NO
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling","TMDL-Extension"]
+
+annotation PBI_QueryOrder = ["DashboardProjects","RiskSignals","ChallengeQuestions","PortfolioSummary","EVMCurrent","EVMMonthly","EVMVarianceBridge"]
+
+ref table DashboardProjects
+ref table RiskSignals
+ref table ChallengeQuestions
+ref table PortfolioSummary
+ref table EVMCurrent
+ref table EVMMonthly
+ref table EVMVarianceBridge
+ref table DateTableTemplate_ccd27ada-bc2b-4e2a-9212-f3957d469e44
+ref table LocalDateTable_f8662c6c-eb24-40fd-86e2-8731435ddb98
+ref table LocalDateTable_7524506b-f489-43cb-8442-a4657016fc60
+
+ref cultureInfo nb-NO
+

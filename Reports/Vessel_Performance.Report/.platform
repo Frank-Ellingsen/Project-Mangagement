@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Vessel_Performance"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "9fa8004d-8308-45d2-bb06-519dbeb8a452"
+  }
+}

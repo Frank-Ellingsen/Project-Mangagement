@@ -13,11 +13,8 @@
     }
   ],
   "settings": {
-    "enableAutoRecovery": true,
-    "reportRegistry": {
-      "project_wessels.Report": {
-        "reportId": "00000000-0000-0000-0000-000000000000"
-      }
+    "gitIntegration": {
+      "enabled": true
     }
   }
 }

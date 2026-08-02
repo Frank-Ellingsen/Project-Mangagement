@@ -1,0 +1,245 @@
+table DashboardProjects
+	lineageTag: a2a8089e-c490-4a2b-a7c3-ea5887368327
+
+	measure 'Project Count' = DISTINCTCOUNT(DashboardProjects[project_id])
+		formatString: 0
+		lineageTag: 7cce5177-f0ee-4ccf-bdda-d93680c911bc
+
+	measure 'Total Budget Cost' = SUM(DashboardProjects[budget_cost])
+		formatString: #,0
+		lineageTag: 74028569-3434-4710-94de-91e4eb3c5278
+
+	measure 'Total Actual Cost' = SUM(DashboardProjects[actual_cost])
+		formatString: #,0
+		lineageTag: 4cae96ac-0b3b-4f55-8980-fb5ded0a761d
+
+	measure 'Total EAC Cost' = SUM(DashboardProjects[eac_cost])
+		formatString: #,0
+		lineageTag: 63f7cf26-fd68-423b-b3e0-bf21013794ac
+
+	measure 'Open Risk Signals' = COUNTROWS(RiskSignals)
+		formatString: 0
+		lineageTag: 66ba5af0-f1f6-4cba-b811-5963b0e69454
+
+	measure 'Average CPI' = AVERAGE(DashboardProjects[cpi])
+		formatString: 0.00
+		lineageTag: 4e2312fc-f1c0-4b71-8e35-ab8820f548e7
+
+	measure 'Average SPI' = AVERAGE(DashboardProjects[spi])
+		formatString: 0.00
+		lineageTag: f910e065-d2c2-4d68-b99d-a4b598f84973
+
+	measure 'Projects Behind Schedule' = COUNTROWS(FILTER(DashboardProjects, DashboardProjects[spi] < 0.95))
+		formatString: 0
+		lineageTag: 08231c15-75a7-4af7-a5a5-c71b2bf892eb
+
+	measure 'Projects Margin At Risk' = COUNTROWS(FILTER(DashboardProjects, DashboardProjects[margin_forecast] < DashboardProjects[margin_target]))
+		formatString: 0
+		lineageTag: f99d11c7-14ab-431f-97b3-01d354ff6a5d
+
+	measure 'Total CV' = [Total EV (Dashboard)] - [Total Actual Cost]
+		formatString: #,0
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+
+	measure 'Total SV' = [Total EV (Dashboard)] - [Total PV (Dashboard)]
+		formatString: #,0
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567891
+
+	measure 'Total PV (Dashboard)' = SUM(DashboardProjects[budget_cost])
+		formatString: #,0
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567892
+
+	measure 'Total EV (Dashboard)' = SUMX(DashboardProjects, DashboardProjects[budget_cost] * DashboardProjects[percent_complete])
+		formatString: #,0
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567893
+
+	measure 'Portfolio VAC (Dashboard)' = [Total Budget Cost] - [Total EAC Cost]
+		formatString: #,0
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567894
+
+	measure 'Portfolio TCPI' = DIVIDE([Total Budget Cost] - [Total EV (Dashboard)], [Total Budget Cost] - [Total Actual Cost])
+		formatString: 0.00
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567895
+
+	measure 'RAG Status' = IF([Average CPI] < 0.9 || [Average SPI] < 0.9, "Red", IF([Average CPI] < 1.0 || [Average SPI] < 1.0, "Amber", "Green"))
+		formatString: General
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567896
+
+	measure 'Cost Variance %' = DIVIDE([Total Actual Cost] - [Total Budget Cost], [Total Budget Cost])
+		formatString: 0.0%
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567897
+
+	measure 'Projects On Budget' = COUNTROWS(FILTER(DashboardProjects, DashboardProjects[eac_cost] <= DashboardProjects[budget_cost]))
+		formatString: 0
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567898
+
+	measure 'Portfolio Margin Forecast' = DIVIDE(SUMX(DashboardProjects, DashboardProjects[revenue] - DashboardProjects[eac_cost]), SUM(DashboardProjects[revenue]))
+		formatString: 0.0%
+		lineageTag: a1b2c3d4-e5f6-7890-abcd-ef1234567899
+
+	column project_id
+		dataType: string
+		isKey
+		isNullable: false
+		lineageTag: d3c43760-db15-4102-a948-08f17f935366
+		sourceColumn: project_id
+
+	column project_name
+		dataType: string
+		lineageTag: f98da5b9-11b5-430e-bc9e-f30a117f0727
+		sourceColumn: project_name
+
+	column manager
+		dataType: string
+		lineageTag: 1d55667a-6e98-42c6-9598-a1ef70c4e9b7
+		sourceColumn: manager
+
+	column status
+		dataType: string
+		lineageTag: 5306ecdd-f019-47ef-b9cf-14a11b784ea4
+		sourceColumn: status
+
+	column budget_cost
+		dataType: decimal
+		lineageTag: 6d3321ea-083b-4b51-a54c-11cefe1a0d94
+		sourceColumn: budget_cost
+
+	column actual_cost
+		dataType: decimal
+		lineageTag: 4f050505-0546-41c5-bfa5-35775a301e6d
+		sourceColumn: actual_cost
+
+	column planned_hours
+		dataType: int64
+		lineageTag: 422cc824-6b78-4118-911d-7bfcfdf052f2
+		sourceColumn: planned_hours
+
+	column actual_hours
+		dataType: int64
+		lineageTag: 8c9cc17d-547e-4f70-a869-bed117b18cd3
+		sourceColumn: actual_hours
+
+	column percent_complete
+		dataType: decimal
+		lineageTag: 311b32db-3cbc-4f31-b8dc-d8ca52add695
+		sourceColumn: percent_complete
+
+	column revenue
+		dataType: decimal
+		lineageTag: 09ebc59e-b558-44c4-b822-6768e87218f0
+		sourceColumn: revenue
+
+	column margin_target
+		dataType: decimal
+		lineageTag: 919489e5-77fb-4ad4-9a9a-39f33378820e
+		sourceColumn: margin_target
+
+	column eac_cost
+		dataType: decimal
+		lineageTag: 43ac8ef9-42ad-4723-993d-1f7fa6d6a772
+		sourceColumn: eac_cost
+
+	column etc_cost
+		dataType: decimal
+		lineageTag: b0d18830-42b1-4881-92bc-15cec653c0c5
+		sourceColumn: etc_cost
+
+	column eac_hours
+		dataType: decimal
+		lineageTag: 33946b92-0a8c-4fca-8461-90232baa34ca
+		sourceColumn: eac_hours
+
+	column etc_hours
+		dataType: decimal
+		lineageTag: 7a4e3ba2-8345-4aa2-b3df-eb97df3a366e
+		sourceColumn: etc_hours
+
+	column cpi
+		dataType: decimal
+		lineageTag: 94b98acc-162d-40f6-b790-bec3bcf6da2f
+		sourceColumn: cpi
+
+	column spi
+		dataType: decimal
+		lineageTag: 54d7cbbd-c478-4484-ab15-6e807132ded4
+		sourceColumn: spi
+
+	column confidence
+		dataType: string
+		lineageTag: 2f91758d-fe7e-4adc-9d7f-560c436f5a76
+		sourceColumn: confidence
+
+	column margin_forecast
+		dataType: decimal
+		lineageTag: ba883cbc-ab08-4502-ae72-ee3dadafc9bc
+		sourceColumn: margin_forecast
+
+	column cost_variance
+		dataType: decimal
+		lineageTag: 50fdb38e-3512-49d3-882d-835a1c09bc9e
+		sourceColumn: cost_variance
+
+	column cost_variance_pct
+		dataType: decimal
+		lineageTag: 7de10c29-52a7-4232-8701-2e9c69bef619
+		sourceColumn: cost_variance_pct
+
+	column hours_variance
+		dataType: decimal
+		lineageTag: ba272f85-9d83-4c93-a9d1-dc1579ebbc25
+		sourceColumn: hours_variance
+
+	column hours_variance_pct
+		dataType: decimal
+		lineageTag: c568c7b5-56a6-4af5-888e-7dacf071490d
+		sourceColumn: hours_variance_pct
+
+	column forecast_shift_cost
+		dataType: decimal
+		lineageTag: 11ddf487-7d71-4840-a5ac-2f699819be03
+		sourceColumn: forecast_shift_cost
+
+	column forecast_shift_hours
+		dataType: decimal
+		lineageTag: 057d7852-df49-4145-be93-90f24a4dcc5e
+		sourceColumn: forecast_shift_hours
+
+	column forecast_warnings
+		dataType: string
+		lineageTag: 48507adf-a3dd-4f14-9cf9-58387c073ab4
+		sourceColumn: forecast_warnings
+
+	column variance_narrative
+		dataType: string
+		lineageTag: 0bbdef79-be14-4d7f-affa-ba598c6eb418
+		sourceColumn: variance_narrative
+
+	column executive_summary
+		dataType: string
+		lineageTag: 486b7ce6-9856-49b1-bf6d-e8dcc3ea027f
+		sourceColumn: executive_summary
+
+	column challenge_questions
+		dataType: string
+		lineageTag: 7da738b1-d789-4051-a5c0-4db445d6d7a8
+		sourceColumn: challenge_questions
+
+	column lessons_learned
+		dataType: string
+		lineageTag: 441a9f67-df44-4d9b-81fd-e2921120ec13
+		sourceColumn: lessons_learned
+
+	column bidding_recommendations
+		dataType: string
+		lineageTag: 7cb3784e-6514-410a-a3bb-706a582f9c5d
+		sourceColumn: bidding_recommendations
+
+	column risk_signal_count
+		dataType: int64
+		lineageTag: 1b9df38d-2b05-4f58-9817-e646c5414c11
+		sourceColumn: risk_signal_count
+
+	partition DashboardProjects = m
+		mode: import
+		source = let Source = Csv.Document(File.Contents("C:\\Users\\frank\\Desktop\\AI learn\\project controller\\data\\powerbi\\dashboard_projects.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]), Types = Table.TransformColumnTypes(Headers, {{"project_id", type text}, {"project_name", type text}, {"manager", type text}, {"status", type text}, {"budget_cost", Currency.Type}, {"actual_cost", Currency.Type}, {"planned_hours", Int64.Type}, {"actual_hours", Int64.Type}, {"percent_complete", type number}, {"revenue", Currency.Type}, {"margin_target", type number}, {"eac_cost", Currency.Type}, {"etc_cost", Currency.Type}, {"eac_hours", type number}, {"etc_hours", type number}, {"cpi", type number}, {"spi", type number}, {"confidence", type text}, {"margin_forecast", type number}, {"cost_variance", Currency.Type}, {"cost_variance_pct", type number}, {"hours_variance", type number}, {"hours_variance_pct", type number}, {"forecast_shift_cost", Currency.Type}, {"forecast_shift_hours", type number}, {"forecast_warnings", type text}, {"variance_narrative", type text}, {"executive_summary", type text}, {"challenge_questions", type text}, {"lessons_learned", type text}, {"bidding_recommendations", type text}, {"risk_signal_count", Int64.Type}}) in Types
+

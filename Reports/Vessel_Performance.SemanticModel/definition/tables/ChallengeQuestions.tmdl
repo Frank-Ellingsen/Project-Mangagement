@@ -1,0 +1,29 @@
+table ChallengeQuestions
+	lineageTag: 09854dfb-19f7-4152-abf8-7fba92b0add4
+
+	column question_id
+		dataType: string
+		isKey
+		isNullable: false
+		lineageTag: 5be0f80f-4d01-421b-bfee-56581e8ddca6
+		sourceColumn: question_id
+
+	column project_id
+		dataType: string
+		lineageTag: b5a08a2e-8c32-4dbd-ae9f-9ee877cc58e2
+		sourceColumn: project_id
+
+	column project_name
+		dataType: string
+		lineageTag: 2742d89c-7cca-4490-8510-88c1b4034af9
+		sourceColumn: project_name
+
+	column question
+		dataType: string
+		lineageTag: 9b42a7da-1fb0-4828-b504-3b11795c5a68
+		sourceColumn: question
+
+	partition ChallengeQuestions = m
+		mode: import
+		source = let Source = Csv.Document(File.Contents("C:\\Users\\frank\\Desktop\\AI learn\\project controller\\data\\powerbi\\challenge_questions.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]), Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]), Types = Table.TransformColumnTypes(Headers, {{"question_id", type text}, {"project_id", type text}, {"project_name", type text}, {"question", type text}}) in Types
+
