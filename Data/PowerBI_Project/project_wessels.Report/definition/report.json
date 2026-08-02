@@ -4,6 +4,7 @@
   "description": "Executive EVM dashboard built for portfolio monitoring and delivery reporting.",
   "defaultPage": "49e7f05a2a176419458c",
   "theme": "Tufte",
+  "authoringMode": "BlueprintPlus",
   "pageBlueprints": [
     {
       "pageId": "49e7f05a2a176419458c",
@@ -34,6 +35,15 @@
           "title": "Project status by status",
           "category": "projects[Status]",
           "value": "Latest Percent Complete"
+        },
+        {
+          "type": "summary-table",
+          "title": "Milestone delivery snapshot",
+          "fields": [
+            "projects[ProjectName]",
+            "Latest Percent Complete",
+            "Variance RAG"
+          ]
         }
       ]
     },
@@ -42,10 +52,52 @@
       "displayName": "Financial Control",
       "visuals": [
         {
+          "type": "kpi-row",
+          "title": "Financial headline KPIs",
+          "measures": [
+            "BAC",
+            "AC",
+            "EV",
+            "CV",
+            "SV"
+          ]
+        },
+        {
+          "type": "slicer",
+          "title": "Scenario selector",
+          "field": "ScenarioSelection[Scenario]",
+          "placement": "top-right",
+          "style": "button-group",
+          "compact": true,
+          "selectionMode": "single"
+        },
+        {
           "type": "line-chart",
           "title": "Cost and value trend",
           "xAxis": "physical_progress[RecordDate]",
-          "value": "EV"
+          "values": [
+            "PV",
+            "EV",
+            "AC"
+          ],
+          "lineStyles": {
+            "PV": "dotted",
+            "EV": "solid",
+            "AC": "solid"
+          },
+          "directLabels": true
+        },
+        {
+          "type": "table",
+          "title": "WBS element performance",
+          "fields": [
+            "wbs_elements[WBS_Code]",
+            "wbs_elements[ElementName]",
+            "BAC",
+            "AC",
+            "EV",
+            "CPI"
+          ]
         },
         {
           "type": "variance-card",
@@ -63,14 +115,6 @@
           "measure": "Variance RAG"
         },
         {
-          "type": "slicer",
-          "title": "Scenario selector",
-          "field": "ScenarioSelection[Scenario]",
-          "placement": "top-right",
-          "style": "button-group",
-          "compact": true
-        },
-        {
           "type": "variance-card",
           "title": "Cost Performance Index",
           "measure": "CPI"
@@ -79,6 +123,11 @@
           "type": "variance-card",
           "title": "Schedule Performance Index",
           "measure": "SPI"
+        },
+        {
+          "type": "narrative-card",
+          "title": "Control narrative & variance highlights",
+          "text": "Use scenario-adjusted thresholds to explain CV/SV movements and required corrective actions."
         }
       ]
     },
@@ -97,6 +146,17 @@
           "title": "Milestone completion",
           "category": "projects[ProjectName]",
           "value": "Latest Percent Complete"
+        },
+        {
+          "type": "matrix",
+          "title": "Resource utilization",
+          "rows": [
+            "resources[Role]"
+          ],
+          "columns": [
+            "projects[ProjectName]"
+          ],
+          "value": "AC"
         },
         {
           "type": "narrative-card",

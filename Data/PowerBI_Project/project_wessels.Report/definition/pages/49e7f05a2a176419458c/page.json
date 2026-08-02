@@ -32,6 +32,15 @@
       "title": "Project status by status",
       "category": "projects[Status]",
       "value": "Latest Percent Complete"
+    },
+    {
+      "type": "summary-table",
+      "title": "Milestone delivery snapshot",
+      "fields": [
+        "projects[ProjectName]",
+        "Latest Percent Complete",
+        "Variance RAG"
+      ]
     }
   ]
 }

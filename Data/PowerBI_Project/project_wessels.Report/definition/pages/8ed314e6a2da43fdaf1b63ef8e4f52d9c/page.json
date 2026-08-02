@@ -20,6 +20,17 @@
       "value": "Latest Percent Complete"
     },
     {
+      "type": "matrix",
+      "title": "Resource utilization",
+      "rows": [
+        "resources[Role]"
+      ],
+      "columns": [
+        "projects[ProjectName]"
+      ],
+      "value": "AC"
+    },
+    {
       "type": "narrative-card",
       "title": "Delivery narrative",
       "text": "Focus on late or at-risk work packages and highlight recovery actions."

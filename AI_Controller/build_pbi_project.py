@@ -93,20 +93,55 @@ def build_project_files():
                 {"type": "kpi-card", "title": "Actual Cost", "measure": "AC"},
                 {"type": "kpi-card", "title": "Earned Value", "measure": "EV"},
                 {"type": "kpi-card", "title": "Percent Complete", "measure": "Latest Percent Complete"},
-                {"type": "bar-chart", "title": "Project status by status", "category": "projects[Status]", "value": "Latest Percent Complete"}
+                {"type": "bar-chart", "title": "Project status by status", "category": "projects[Status]", "value": "Latest Percent Complete"},
+                {
+                    "type": "summary-table",
+                    "title": "Milestone delivery snapshot",
+                    "fields": ["projects[ProjectName]", "Latest Percent Complete", "Variance RAG"]
+                }
             ]
         },
         {
             "pageId": page_specs[1]["id"],
             "displayName": page_specs[1]["displayName"],
             "visuals": [
-                {"type": "line-chart", "title": "Cost and value trend", "xAxis": "physical_progress[RecordDate]", "value": "EV"},
+                {
+                    "type": "kpi-row",
+                    "title": "Financial headline KPIs",
+                    "measures": ["BAC", "AC", "EV", "CV", "SV"]
+                },
+                {
+                    "type": "slicer",
+                    "title": "Scenario selector",
+                    "field": "ScenarioSelection[Scenario]",
+                    "placement": "top-right",
+                    "style": "button-group",
+                    "compact": True,
+                    "selectionMode": "single"
+                },
+                {
+                    "type": "line-chart",
+                    "title": "Cost and value trend",
+                    "xAxis": "physical_progress[RecordDate]",
+                    "values": ["PV", "EV", "AC"],
+                    "lineStyles": {"PV": "dotted", "EV": "solid", "AC": "solid"},
+                    "directLabels": True
+                },
+                {
+                    "type": "table",
+                    "title": "WBS element performance",
+                    "fields": ["wbs_elements[WBS_Code]", "wbs_elements[ElementName]", "BAC", "AC", "EV", "CPI"]
+                },
                 {"type": "variance-card", "title": "Cost Variance", "measure": "CV"},
                 {"type": "variance-card", "title": "Schedule Variance", "measure": "SV"},
                 {"type": "variance-card", "title": "Overall RAG", "measure": "Variance RAG"},
-                {"type": "slicer", "title": "Scenario selector", "field": "ScenarioSelection[Scenario]", "placement": "top-right", "style": "button-group", "compact": True},
                 {"type": "variance-card", "title": "Cost Performance Index", "measure": "CPI"},
-                {"type": "variance-card", "title": "Schedule Performance Index", "measure": "SPI"}
+                {"type": "variance-card", "title": "Schedule Performance Index", "measure": "SPI"},
+                {
+                    "type": "narrative-card",
+                    "title": "Control narrative & variance highlights",
+                    "text": "Use scenario-adjusted thresholds to explain CV/SV movements and required corrective actions."
+                }
             ]
         },
         {
@@ -115,6 +150,13 @@ def build_project_files():
             "visuals": [
                 {"type": "progress-table", "title": "WBS delivery status", "category": "wbs_elements[ElementName]", "value": "Latest Percent Complete"},
                 {"type": "stacked-bar", "title": "Milestone completion", "category": "projects[ProjectName]", "value": "Latest Percent Complete"},
+                {
+                    "type": "matrix",
+                    "title": "Resource utilization",
+                    "rows": ["resources[Role]"],
+                    "columns": ["projects[ProjectName]"],
+                    "value": "AC"
+                },
                 {"type": "narrative-card", "title": "Delivery narrative", "text": "Focus on late or at-risk work packages and highlight recovery actions."}
             ]
         }
@@ -125,6 +167,7 @@ def build_project_files():
         "description": "Executive EVM dashboard built for portfolio monitoring and delivery reporting.",
         "defaultPage": page_specs[0]["id"],
         "theme": "Tufte",
+        "authoringMode": "BlueprintPlus",
         "pageBlueprints": page_blueprints
     }
     os.makedirs(os.path.join(REPORT_DIR, "definition"), exist_ok=True)
@@ -244,12 +287,13 @@ relationship rel_wbs_physical_progress
 \tmeasure 'Planned % Complete' = 
 \t\t\tVAR StartDate = MIN('projects'[StartDate])
 \t\t\tVAR EndDate = MAX('projects'[EndDate])
-\t\t\tVAR CurrentDate = MAX('physical_progress'[RecordDate])
+			VAR CurrentDate = MAX('physical_progress'[RecordDate])
+			VAR RawProgress = DIVIDE(DATEDIFF(StartDate, CurrentDate, DAY), DATEDIFF(StartDate, EndDate, DAY), 0)
 \t\t\tRETURN
 \t\t\tIF(
 \t\t\t    EndDate <= StartDate,
 \t\t\t    0,
-\t\t\t    DIVIDE(DATEDIFF(StartDate, CurrentDate, DAY), DATEDIFF(StartDate, EndDate, DAY), 0)
+			    MIN(1, MAX(0, RawProgress))
 \t\t\t)
 \t\tformatString: "0.00%"
 
@@ -310,7 +354,7 @@ relationship rel_wbs_physical_progress
 \t\tsource =
 \t\t\t\tlet
 \t\t\t\t    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [MeasurePlaceholder = _t]),
-\t\t\t\t    Type = Table.TransformColumnTypes(Source,{{"MeasurePlaceholder", Int64.Type}})
+                    Type = Table.TransformColumnTypes(Source,{{{{"MeasurePlaceholder", Int64.Type}}}})
 \t\t\t\tin
 \t\t\t\t    Type
 """
@@ -487,10 +531,10 @@ relationship rel_wbs_physical_progress
 \t\t\t\tlet
 \t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('timesheets.csv')}"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 \t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
-\t\t\t\t    Types = Table.TransformColumnTypes(Headers, {{"HoursWorked", type number}}),
+				    Types = Table.TransformColumnTypes(Headers, {{{{"HoursWorked", type number}}}}),
 \t\t\t\t    MergeRes = Table.NestedJoin(Types, {{"ResourceID"}}, resources, {{"ResourceID"}}, "res", JoinKind.LeftOuter),
 \t\t\t\t    ExpandRes = Table.ExpandTableColumn(MergeRes, "res", {{"HourlyRate"}}, {{"HourlyRate"}}),
-\t\t\t\t    TypeRate = Table.TransformColumnTypes(ExpandRes, {{"HourlyRate", type number}}),
+				    TypeRate = Table.TransformColumnTypes(ExpandRes, {{{{"HourlyRate", type number}}}}),
 \t\t\t\t    AddLabor = Table.AddColumn(TypeRate, "LaborCost", each [HoursWorked] * [HourlyRate], type number)
 \t\t\t\tin
 \t\t\t\t    AddLabor

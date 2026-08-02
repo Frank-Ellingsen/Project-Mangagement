@@ -36,10 +36,10 @@ table timesheets
 				let
 				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/timesheets.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
-				    Types = Table.TransformColumnTypes(Headers, {"HoursWorked", type number}),
+				    Types = Table.TransformColumnTypes(Headers, {{"HoursWorked", type number}}),
 				    MergeRes = Table.NestedJoin(Types, {"ResourceID"}, resources, {"ResourceID"}, "res", JoinKind.LeftOuter),
 				    ExpandRes = Table.ExpandTableColumn(MergeRes, "res", {"HourlyRate"}, {"HourlyRate"}),
-				    TypeRate = Table.TransformColumnTypes(ExpandRes, {"HourlyRate", type number}),
+				    TypeRate = Table.TransformColumnTypes(ExpandRes, {{"HourlyRate", type number}}),
 				    AddLabor = Table.AddColumn(TypeRate, "LaborCost", each [HoursWorked] * [HourlyRate], type number)
 				in
 				    AddLabor

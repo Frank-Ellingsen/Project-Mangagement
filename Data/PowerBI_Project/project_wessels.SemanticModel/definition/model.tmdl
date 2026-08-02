@@ -3,6 +3,8 @@ model Model
 	defaultPowerBIDataSourceVersion: powerBI_V3
 	sourceQueryCulture: en-US
 
+annotation PBI_ProTooling = ["TMDL-Extension"]
+
 	ref table _Measures
 	ref table ScenarioSelection
 	ref table projects

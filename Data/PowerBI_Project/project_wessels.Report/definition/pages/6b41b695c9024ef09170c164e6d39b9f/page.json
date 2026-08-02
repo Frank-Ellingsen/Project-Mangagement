@@ -8,10 +8,52 @@
   "description": "CPI, CV, EAC and S-curve trend analysis",
   "visualBlueprint": [
     {
+      "type": "kpi-row",
+      "title": "Financial headline KPIs",
+      "measures": [
+        "BAC",
+        "AC",
+        "EV",
+        "CV",
+        "SV"
+      ]
+    },
+    {
+      "type": "slicer",
+      "title": "Scenario selector",
+      "field": "ScenarioSelection[Scenario]",
+      "placement": "top-right",
+      "style": "button-group",
+      "compact": true,
+      "selectionMode": "single"
+    },
+    {
       "type": "line-chart",
       "title": "Cost and value trend",
       "xAxis": "physical_progress[RecordDate]",
-      "value": "EV"
+      "values": [
+        "PV",
+        "EV",
+        "AC"
+      ],
+      "lineStyles": {
+        "PV": "dotted",
+        "EV": "solid",
+        "AC": "solid"
+      },
+      "directLabels": true
+    },
+    {
+      "type": "table",
+      "title": "WBS element performance",
+      "fields": [
+        "wbs_elements[WBS_Code]",
+        "wbs_elements[ElementName]",
+        "BAC",
+        "AC",
+        "EV",
+        "CPI"
+      ]
     },
     {
       "type": "variance-card",
@@ -29,14 +71,6 @@
       "measure": "Variance RAG"
     },
     {
-      "type": "slicer",
-      "title": "Scenario selector",
-      "field": "ScenarioSelection[Scenario]",
-      "placement": "top-right",
-      "style": "button-group",
-      "compact": true
-    },
-    {
       "type": "variance-card",
       "title": "Cost Performance Index",
       "measure": "CPI"
@@ -45,6 +79,11 @@
       "type": "variance-card",
       "title": "Schedule Performance Index",
       "measure": "SPI"
+    },
+    {
+      "type": "narrative-card",
+      "title": "Control narrative & variance highlights",
+      "text": "Use scenario-adjusted thresholds to explain CV/SV movements and required corrective actions."
     }
   ]
 }
