@@ -56,14 +56,34 @@
             "formatString": "0.00%"
           },
           {
+            "name": "Planned % Complete",
+            "expression": "VAR StartDate = MIN('projects'[StartDate])\nVAR EndDate = MAX('projects'[EndDate])\nVAR CurrentDate = MAX('physical_progress'[RecordDate])\nRETURN\nIF(\n    EndDate <= StartDate,\n    0,\n    DIVIDE(DATEDIFF(StartDate, CurrentDate, DAY), DATEDIFF(StartDate, EndDate, DAY), 0)\n)",
+            "formatString": "0.00%"
+          },
+          {
             "name": "EV",
             "expression": "SUMX(VALUES('wbs_elements'[WBS_ID]), [BAC] * [Latest Percent Complete])",
+            "formatString": "$#,##0.00"
+          },
+          {
+            "name": "PV",
+            "expression": "[BAC] * [Planned % Complete]",
+            "formatString": "$#,##0.00"
+          },
+          {
+            "name": "SV",
+            "expression": "[EV] - [PV]",
             "formatString": "$#,##0.00"
           },
           {
             "name": "CV",
             "expression": "[EV] - [AC]",
             "formatString": "$#,##0.00"
+          },
+          {
+            "name": "Variance RAG",
+            "expression": "VAR Scenario = \"Baseline\"\nVAR CostVariancePct = DIVIDE([CV], [BAC], 0)\nVAR ScheduleVariancePct = DIVIDE([SV], [BAC], 0)\nVAR CostAmberThreshold = SWITCH(Scenario, \"Conservative\", 0.08, \"Baseline\", 0.12, \"Aggressive\", 0.18, 0.12)\nVAR CostRedThreshold = SWITCH(Scenario, \"Conservative\", 0.15, \"Baseline\", 0.20, \"Aggressive\", 0.30, 0.20)\nVAR ScheduleAmberThreshold = SWITCH(Scenario, \"Conservative\", 0.05, \"Baseline\", 0.10, \"Aggressive\", 0.15, 0.10)\nVAR ScheduleRedThreshold = SWITCH(Scenario, \"Conservative\", 0.10, \"Baseline\", 0.15, \"Aggressive\", 0.25, 0.15)\nRETURN\nSWITCH(\n    TRUE(),\n    ABS(CostVariancePct) >= CostRedThreshold || ABS(ScheduleVariancePct) >= ScheduleRedThreshold, \"Red\",\n    ABS(CostVariancePct) >= CostAmberThreshold || ABS(ScheduleVariancePct) >= ScheduleAmberThreshold, \"Amber\",\n    \"Green\"\n)",
+            "formatString": "@"
           },
           {
             "name": "CPI",
@@ -84,6 +104,25 @@
             "name": "VAC",
             "expression": "[BAC] - [EAC (Typical)]",
             "formatString": "$#,##0.00"
+          }
+        ]
+      },
+      {
+        "name": "ScenarioSelection",
+        "columns": [
+          {
+            "name": "Scenario",
+            "dataType": "string",
+            "sourceColumn": "Scenario"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "ScenarioSelection-Partition",
+            "source": {
+              "type": "m",
+              "expression": "let\n    Source = #table({\"Scenario\"}, {{\"Conservative\"}, {\"Baseline\"}, {\"Aggressive\"}})\nin\n    Source"
+            }
           }
         ]
       },

@@ -5,5 +5,33 @@
   "displayOption": "FitToPage",
   "height": 720,
   "width": 1280,
-  "description": "Portfolio health, KPI cards and milestone status"
+  "description": "Portfolio health, KPI cards and milestone status",
+  "visualBlueprint": [
+    {
+      "type": "kpi-card",
+      "title": "Budget at Completion",
+      "measure": "BAC"
+    },
+    {
+      "type": "kpi-card",
+      "title": "Actual Cost",
+      "measure": "AC"
+    },
+    {
+      "type": "kpi-card",
+      "title": "Earned Value",
+      "measure": "EV"
+    },
+    {
+      "type": "kpi-card",
+      "title": "Percent Complete",
+      "measure": "Latest Percent Complete"
+    },
+    {
+      "type": "bar-chart",
+      "title": "Project status by status",
+      "category": "projects[Status]",
+      "value": "Latest Percent Complete"
+    }
+  ]
 }

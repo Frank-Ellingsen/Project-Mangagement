@@ -5,5 +5,24 @@
   "displayOption": "FitToPage",
   "height": 720,
   "width": 1280,
-  "description": "Progress, milestones and delivery narrative"
+  "description": "Progress, milestones and delivery narrative",
+  "visualBlueprint": [
+    {
+      "type": "progress-table",
+      "title": "WBS delivery status",
+      "category": "wbs_elements[ElementName]",
+      "value": "Latest Percent Complete"
+    },
+    {
+      "type": "stacked-bar",
+      "title": "Milestone completion",
+      "category": "projects[ProjectName]",
+      "value": "Latest Percent Complete"
+    },
+    {
+      "type": "narrative-card",
+      "title": "Delivery narrative",
+      "text": "Focus on late or at-risk work packages and highlight recovery actions."
+    }
+  ]
 }

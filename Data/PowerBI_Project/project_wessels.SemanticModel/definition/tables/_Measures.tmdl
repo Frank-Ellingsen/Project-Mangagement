@@ -1,0 +1,76 @@
+table _Measures
+	lineageTag: 7f5d6ada-8660-49e8-8359-c502f4714b0e
+
+	measure 'BAC' = SUM('wbs_elements'[PlannedCost])
+		formatString: "$#,##0.00"
+		lineageTag: 4d76a43f-4dc8-4609-bf73-3cb3026f4c9c
+
+	measure 'Actual Labor Cost' = SUM('timesheets'[LaborCost])
+		formatString: "$#,##0.00"
+		lineageTag: 7f58b8f5-7f87-4097-b89f-fd1df6c3c655
+
+	measure 'Actual Material Cost' = SUM('material_costs'[TotalActualCost])
+		formatString: "$#,##0.00"
+		lineageTag: 8c9f16df-0e0f-4c5c-b8b2-6168f4548b22
+
+	measure 'AC' = ['Actual Labor Cost'] + ['Actual Material Cost']
+		formatString: "$#,##0.00"
+		lineageTag: f5f96438-fce7-4d58-8b9f-2f355f8c7c36
+
+	measure 'Planned % Complete' = VAR StartDate = MIN('projects'[StartDate]) VAR EndDate = MAX('projects'[EndDate]) VAR CurrentDate = MAX('physical_progress'[RecordDate]) RETURN IF(EndDate <= StartDate,0,DIVIDE(DATEDIFF(StartDate,CurrentDate,DAY),DATEDIFF(StartDate,EndDate,DAY),0))
+		formatString: "0.00%"
+		lineageTag: 5bcf6c4b-6ef4-4585-842f-9a4e2bbff5ba
+
+	measure 'PV' = ['BAC'] * ['Planned % Complete']
+		formatString: "$#,##0.00"
+		lineageTag: 79de5f6c-0d23-480f-8baf-d9cbf7e4bdc4
+
+	measure 'Latest Percent Complete' = MAX('physical_progress'[PercentComplete])
+		formatString: "0.00%"
+		lineageTag: b7f19620-2c3c-44d3-9e02-4a39ea802f80
+
+	measure 'EV' = ['BAC'] * ['Latest Percent Complete']
+		formatString: "$#,##0.00"
+		lineageTag: 9ce94379-b0b6-4f4f-9a6f-4fc6f332d74d
+
+	measure 'SV' = ['EV'] - ['PV']
+		formatString: "$#,##0.00"
+		lineageTag: 95e99d55-5f53-47a4-9f2e-6bbc8e22af38
+
+	measure 'CV' = ['EV'] - ['AC']
+		formatString: "$#,##0.00"
+		lineageTag: 3b2f2c5e-cd57-4eb3-bbca-aa4f988b4f69
+
+	measure 'Variance RAG' = VAR Scenario = SELECTEDVALUE('ScenarioSelection'[Scenario], "Baseline") VAR CostVariancePct = DIVIDE(['CV'],['BAC'],0) VAR ScheduleVariancePct = DIVIDE(['SV'],['BAC'],0) VAR CostAmberThreshold = SWITCH(Scenario,"Conservative",0.08,"Baseline",0.12,"Aggressive",0.18,0.12) VAR CostRedThreshold = SWITCH(Scenario,"Conservative",0.15,"Baseline",0.20,"Aggressive",0.30,0.20) VAR ScheduleAmberThreshold = SWITCH(Scenario,"Conservative",0.05,"Baseline",0.10,"Aggressive",0.15,0.10) VAR ScheduleRedThreshold = SWITCH(Scenario,"Conservative",0.10,"Baseline",0.15,"Aggressive",0.25,0.15) RETURN SWITCH(TRUE(),ABS(CostVariancePct) >= CostRedThreshold || ABS(ScheduleVariancePct) >= ScheduleRedThreshold,"Red",ABS(CostVariancePct) >= CostAmberThreshold || ABS(ScheduleVariancePct) >= ScheduleAmberThreshold,"Amber","Green")
+		formatString: "@"
+		lineageTag: 6c654b95-f53c-4a14-9195-c87cad4f30de
+
+	measure 'CPI' = DIVIDE(['EV'], ['AC'], 1.0)
+		formatString: "0.00"
+		lineageTag: 4f8818d9-bf64-4d17-8974-0f39e0db1223
+
+	measure 'SPI' = DIVIDE(['EV'], ['PV'], 1.0)
+		formatString: "0.00"
+		lineageTag: 04d0e2b3-5ce3-4dd6-9f8b-434ddef5b7a8
+
+	measure 'EAC (Typical)' = DIVIDE(['BAC'], ['CPI'], ['BAC'])
+		formatString: "$#,##0.00"
+		lineageTag: b6c0eb64-c8d7-4b35-b082-1fb11ed7b1f0
+
+	measure 'EAC (Atypical)' = ['AC'] + (['BAC'] - ['EV'])
+		formatString: "$#,##0.00"
+		lineageTag: 70068812-972a-46b9-8ce5-3f6f10c6939d
+
+	measure 'VAC' = ['BAC'] - ['EAC (Typical)']
+		formatString: "$#,##0.00"
+		lineageTag: 2bc7f31b-66ab-45f8-9d84-f90a5f4dcb24
+
+	measure 'Budget Remaining' = ['BAC'] - ['AC']
+		formatString: "$#,##0.00"
+		lineageTag: 5f8bc744-2af3-4f78-b37e-4d67fa77227e
+
+	measure 'Percent Complete' = DIVIDE(['EV'], ['BAC'], 0)
+		formatString: "0.00%"
+		lineageTag: b28472c0-b1dc-4838-b993-6dc6f0b6f5df
+
+	annotation PBI_ResultType = Table

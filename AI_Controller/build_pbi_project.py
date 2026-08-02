@@ -55,16 +55,6 @@ def build_project_files():
     write_json(os.path.join(REPORT_DIR, "definition.pbitarget"), pbitarget_content)
 
     # 4. Richer report metadata
-    report_json_content = {
-        "version": "2.0",
-        "displayName": "Project Controlling Control Tower",
-        "description": "Executive EVM dashboard built for portfolio monitoring and delivery reporting.",
-        "defaultPage": "overview",
-        "theme": "Tufte"
-    }
-    write_json(os.path.join(REPORT_DIR, "definition", "report.json"), report_json_content)
-
-    # 5. Dashboard layout blueprint and pages
     page_specs = [
         {
             "id": "49e7f05a2a176419458c",
@@ -82,6 +72,52 @@ def build_project_files():
             "description": "Progress, milestones and delivery narrative"
         }
     ]
+    page_blueprints = [
+        {
+            "pageId": page_specs[0]["id"],
+            "displayName": page_specs[0]["displayName"],
+            "visuals": [
+                {"type": "kpi-card", "title": "Budget at Completion", "measure": "BAC"},
+                {"type": "kpi-card", "title": "Actual Cost", "measure": "AC"},
+                {"type": "kpi-card", "title": "Earned Value", "measure": "EV"},
+                {"type": "kpi-card", "title": "Percent Complete", "measure": "Latest Percent Complete"},
+                {"type": "bar-chart", "title": "Project status by status", "category": "projects[Status]", "value": "Latest Percent Complete"}
+            ]
+        },
+        {
+            "pageId": page_specs[1]["id"],
+            "displayName": page_specs[1]["displayName"],
+            "visuals": [
+                {"type": "line-chart", "title": "Cost and value trend", "xAxis": "physical_progress[RecordDate]", "value": "EV"},
+                {"type": "variance-card", "title": "Cost Variance", "measure": "CV"},
+                {"type": "variance-card", "title": "Schedule Variance", "measure": "SV"},
+                {"type": "variance-card", "title": "Overall RAG", "measure": "Variance RAG"},
+                {"type": "slicer", "title": "Scenario selector", "field": "ScenarioSelection[Scenario]", "placement": "top-right", "style": "button-group", "compact": True, "subtitle": "Choose Conservative, Baseline, or Aggressive", "emphasis": "high", "headerSize": "small"},
+                {"type": "variance-card", "title": "Cost Performance Index", "measure": "CPI"},
+                {"type": "variance-card", "title": "Schedule Performance Index", "measure": "SPI"}
+            ]
+        },
+        {
+            "pageId": page_specs[2]["id"],
+            "displayName": page_specs[2]["displayName"],
+            "visuals": [
+                {"type": "progress-table", "title": "WBS delivery status", "category": "wbs_elements[ElementName]", "value": "Latest Percent Complete"},
+                {"type": "stacked-bar", "title": "Milestone completion", "category": "projects[ProjectName]", "value": "Latest Percent Complete"},
+                {"type": "narrative-card", "title": "Delivery narrative", "text": "Focus on late or at-risk work packages and highlight recovery actions."}
+            ]
+        }
+    ]
+    report_json_content = {
+        "version": "2.0",
+        "displayName": "Project Controlling Control Tower",
+        "description": "Executive EVM dashboard built for portfolio monitoring and delivery reporting.",
+        "defaultPage": page_specs[0]["id"],
+        "theme": "Tufte",
+        "pageBlueprints": page_blueprints
+    }
+    write_json(os.path.join(REPORT_DIR, "definition", "report.json"), report_json_content)
+
+    # 5. Dashboard layout blueprint and pages
     write_json(
         os.path.join(REPORT_DIR, "definition", "pages", "pages.json"),
         {
@@ -93,6 +129,7 @@ def build_project_files():
     for page in page_specs:
         pdir = os.path.join(REPORT_DIR, "definition", "pages", page["id"])
         os.makedirs(pdir, exist_ok=True)
+        page_blueprint = next(item for item in page_blueprints if item["pageId"] == page["id"])
         write_json(
             os.path.join(pdir, "page.json"),
             {
@@ -102,7 +139,8 @@ def build_project_files():
                 "displayOption": "FitToPage",
                 "height": 720,
                 "width": 1280,
-                "description": page["description"]
+                "description": page["description"],
+                "visualBlueprint": page_blueprint["visuals"]
             }
         )
 
@@ -144,13 +182,24 @@ def build_project_files():
                         {"name": "Actual Material Cost", "expression": "SUM('material_costs'[TotalActualCost])", "formatString": "$#,##0.00"},
                         {"name": "AC", "expression": "[Actual Labor Cost] + [Actual Material Cost]", "formatString": "$#,##0.00"},
                         {"name": "Latest Percent Complete", "expression": "VAR SelectedDate = MAX('physical_progress'[RecordDate])\nRETURN\nSUMX(\n    VALUES('wbs_elements'[WBS_ID]),\n    VAR LatestWBSProgressDate = CALCULATE(MAX('physical_progress'[RecordDate]), 'physical_progress'[RecordDate] <= SelectedDate)\n    RETURN CALCULATE(MAX('physical_progress'[PercentComplete]), 'physical_progress'[RecordDate] = LatestWBSProgressDate)\n)", "formatString": "0.00%"},
+                        {"name": "Planned % Complete", "expression": "VAR StartDate = MIN('projects'[StartDate])\nVAR EndDate = MAX('projects'[EndDate])\nVAR CurrentDate = MAX('physical_progress'[RecordDate])\nRETURN\nIF(\n    EndDate <= StartDate,\n    0,\n    DIVIDE(DATEDIFF(StartDate, CurrentDate, DAY), DATEDIFF(StartDate, EndDate, DAY), 0)\n)", "formatString": "0.00%"},
                         {"name": "EV", "expression": "SUMX(VALUES('wbs_elements'[WBS_ID]), [BAC] * [Latest Percent Complete])", "formatString": "$#,##0.00"},
+                        {"name": "PV", "expression": "[BAC] * [Planned % Complete]", "formatString": "$#,##0.00"},
+                        {"name": "SV", "expression": "[EV] - [PV]", "formatString": "$#,##0.00"},
                         {"name": "CV", "expression": "[EV] - [AC]", "formatString": "$#,##0.00"},
+                        {"name": "Variance RAG", "expression": "VAR Scenario = \"Baseline\"\nVAR CostVariancePct = DIVIDE([CV], [BAC], 0)\nVAR ScheduleVariancePct = DIVIDE([SV], [BAC], 0)\nVAR CostAmberThreshold = SWITCH(Scenario, \"Conservative\", 0.08, \"Baseline\", 0.12, \"Aggressive\", 0.18, 0.12)\nVAR CostRedThreshold = SWITCH(Scenario, \"Conservative\", 0.15, \"Baseline\", 0.20, \"Aggressive\", 0.30, 0.20)\nVAR ScheduleAmberThreshold = SWITCH(Scenario, \"Conservative\", 0.05, \"Baseline\", 0.10, \"Aggressive\", 0.15, 0.10)\nVAR ScheduleRedThreshold = SWITCH(Scenario, \"Conservative\", 0.10, \"Baseline\", 0.15, \"Aggressive\", 0.25, 0.15)\nRETURN\nSWITCH(\n    TRUE(),\n    ABS(CostVariancePct) >= CostRedThreshold || ABS(ScheduleVariancePct) >= ScheduleRedThreshold, \"Red\",\n    ABS(CostVariancePct) >= CostAmberThreshold || ABS(ScheduleVariancePct) >= ScheduleAmberThreshold, \"Amber\",\n    \"Green\"\n)", "formatString": "@"},
                         {"name": "CPI", "expression": "DIVIDE([EV], [AC], 1.0)", "formatString": "0.00"},
                         {"name": "SPI", "expression": "DIVIDE([EV], [BAC], 1.0)", "formatString": "0.00"},
                         {"name": "EAC (Typical)", "expression": "DIVIDE([BAC], [CPI], [BAC])", "formatString": "$#,##0.00"},
                         {"name": "VAC", "expression": "[BAC] - [EAC (Typical)]", "formatString": "$#,##0.00"}
                     ]
+                },
+                {
+                    "name": "ScenarioSelection",
+                    "columns": [
+                        {"name": "Scenario", "dataType": "string", "sourceColumn": "Scenario"}
+                    ],
+                    "partitions": [{"name": "ScenarioSelection-Partition", "source": {"type": "m", "expression": "let\n    Source = #table({\"Scenario\"}, {{\"Conservative\"}, {\"Baseline\"}, {\"Aggressive\"}})\nin\n    Source"}}]
                 },
                 {
                     "name": "projects",
@@ -245,7 +294,7 @@ def build_project_files():
             "Executive narrative over decoration"
         ],
         "pages": page_specs,
-        "coreMeasures": ["BAC", "AC", "EV", "CV", "CPI", "SPI", "EAC (Typical)", "VAC", "Latest Percent Complete"],
+        "coreMeasures": ["BAC", "AC", "EV", "PV", "SV", "CV", "Variance RAG", "CPI", "SPI", "EAC (Typical)", "VAC", "Latest Percent Complete"],
         "dataSources": ["projects", "wbs_elements", "timesheets", "material_costs", "physical_progress", "resources"]
     }
     write_json(os.path.join(PBI_DIR, "dashboard_structure.json"), dashboard_blueprint)

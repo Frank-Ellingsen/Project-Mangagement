@@ -9,10 +9,12 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBI_QueryOrder = ["material_costs","physical_progress","projects","raid_log","resource_assignments","resources","timesheets","wbs_elements"]
+annotation PBI_QueryOrder = ["material_costs","physical_progress","projects","raid_log","resource_assignments","resources","timesheets","wbs_elements","_Measures"]
 
-annotation PBI_ProTooling = ["DevMode"]
+annotation PBI_ProTooling = ["DevMode","TMDL-Extension"]
 
+ref table _Measures
+ref table ScenarioSelection
 ref table material_costs
 ref table DateTableTemplate_56d145d5-a576-413c-9286-68c5131d145c
 ref table LocalDateTable_89a78e20-cebc-4de5-8973-aae4471d1bd6
