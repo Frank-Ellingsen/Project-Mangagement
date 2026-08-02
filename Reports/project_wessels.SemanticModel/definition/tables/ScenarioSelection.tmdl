@@ -1,0 +1,13 @@
+table ScenarioSelection
+
+	column Scenario
+		dataType: string
+		sourceColumn: Scenario
+
+	partition ScenarioSelection-Partition = m
+		mode: import
+		source =
+				let
+				    Source = #table({"Scenario"}, {{"Conservative"}, {"Baseline"}, {"Aggressive"}})
+				in
+				    Source

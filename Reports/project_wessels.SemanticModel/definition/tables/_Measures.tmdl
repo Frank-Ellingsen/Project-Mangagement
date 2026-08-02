@@ -1,0 +1,131 @@
+table _Measures
+
+	measure BAC = SUM('wbs_elements'[PlannedCost])
+		formatString: "$#,##0.00"
+
+	measure 'Actual Labor Cost' = SUM('timesheets'[LaborCost])
+		formatString: "$#,##0.00"
+
+	measure 'Actual Material Cost' = SUM('material_costs'[TotalActualCost])
+		formatString: "$#,##0.00"
+
+	measure AC = [Actual Labor Cost] + [Actual Material Cost]
+		formatString: "$#,##0.00"
+
+	measure 'Latest Percent Complete' = 
+			VAR SelectedDate = MAX('physical_progress'[RecordDate])
+			RETURN
+			SUMX(
+			    VALUES('wbs_elements'[WBS_ID]),
+			    VAR LatestWBSProgressDate = CALCULATE(MAX('physical_progress'[RecordDate]), 'physical_progress'[RecordDate] <= SelectedDate)
+			    VAR LatestWBSProgress = CALCULATE(MAX('physical_progress'[PercentComplete]), 'physical_progress'[RecordDate] = LatestWBSProgressDate)
+			    RETURN COALESCE(VALUE(LatestWBSProgress), 0)
+			)
+		formatString: "0.00%"
+
+	measure 'Planned % Complete' = 
+			VAR StartDate = MIN('projects'[StartDate])
+			VAR EndDate = MAX('projects'[EndDate])
+			VAR CurrentDate = MAX('physical_progress'[RecordDate])
+			VAR RawProgress = DIVIDE(DATEDIFF(StartDate, CurrentDate, DAY), DATEDIFF(StartDate, EndDate, DAY), 0)
+			RETURN
+			IF(
+			    EndDate <= StartDate,
+			    0,
+			    MIN(1, MAX(0, RawProgress))
+			)
+		formatString: "0.00%"
+
+	measure EV = SUMX(VALUES('wbs_elements'[WBS_ID]), [BAC] * [Latest Percent Complete])
+		formatString: "$#,##0.00"
+
+	measure PV = [BAC] * [Planned % Complete]
+		formatString: "$#,##0.00"
+
+	measure SV = [EV] - [PV]
+		formatString: "$#,##0.00"
+
+	measure CV = [EV] - [AC]
+		formatString: "$#,##0.00"
+
+	measure 'Variance RAG' = 
+			VAR Scenario = SELECTEDVALUE(ScenarioSelection[Scenario], "Baseline")
+			VAR CostVariancePct = DIVIDE([CV], [BAC], 0)
+			VAR ScheduleVariancePct = DIVIDE([SV], [BAC], 0)
+			VAR CostAmberThreshold = SWITCH(Scenario, "Conservative", 0.08, "Baseline", 0.12, "Aggressive", 0.18, 0.12)
+			VAR CostRedThreshold = SWITCH(Scenario, "Conservative", 0.15, "Baseline", 0.20, "Aggressive", 0.30, 0.20)
+			VAR ScheduleAmberThreshold = SWITCH(Scenario, "Conservative", 0.05, "Baseline", 0.10, "Aggressive", 0.15, 0.10)
+			VAR ScheduleRedThreshold = SWITCH(Scenario, "Conservative", 0.10, "Baseline", 0.15, "Aggressive", 0.25, 0.15)
+			RETURN
+			SWITCH(
+			    TRUE(),
+			    ABS(CostVariancePct) >= CostRedThreshold || ABS(ScheduleVariancePct) >= ScheduleRedThreshold, "Red",
+			    ABS(CostVariancePct) >= CostAmberThreshold || ABS(ScheduleVariancePct) >= ScheduleAmberThreshold, "Amber",
+			    "Green"
+			)
+		formatString: "@"
+
+	measure CPI = DIVIDE([EV], [AC], 1.0)
+		formatString: "0.00"
+
+	measure SPI = DIVIDE([EV], [PV], 1.0)
+		formatString: "0.00"
+
+	measure 'EAC (Typical)' = DIVIDE([BAC], [CPI], [BAC])
+		formatString: "$#,##0.00"
+
+	measure 'EAC (Atypical)' = [AC] + ([BAC] - [EV])
+		formatString: "$#,##0.00"
+
+	measure ETC = [EAC (Typical)] - [AC]
+		formatString: "$#,##0.00"
+
+	measure VAC = [BAC] - [EAC (Typical)]
+		formatString: "$#,##0.00"
+
+	measure 'Risk Count' = COUNTROWS('raid_log')
+		formatString: "#,##0"
+
+	measure 'Actual Hours' = SUM('timesheets'[HoursWorked])
+		formatString: "#,##0"
+
+	measure 'Planned Hours' = SUM('wbs_elements'[PlannedHours])
+		formatString: "#,##0"
+
+	measure 'Manpower Count' = DISTINCTCOUNT('timesheets'[ResourceID])
+		formatString: "#,##0"
+
+	measure 'Crew Utilization %' = DIVIDE([Actual Hours], [Planned Hours])
+		formatString: "0.00%"
+
+	measure 'Productivity Index' = DIVIDE([Latest Percent Complete], [Actual Hours])
+		formatString: "0.00%"
+
+	measure 'Total Risks' = CALCULATE(COUNTROWS('raid_log'), 'raid_log'[Type] = "Risk")
+		formatString: "#,##0"
+
+	measure 'High Risks' = CALCULATE(COUNTROWS('raid_log'), 'raid_log'[Type] = "Risk" && 'raid_log'[Impact] = "High")
+		formatString: "#,##0"
+
+	measure 'Open Issues' = CALCULATE(COUNTROWS('raid_log'), 'raid_log'[Type] = "Issue" && 'raid_log'[Status] = "Active")
+		formatString: "#,##0"
+
+	measure 'Project Health Score' = ([Latest Percent Complete] * 0.6) + ([SPI] * 0.2) + ([CPI] * 0.2)
+		formatString: "0.00%"
+
+	measure 'Overall Status' = SWITCH(TRUE(), [Project Health Score] >= 0.85, "On Track", [Project Health Score] >= 0.70, "At Risk", "Delayed")
+		formatString: "@"
+
+	column MeasurePlaceholder
+		dataType: int64
+		isHidden
+		sourceColumn: MeasurePlaceholder
+
+	partition MeasuresPartition = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [MeasurePlaceholder = _t]),
+                    Type = Table.TransformColumnTypes(Source,{{"MeasurePlaceholder", Int64.Type}})
+				in
+				    Type

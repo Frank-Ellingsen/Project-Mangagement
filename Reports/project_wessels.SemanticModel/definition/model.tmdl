@@ -2,31 +2,15 @@ model Model
 	culture: en-US
 	defaultPowerBIDataSourceVersion: powerBI_V3
 	sourceQueryCulture: en-US
-	valueFilterBehavior: independent
-	dataAccessOptions
-		legacyRedirects
-		returnErrorValuesAsNull
 
-annotation __PBI_TimeIntelligenceEnabled = 1
-
-annotation PBI_QueryOrder = ["material_costs","physical_progress","projects","raid_log","resource_assignments","resources","timesheets","wbs_elements"]
-
-annotation PBI_ProTooling = ["DevMode"]
-
-ref table material_costs
-ref table DateTableTemplate_56d145d5-a576-413c-9286-68c5131d145c
-ref table LocalDateTable_89a78e20-cebc-4de5-8973-aae4471d1bd6
-ref table physical_progress
-ref table LocalDateTable_232bb450-0792-4163-807f-75670889b5b0
+ref table _Measures
+ref table ScenarioSelection
 ref table projects
-ref table LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a
-ref table LocalDateTable_bf72194c-77a7-451a-a50b-2500ed598415
-ref table raid_log
-ref table resource_assignments
+ref table wbs_elements
 ref table resources
 ref table timesheets
-ref table LocalDateTable_4d534e28-6860-422d-88ab-bfbd4a58ad66
-ref table wbs_elements
+ref table material_costs
+ref table physical_progress
+ref table raid_log
 
 ref cultureInfo en-US
-

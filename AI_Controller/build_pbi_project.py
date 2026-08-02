@@ -4,7 +4,7 @@ import shutil
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PBI_DIR = os.path.join(BASE_DIR, "Data", "PowerBI_Project")
+PBI_DIR = os.path.join(BASE_DIR, "Reports")
 PBI_NAME = "project_wessels"
 SEM_MODEL_DIR = os.path.join(PBI_DIR, f"{PBI_NAME}.SemanticModel")
 REPORT_DIR = os.path.join(PBI_DIR, f"{PBI_NAME}.Report")
@@ -32,26 +32,19 @@ def build_project_files():
     pbip_content = {
         "version": "1.0",
         "artifacts": [
-            {"report": {"path": f"{PBI_NAME}.Report"}},
-            {"semanticModel": {"path": f"{PBI_NAME}.SemanticModel"}}
+            {"report": {"path": f"{PBI_NAME}.Report"}}
         ],
         "settings": {
-            "enableAutoRecovery": True,
-            "reportRegistry": {
-                f"{PBI_NAME}.Report": {
-                    "reportId": "00000000-0000-0000-0000-000000000000"
-                }
-            }
+            "enableAutoRecovery": True
         }
     }
     write_json(os.path.join(PBI_DIR, f"{PBI_NAME}.pbip"), pbip_content)
 
-    # 2. Semantic Model definition pointing to TMDL format
-    pbidataset_content = {
-        "version": "1.0",
-        "dataset": {"path": "."}
-    }
-    write_json(os.path.join(SEM_MODEL_DIR, "definition.pbidataset"), pbidataset_content)
+    # 2. Clean legacy/conflicting semantic model descriptors
+    pbidataset_path = os.path.join(SEM_MODEL_DIR, "definition.pbidataset")
+    if os.path.exists(pbidataset_path):
+        os.remove(pbidataset_path)
+        print("Removed conflicting definition.pbidataset file.")
 
     # Clean legacy model.bim if it exists to avoid conflicts
     model_bim_path = os.path.join(SEM_MODEL_DIR, "model.bim")
@@ -66,127 +59,935 @@ def build_project_files():
     }
     write_json(os.path.join(REPORT_DIR, "definition.pbitarget"), pbitarget_content)
 
+    # 3b. Report definition properties
+    definition_pbir_content = {
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+        "version": "4.0",
+        "datasetReference": {
+            "byPath": {
+                "path": f"../{PBI_NAME}.SemanticModel"
+            }
+        }
+    }
+    write_json(os.path.join(REPORT_DIR, "definition.pbir"), definition_pbir_content)
+
     # 4. Report metadata
     page_specs = [
         {
-            "id": "49e7f05a2a176419458c",
+            "id": "ReportSection",
             "displayName": "Executive Overview",
             "description": "Portfolio health, KPI cards and milestone status"
         },
         {
-            "id": "6b41b695c9024ef09170c164e6d39b9f",
+            "id": "ReportSection1",
             "displayName": "Financial Control",
             "description": "CPI, CV, EAC and S-curve trend analysis"
         },
         {
-            "id": "8ed314e6a2da43fdaf1b63ef8e4f52d9c",
+            "id": "ReportSection2",
             "displayName": "Client Delivery",
             "description": "Progress, milestones and delivery narrative"
-        }
-    ]
-    page_blueprints = [
-        {
-            "pageId": page_specs[0]["id"],
-            "displayName": page_specs[0]["displayName"],
-            "visuals": [
-                {"type": "kpi-card", "title": "Budget at Completion", "measure": "BAC"},
-                {"type": "kpi-card", "title": "Actual Cost", "measure": "AC"},
-                {"type": "kpi-card", "title": "Earned Value", "measure": "EV"},
-                {"type": "kpi-card", "title": "Percent Complete", "measure": "Latest Percent Complete"},
-                {"type": "bar-chart", "title": "Project status by status", "category": "projects[Status]", "value": "Latest Percent Complete"},
-                {
-                    "type": "summary-table",
-                    "title": "Milestone delivery snapshot",
-                    "fields": ["projects[ProjectName]", "Latest Percent Complete", "Variance RAG"]
-                }
-            ]
         },
         {
-            "pageId": page_specs[1]["id"],
-            "displayName": page_specs[1]["displayName"],
-            "visuals": [
-                {
-                    "type": "kpi-row",
-                    "title": "Financial headline KPIs",
-                    "measures": ["BAC", "AC", "EV", "CV", "SV"]
-                },
-                {
-                    "type": "slicer",
-                    "title": "Scenario selector",
-                    "field": "ScenarioSelection[Scenario]",
-                    "placement": "top-right",
-                    "style": "button-group",
-                    "compact": True,
-                    "selectionMode": "single"
-                },
-                {
-                    "type": "line-chart",
-                    "title": "Cost and value trend",
-                    "xAxis": "physical_progress[RecordDate]",
-                    "values": ["PV", "EV", "AC"],
-                    "lineStyles": {"PV": "dotted", "EV": "solid", "AC": "solid"},
-                    "directLabels": True
-                },
-                {
-                    "type": "table",
-                    "title": "WBS element performance",
-                    "fields": ["wbs_elements[WBS_Code]", "wbs_elements[ElementName]", "BAC", "AC", "EV", "CPI"]
-                },
-                {"type": "variance-card", "title": "Cost Variance", "measure": "CV"},
-                {"type": "variance-card", "title": "Schedule Variance", "measure": "SV"},
-                {"type": "variance-card", "title": "Overall RAG", "measure": "Variance RAG"},
-                {"type": "variance-card", "title": "Cost Performance Index", "measure": "CPI"},
-                {"type": "variance-card", "title": "Schedule Performance Index", "measure": "SPI"},
-                {
-                    "type": "narrative-card",
-                    "title": "Control narrative & variance highlights",
-                    "text": "Use scenario-adjusted thresholds to explain CV/SV movements and required corrective actions."
-                }
-            ]
-        },
-        {
-            "pageId": page_specs[2]["id"],
-            "displayName": page_specs[2]["displayName"],
-            "visuals": [
-                {"type": "progress-table", "title": "WBS delivery status", "category": "wbs_elements[ElementName]", "value": "Latest Percent Complete"},
-                {"type": "stacked-bar", "title": "Milestone completion", "category": "projects[ProjectName]", "value": "Latest Percent Complete"},
-                {
-                    "type": "matrix",
-                    "title": "Resource utilization",
-                    "rows": ["resources[Role]"],
-                    "columns": ["projects[ProjectName]"],
-                    "value": "AC"
-                },
-                {"type": "narrative-card", "title": "Delivery narrative", "text": "Focus on late or at-risk work packages and highlight recovery actions."}
-            ]
+            "id": "ReportSection3",
+            "displayName": "Risk & Issues (RAID)",
+            "description": "Risk matrix, Kanban status flow, and mitigation log"
         }
     ]
     report_json_content = {
-        "version": "2.0",
-        "displayName": "Project Controlling Control Tower",
-        "description": "Executive EVM dashboard built for portfolio monitoring and delivery reporting.",
-        "defaultPage": page_specs[0]["id"],
-        "theme": "Tufte",
-        "authoringMode": "BlueprintPlus",
-        "pageBlueprints": page_blueprints
+        "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
+        "themeCollection": {
+            "baseTheme": {
+                "name": "CY26SU07",
+                "reportVersionAtImport": {
+                    "visual": "2.11.0",
+                    "report": "3.4.0",
+                    "page": "2.3.1"
+                },
+                "type": "SharedResources"
+            }
+        },
+        "objects": {
+            "section": [
+                {
+                    "properties": {
+                        "verticalAlignment": {
+                            "expr": {
+                                "Literal": {
+                                    "Value": "'Top'"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "resourcePackages": [
+            {
+                "name": "SharedResources",
+                "type": "SharedResources",
+                "items": [
+                    {
+                        "name": "CY26SU07",
+                        "path": "BaseThemes/CY26SU07.json",
+                        "type": "BaseTheme"
+                    }
+                ]
+            }
+        ],
+        "settings": {
+            "useStylableVisualContainerHeader": True,
+            "exportDataMode": "AllowSummarized",
+            "defaultDrillFilterOtherVisuals": True,
+            "allowChangeFilterTypes": True,
+            "useEnhancedTooltips": True,
+            "useDefaultAggregateDisplayName": True
+        }
     }
     os.makedirs(os.path.join(REPORT_DIR, "definition"), exist_ok=True)
+    write_json(
+        os.path.join(REPORT_DIR, "definition", "version.json"),
+        {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json",
+            "version": "2.0.0"
+        }
+    )
     write_json(os.path.join(REPORT_DIR, "definition", "report.json"), report_json_content)
 
     # 5. Dashboard layout blueprint and pages
-    os.makedirs(os.path.join(REPORT_DIR, "definition", "pages"), exist_ok=True)
+    pages_root = os.path.join(REPORT_DIR, "definition", "pages")
+    if os.path.exists(pages_root):
+        shutil.rmtree(pages_root)
+    os.makedirs(pages_root, exist_ok=True)
     write_json(
-        os.path.join(REPORT_DIR, "definition", "pages", "pages.json"),
+        os.path.join(pages_root, "pages.json"),
         {
             "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
             "pageOrder": [page["id"] for page in page_specs],
             "activePageName": page_specs[0]["id"]
         }
     )
+
+    def measure_projection(measure_name):
+        return {
+            "field": {
+                "Measure": {
+                    "Expression": {
+                        "SourceRef": {
+                            "Entity": "_Measures"
+                        }
+                    },
+                    "Property": measure_name
+                }
+            },
+            "queryRef": f"_Measures.{measure_name}",
+            "nativeQueryRef": measure_name
+        }
+
+    def column_projection(entity, column_name, active=False):
+        projection = {
+            "field": {
+                "Column": {
+                    "Expression": {
+                        "SourceRef": {
+                            "Entity": entity
+                        }
+                    },
+                    "Property": column_name
+                }
+            },
+            "queryRef": f"{entity}.{column_name}",
+            "nativeQueryRef": column_name
+        }
+        if active:
+            projection["active"] = True
+        return projection
+
+    def textbox_visual(visual_id, x, y, width, height, text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "textbox",
+                "objects": {
+                    "general": [
+                        {
+                            "properties": {
+                                "paragraphs": [
+                                    {
+                                        "textRuns": [
+                                            {
+                                                "value": text,
+                                                "textStyle": {
+                                                    "fontFamily": "Segoe UI Semibold",
+                                                    "fontSize": "18px",
+                                                    "color": "#1F2937"
+                                                }
+                                            }
+                                        ],
+                                        "horizontalTextAlignment": "left"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "visualContainerObjects": {
+                    "background": [
+                        {
+                            "properties": {
+                                "show": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "false"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "border": [
+                        {
+                            "properties": {
+                                "show": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "false"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def card_visual(visual_id, x, y, width, height, measure_names, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "cardVisual",
+                "query": {
+                    "queryState": {
+                        "Data": {
+                            "projections": [measure_projection(name) for name in measure_names]
+                        }
+                    }
+                }
+            }
+        }
+
+    def clustered_bar_visual(visual_id, x, y, width, height, category_entity, category_column, measure_name, title_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "clusteredBarChart",
+                "query": {
+                    "queryState": {
+                        "Category": {
+                            "projections": [column_projection(category_entity, category_column, True)]
+                        },
+                        "Y": {
+                            "projections": [measure_projection(measure_name)]
+                        }
+                    }
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                },
+                                "text": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": f"'{title_text}'"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def line_visual(visual_id, x, y, width, height, category_entity, category_column, measure_names, title_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "lineChart",
+                "query": {
+                    "queryState": {
+                        "Category": {
+                            "projections": [column_projection(category_entity, category_column, True)]
+                        },
+                        "Y": {
+                            "projections": [measure_projection(name) for name in measure_names]
+                        }
+                    }
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                },
+                                "text": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": f"'{title_text}'"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def table_visual(visual_id, x, y, width, height, fields, title_text, tab_order, z_order):
+        projections = []
+        for field in fields:
+            if field["kind"] == "column":
+                projections.append(column_projection(field["entity"], field["name"]))
+            else:
+                projections.append(measure_projection(field["name"]))
+
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "tableEx",
+                "query": {
+                    "queryState": {
+                        "Values": {
+                            "projections": projections
+                        }
+                    }
+                },
+                "objects": {
+                    "columnHeaders": [
+                        {
+                            "properties": {
+                                "columnAdjustment": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "'growToFit'"
+                                        }
+                                    }
+                                },
+                                "autoSizeColumnWidth": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                },
+                                "text": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": f"'{title_text}'"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def pivot_visual(visual_id, x, y, width, height, row_field, column_field, measure_name, title_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "pivotTable",
+                "query": {
+                    "queryState": {
+                        "Rows": {
+                            "projections": [column_projection(row_field["entity"], row_field["name"])]
+                        },
+                        "Columns": {
+                            "projections": [column_projection(column_field["entity"], column_field["name"])]
+                        },
+                        "Values": {
+                            "projections": [measure_projection(measure_name)]
+                        }
+                    }
+                },
+                "objects": {
+                    "columnHeaders": [
+                        {
+                            "properties": {
+                                "columnAdjustment": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "'growToFit'"
+                                        }
+                                    }
+                                },
+                                "autoSizeColumnWidth": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                },
+                                "text": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": f"'{title_text}'"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def slicer_dropdown_visual(visual_id, x, y, width, height, entity, column_name, header_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "slicer",
+                "query": {
+                    "queryState": {
+                        "Values": {
+                            "projections": [column_projection(entity, column_name)]
+                        }
+                    }
+                },
+                "objects": {
+                    "data": [
+                        {
+                            "properties": {
+                                "mode": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "'Dropdown'"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "header": [
+                        {
+                            "properties": {
+                                "show": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                },
+                                "text": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": f"'{header_text}'"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
+                "visualContainerObjects": {
+                    "padding": [
+                        {
+                            "properties": {
+                                "top": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "8D"
+                                        }
+                                    }
+                                },
+                                "bottom": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "8D"
+                                        }
+                                    }
+                                },
+                                "left": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "8D"
+                                        }
+                                    }
+                                },
+                                "right": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "8D"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def donut_visual(visual_id, x, y, width, height, category_entity, category_column, measure_name, title_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "donutChart",
+                "query": {
+                    "queryState": {
+                        "Legend": {
+                            "projections": [column_projection(category_entity, category_column, True)]
+                        },
+                        "Y": {
+                            "projections": [measure_projection(measure_name)]
+                        }
+                    }
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": { "expr": { "Literal": { "Value": "true" } } },
+                                "text": { "expr": { "Literal": { "Value": f"'{title_text}'" } } }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def waterfall_visual(visual_id, x, y, width, height, category_entity, category_column, measure_name, title_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "waterfallChart",
+                "query": {
+                    "queryState": {
+                        "Category": {
+                            "projections": [column_projection(category_entity, category_column, True)]
+                        },
+                        "Y": {
+                            "projections": [measure_projection(measure_name)]
+                        }
+                    }
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": { "expr": { "Literal": { "Value": "true" } } },
+                                "text": { "expr": { "Literal": { "Value": f"'{title_text}'" } } }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def matrix_visual(visual_id, x, y, width, height, row_fields, measure_names, title_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "matrix",
+                "query": {
+                    "queryState": {
+                        "Rows": {
+                            "projections": [column_projection(field["entity"], field["name"]) for field in row_fields]
+                        },
+                        "Values": {
+                            "projections": [measure_projection(name) for name in measure_names]
+                        }
+                    }
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": { "expr": { "Literal": { "Value": "true" } } },
+                                "text": { "expr": { "Literal": { "Value": f"'{title_text}'" } } }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    def gantt_visual(visual_id, x, y, width, height, task_entity, task_column, start_column, end_column, percent_complete_measure, title_text, tab_order, z_order):
+        return {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+            "name": visual_id,
+            "position": {
+                "x": x,
+                "y": y,
+                "z": z_order,
+                "height": height,
+                "width": width,
+                "tabOrder": tab_order
+            },
+            "visual": {
+                "visualType": "gantt",
+                "query": {
+                    "queryState": {
+                        "Task": {
+                            "projections": [column_projection(task_entity, task_column)]
+                        },
+                        "StartDate": {
+                            "projections": [column_projection(task_entity, start_column)]
+                        },
+                        "EndDate": {
+                            "projections": [column_projection(task_entity, end_column)]
+                        },
+                        "PercentComplete": {
+                            "projections": [measure_projection(percent_complete_measure)]
+                        }
+                    }
+                },
+                "visualContainerObjects": {
+                    "title": [
+                        {
+                            "properties": {
+                                "show": { "expr": { "Literal": { "Value": "true" } } },
+                                "text": { "expr": { "Literal": { "Value": f"'{title_text}'" } } }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+
+    page_visuals = {
+        page_specs[0]["id"]: [
+            textbox_visual("49e7f05a2a1764190001", 20, 16, 900, 56, "Executive Overview", 0, 1000),
+            card_visual("49e7f05a2a1764190002", 20, 84, 300, 110, ["BAC"], 1, 1001),
+            card_visual("49e7f05a2a1764190003", 340, 84, 300, 110, ["AC"], 2, 1002),
+            card_visual("49e7f05a2a1764190004", 660, 84, 300, 110, ["EV"], 3, 1003),
+            card_visual("49e7f05a2a1764190005", 980, 84, 280, 110, ["Latest Percent Complete"], 4, 1004),
+            clustered_bar_visual("49e7f05a2a1764190006", 20, 214, 620, 300, "projects", "ProjectName", "Latest Percent Complete", "Project status completion", 5, 1005),
+            table_visual(
+                "49e7f05a2a1764190007",
+                660,
+                214,
+                600,
+                300,
+                [
+                    {"kind": "column", "entity": "projects", "name": "ProjectName"},
+                    {"kind": "measure", "name": "Latest Percent Complete"},
+                    {"kind": "measure", "name": "Variance RAG"}
+                ],
+                "Milestone delivery snapshot",
+                6,
+                1006
+            ),
+            gantt_visual(
+                "49e7f05a2a1764190008",
+                20,
+                530,
+                620,
+                180,
+                "projects",
+                "ProjectName",
+                "StartDate",
+                "EndDate",
+                "Latest Percent Complete",
+                "Gantt of Gantts (Project Timeline Overview)",
+                7,
+                1007
+            ),
+            donut_visual(
+                "49e7f05a2a1764190009",
+                660,
+                530,
+                600,
+                180,
+                "projects",
+                "ProjectName",
+                "Latest Percent Complete",
+                "Donut chart of % completion by Project",
+                8,
+                1008
+            )
+        ],
+        page_specs[1]["id"]: [
+            textbox_visual("6b41b695c9024ef00001", 20, 16, 900, 56, "Financial Control", 0, 1000),
+            card_visual("6b41b695c9024ef00002", 20, 84, 900, 110, ["BAC", "AC", "EV", "CV", "SV"], 1, 1001),
+            slicer_dropdown_visual("6b41b695c9024ef00003", 940, 84, 320, 80, "ScenarioSelection", "Scenario", "Scenario selector", 2, 1002),
+            line_visual("6b41b695c9024ef00004", 20, 214, 760, 260, "physical_progress", "RecordDate", ["PV", "EV", "AC"], "Cost and value trend", 3, 1003),
+            table_visual(
+                "6b41b695c9024ef00005",
+                800,
+                214,
+                460,
+                420,
+                [
+                    {"kind": "column", "entity": "wbs_elements", "name": "WBS_Code"},
+                    {"kind": "column", "entity": "wbs_elements", "name": "ElementName"},
+                    {"kind": "measure", "name": "BAC"},
+                    {"kind": "measure", "name": "AC"},
+                    {"kind": "measure", "name": "EV"},
+                    {"kind": "measure", "name": "CPI"}
+                ],
+                "WBS element performance",
+                4,
+                1004
+            ),
+            waterfall_visual(
+                "6b41b695c9024ef00007",
+                20,
+                490,
+                760,
+                210,
+                "projects",
+                "ProjectName",
+                "CV",
+                "Cost Variance (CV) Waterfall",
+                6,
+                1006
+            ),
+            textbox_visual("6b41b695c9024ef00006", 800, 650, 460, 50, "Control narrative: review CV/SV trend and apply corrective actions.", 5, 1005)
+        ],
+        page_specs[2]["id"]: [
+            textbox_visual("8ed314e6a2da43fd0001", 20, 16, 900, 56, "Client Delivery", 0, 1000),
+            clustered_bar_visual("8ed314e6a2da43fd0002", 20, 84, 620, 250, "wbs_elements", "ElementName", "Latest Percent Complete", "WBS delivery status", 1, 1001),
+            pivot_visual(
+                "8ed314e6a2da43fd0003",
+                660,
+                84,
+                600,
+                250,
+                {"entity": "resources", "name": "Role"},
+                {"entity": "projects", "name": "ProjectName"},
+                "AC",
+                "Resource utilization",
+                2,
+                1002
+            ),
+            table_visual(
+                "8ed314e6a2da43fd0004",
+                20,
+                350,
+                620,
+                200,
+                [
+                    {"kind": "column", "entity": "projects", "name": "ProjectName"},
+                    {"kind": "column", "entity": "projects", "name": "Status"},
+                    {"kind": "measure", "name": "Latest Percent Complete"},
+                    {"kind": "measure", "name": "Variance RAG"}
+                ],
+                "Project delivery status",
+                3,
+                1003
+            ),
+            gantt_visual(
+                "8ed314e6a2da43fd0007",
+                660,
+                350,
+                600,
+                200,
+                "projects",
+                "ProjectName",
+                "StartDate",
+                "EndDate",
+                "Latest Percent Complete",
+                "WBS Gantt Timeline View",
+                6,
+                1006
+            ),
+            matrix_visual(
+                "8ed314e6a2da43fd0006",
+                20,
+                565,
+                940,
+                140,
+                [
+                    {"entity": "projects", "name": "ProjectName"},
+                    {"entity": "wbs_elements", "name": "WBS_Code"},
+                    {"entity": "wbs_elements", "name": "ElementName"}
+                ],
+                ["BAC", "AC", "Latest Percent Complete", "Variance RAG"],
+                "Hierarchical WBS breakdown from Projects",
+                5,
+                1005
+            ),
+            textbox_visual("8ed314e6a2da43fd0005", 980, 565, 280, 140, "Delivery narrative: focus on late packages and resource bottlenecks.", 4, 1004)
+        ],
+        page_specs[3]["id"]: [
+            textbox_visual("8ed314e6a2da43fd0008", 20, 16, 900, 56, "Risk & Issues (RAID) Management", 0, 1000),
+            donut_visual("8ed314e6a2da43fd0010", 20, 84, 400, 200, "raid_log", "Type", "Risk Count", "RAID Items by Type", 1, 1001),
+            pivot_visual(
+                "8ed314e6a2da43fd0011",
+                440,
+                84,
+                820,
+                200,
+                {"entity": "raid_log", "name": "Impact"},
+                {"entity": "raid_log", "name": "Probability"},
+                "Risk Count",
+                "Risk Matrix (Severity vs Probability)",
+                2,
+                1002
+            ),
+            table_visual(
+                "8ed314e6a2da43fd0012",
+                20,
+                300,
+                1240,
+                400,
+                [
+                    {"kind": "column", "entity": "raid_log", "name": "Status"},
+                    {"kind": "column", "entity": "raid_log", "name": "Type"},
+                    {"kind": "column", "entity": "raid_log", "name": "RiskID"},
+                    {"kind": "column", "entity": "raid_log", "name": "Description"},
+                    {"kind": "column", "entity": "raid_log", "name": "MitigationStrategy"},
+                    {"kind": "column", "entity": "raid_log", "name": "Owner"}
+                ],
+                "RAID Item Mitigation & Assumptions Log",
+                3,
+                1003
+            )
+        ]
+    }
+
     for page in page_specs:
         pdir = os.path.join(REPORT_DIR, "definition", "pages", page["id"])
+        if os.path.exists(pdir):
+            shutil.rmtree(pdir)
         os.makedirs(pdir, exist_ok=True)
-        page_blueprint = next(item for item in page_blueprints if item["pageId"] == page["id"])
         write_json(
             os.path.join(pdir, "page.json"),
             {
@@ -195,11 +996,16 @@ def build_project_files():
                 "displayName": page["displayName"],
                 "displayOption": "FitToPage",
                 "height": 720,
-                "width": 1280,
-                "description": page["description"],
-                "visualBlueprint": page_blueprint["visuals"]
+                "width": 1280
             }
         )
+        visuals_dir = os.path.join(pdir, "visuals")
+        os.makedirs(visuals_dir, exist_ok=True)
+
+        for visual in page_visuals[page["id"]]:
+            visual_dir = os.path.join(visuals_dir, visual["name"])
+            os.makedirs(visual_dir, exist_ok=True)
+            write_json(os.path.join(visual_dir, "visual.json"), visual)
 
     # 6. Generate TMDL Semantic Model definition folder
     definition_dir = os.path.join(SEM_MODEL_DIR, "definition")
@@ -219,16 +1025,17 @@ def build_project_files():
 \tdefaultPowerBIDataSourceVersion: powerBI_V3
 \tsourceQueryCulture: en-US
 
-\tref table _Measures
-\tref table ScenarioSelection
-\tref table projects
-\tref table wbs_elements
-\tref table resources
-\tref table timesheets
-\tref table material_costs
-\tref table physical_progress
+ref table _Measures
+ref table ScenarioSelection
+ref table projects
+ref table wbs_elements
+ref table resources
+ref table timesheets
+ref table material_costs
+ref table physical_progress
+ref table raid_log
 
-\tref cultureInfo en-US
+ref cultureInfo en-US
 """
     write_file(os.path.join(definition_dir, "model.tmdl"), model_tmdl_content)
 
@@ -274,14 +1081,15 @@ relationship rel_wbs_physical_progress
 \tmeasure AC = [Actual Labor Cost] + [Actual Material Cost]
 \t\tformatString: "$#,##0.00"
 
-\tmeasure 'Latest Percent Complete' = 
-\t\t\tVAR SelectedDate = MAX('physical_progress'[RecordDate])
-\t\t\tRETURN
-\t\t\tSUMX(
-\t\t\t    VALUES('wbs_elements'[WBS_ID]),
-\t\t\t    VAR LatestWBSProgressDate = CALCULATE(MAX('physical_progress'[RecordDate]), 'physical_progress'[RecordDate] <= SelectedDate)
-\t\t\t    RETURN CALCULATE(MAX('physical_progress'[PercentComplete]), 'physical_progress'[RecordDate] = LatestWBSProgressDate)
-\t\t\t)
+	measure 'Latest Percent Complete' = 
+			VAR SelectedDate = MAX('physical_progress'[RecordDate])
+			RETURN
+			SUMX(
+			    VALUES('wbs_elements'[WBS_ID]),
+			    VAR LatestWBSProgressDate = CALCULATE(MAX('physical_progress'[RecordDate]), 'physical_progress'[RecordDate] <= SelectedDate)
+			    VAR LatestWBSProgress = CALCULATE(MAX('physical_progress'[PercentComplete]), 'physical_progress'[RecordDate] = LatestWBSProgressDate)
+			    RETURN COALESCE(VALUE(LatestWBSProgress), 0)
+			)
 \t\tformatString: "0.00%"
 
 \tmeasure 'Planned % Complete' = 
@@ -343,6 +1151,39 @@ relationship rel_wbs_physical_progress
 
 \tmeasure VAC = [BAC] - [EAC (Typical)]
 \t\tformatString: "$#,##0.00"
+
+\tmeasure 'Risk Count' = COUNTROWS('raid_log')
+\t\tformatString: "#,##0"
+
+\tmeasure 'Actual Hours' = SUM('timesheets'[HoursWorked])
+\t\tformatString: "#,##0"
+
+\tmeasure 'Planned Hours' = SUM('wbs_elements'[PlannedHours])
+\t\tformatString: "#,##0"
+
+\tmeasure 'Manpower Count' = DISTINCTCOUNT('timesheets'[ResourceID])
+\t\tformatString: "#,##0"
+
+\tmeasure 'Crew Utilization %' = DIVIDE([Actual Hours], [Planned Hours])
+\t\tformatString: "0.00%"
+
+\tmeasure 'Productivity Index' = DIVIDE([Latest Percent Complete], [Actual Hours])
+\t\tformatString: "0.00%"
+
+\tmeasure 'Total Risks' = CALCULATE(COUNTROWS('raid_log'), 'raid_log'[Type] = "Risk")
+\t\tformatString: "#,##0"
+
+\tmeasure 'High Risks' = CALCULATE(COUNTROWS('raid_log'), 'raid_log'[Type] = "Risk" && 'raid_log'[Impact] = "High")
+\t\tformatString: "#,##0"
+
+\tmeasure 'Open Issues' = CALCULATE(COUNTROWS('raid_log'), 'raid_log'[Type] = "Issue" && 'raid_log'[Status] = "Active")
+\t\tformatString: "#,##0"
+
+\tmeasure 'Project Health Score' = ([Latest Percent Complete] * 0.6) + ([SPI] * 0.2) + ([CPI] * 0.2)
+\t\tformatString: "0.00%"
+
+\tmeasure 'Overall Status' = SWITCH(TRUE(), [Project Health Score] >= 0.85, "On Track", [Project Health Score] >= 0.70, "At Risk", "Delayed")
+\t\tformatString: "@"
 
 \tcolumn MeasurePlaceholder
 \t\tdataType: int64
@@ -416,9 +1257,10 @@ relationship rel_wbs_physical_progress
 \t\tsource =
 \t\t\t\tlet
 \t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('projects.csv')}"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
-\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
+\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+\t\t\t\t    Typed = Table.TransformColumnTypes(Headers, {{{{"BudgetAtCompletion_BAC", type number}}, {{"StartDate", type datetime}}, {{"EndDate", type datetime}}}}, "en-US")
 \t\t\t\tin
-\t\t\t\t    Headers
+\t\t\t\t    Typed
 """
     write_file(os.path.join(tables_dir, "projects.tmdl"), projects_tmdl)
 
@@ -455,9 +1297,10 @@ relationship rel_wbs_physical_progress
 \t\tsource =
 \t\t\t\tlet
 \t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('wbs_elements.csv')}"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
-\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
+\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+\t\t\t\t    Typed = Table.TransformColumnTypes(Headers, {{{{"PlannedCost", type number}}, {{"PlannedHours", type number}}}}, "en-US")
 \t\t\t\tin
-\t\t\t\t    Headers
+\t\t\t\t    Typed
 """
     write_file(os.path.join(tables_dir, "wbs_elements.tmdl"), wbs_tmdl)
 
@@ -486,9 +1329,10 @@ relationship rel_wbs_physical_progress
 \t\tsource =
 \t\t\t\tlet
 \t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('resources.csv')}"),[Delimiter=",", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),
-\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
+\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+\t\t\t\t    Typed = Table.TransformColumnTypes(Headers, {{{{"HourlyRate", type number}}}}, "en-US")
 \t\t\t\tin
-\t\t\t\t    Headers
+\t\t\t\t    Typed
 """
     write_file(os.path.join(tables_dir, "resources.tmdl"), resources_tmdl)
 
@@ -514,6 +1358,7 @@ relationship rel_wbs_physical_progress
 
 \tcolumn HoursWorked
 \t\tdataType: double
+\t\tformatString: "0.00"
 \t\tsourceColumn: HoursWorked
 
 \tcolumn ApprovalStatus
@@ -531,10 +1376,10 @@ relationship rel_wbs_physical_progress
 \t\t\t\tlet
 \t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('timesheets.csv')}"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 \t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
-				    Types = Table.TransformColumnTypes(Headers, {{{{"HoursWorked", type number}}}}),
+				    Types = Table.TransformColumnTypes(Headers, {{{{"HoursWorked", type number}}}}, "en-US"),
 \t\t\t\t    MergeRes = Table.NestedJoin(Types, {{"ResourceID"}}, resources, {{"ResourceID"}}, "res", JoinKind.LeftOuter),
 \t\t\t\t    ExpandRes = Table.ExpandTableColumn(MergeRes, "res", {{"HourlyRate"}}, {{"HourlyRate"}}),
-				    TypeRate = Table.TransformColumnTypes(ExpandRes, {{{{"HourlyRate", type number}}}}),
+				    TypeRate = Table.TransformColumnTypes(ExpandRes, {{{{"HourlyRate", type number}}}}, "en-US"),
 \t\t\t\t    AddLabor = Table.AddColumn(TypeRate, "LaborCost", each [HoursWorked] * [HourlyRate], type number)
 \t\t\t\tin
 \t\t\t\t    AddLabor
@@ -580,9 +1425,10 @@ relationship rel_wbs_physical_progress
 \t\tsource =
 \t\t\t\tlet
 \t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('material_costs.csv')}"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
-\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
+\t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+\t\t\t\t    Typed = Table.TransformColumnTypes(Headers, {{{{"Quantity", Int64.Type}}, {{"UnitPrice", type number}}, {{"TotalActualCost", type number}}}}, "en-US")
 \t\t\t\tin
-\t\t\t\t    Headers
+\t\t\t\t    Typed
 """
     write_file(os.path.join(tables_dir, "material_costs.tmdl"), material_tmdl)
 
@@ -616,11 +1462,58 @@ relationship rel_wbs_physical_progress
 \t\tsource =
 \t\t\t\tlet
 \t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('physical_progress.csv')}"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+                        Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+                        Typed = Table.TransformColumnTypes(Headers, {{{{"ProgressID", type text}}, {{"WBS_ID", type text}}, {{"RecordDate", type datetime}}, {{"PercentComplete", type number}}, {{"ReportedBy", type text}}}}, "en-US")
+\t\t\t\tin
+                        Typed
+"""
+    write_file(os.path.join(tables_dir, "physical_progress.tmdl"), progress_tmdl)
+
+    # Table: raid_log
+    raid_tmdl = f"""table raid_log
+
+\tcolumn RiskID
+\t\tdataType: string
+\t\tsourceColumn: RiskID
+
+\tcolumn Type
+\t\tdataType: string
+\t\tsourceColumn: Type
+
+\tcolumn Description
+\t\tdataType: string
+\t\tsourceColumn: Description
+
+\tcolumn Impact
+\t\tdataType: string
+\t\tsourceColumn: Impact
+
+\tcolumn Probability
+\t\tdataType: string
+\t\tsourceColumn: Probability
+
+\tcolumn MitigationStrategy
+\t\tdataType: string
+\t\tsourceColumn: MitigationStrategy
+
+\tcolumn Owner
+\t\tdataType: string
+\t\tsourceColumn: Owner
+
+\tcolumn Status
+\t\tdataType: string
+\t\tsourceColumn: Status
+
+\tpartition raid_log-Partition = m
+\t\tmode: import
+\t\tsource =
+\t\t\t\tlet
+\t\t\t\t    Source = Csv.Document(File.Contents("{get_csv_path('raid_log.csv')}"),[Delimiter=",", Columns=8, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 \t\t\t\t    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
 \t\t\t\tin
 \t\t\t\t    Headers
 """
-    write_file(os.path.join(tables_dir, "physical_progress.tmdl"), progress_tmdl)
+    write_file(os.path.join(tables_dir, "raid_log.tmdl"), raid_tmdl)
 
     readme_content = """# Power BI project package
 

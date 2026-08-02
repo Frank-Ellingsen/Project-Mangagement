@@ -1,82 +1,42 @@
 table raid_log
-	lineageTag: 21690dc0-7f38-40db-a51b-e6ba0c51b41b
 
 	column RiskID
 		dataType: string
-		lineageTag: c846c5d4-9c5c-4c60-926b-0cf704fb9366
-		summarizeBy: none
 		sourceColumn: RiskID
-
-		annotation SummarizationSetBy = Automatic
 
 	column Type
 		dataType: string
-		lineageTag: 4905200d-4a31-4c53-a2ce-1751b9d4f8d4
-		summarizeBy: none
 		sourceColumn: Type
-
-		annotation SummarizationSetBy = Automatic
 
 	column Description
 		dataType: string
-		lineageTag: 46139336-d6a1-4164-acdb-64a6a55e929b
-		summarizeBy: none
 		sourceColumn: Description
-
-		annotation SummarizationSetBy = Automatic
 
 	column Impact
 		dataType: string
-		lineageTag: a63be7cd-7ae6-48b7-95da-73a44d77025f
-		summarizeBy: none
 		sourceColumn: Impact
-
-		annotation SummarizationSetBy = Automatic
 
 	column Probability
 		dataType: string
-		lineageTag: cddb9413-1f43-48c9-89c9-cfbbfe27770a
-		summarizeBy: none
 		sourceColumn: Probability
-
-		annotation SummarizationSetBy = Automatic
 
 	column MitigationStrategy
 		dataType: string
-		lineageTag: af282c59-212e-4985-b6bb-010dd9011aa1
-		summarizeBy: none
 		sourceColumn: MitigationStrategy
-
-		annotation SummarizationSetBy = Automatic
 
 	column Owner
 		dataType: string
-		lineageTag: d9d2be1b-f97a-4a7b-b594-677e9aed055f
-		summarizeBy: none
 		sourceColumn: Owner
-
-		annotation SummarizationSetBy = Automatic
 
 	column Status
 		dataType: string
-		lineageTag: 5b405101-90d5-47ad-9e01-7bb762dbc761
-		summarizeBy: none
 		sourceColumn: Status
 
-		annotation SummarizationSetBy = Automatic
-
-	partition raid_log = m
+	partition raid_log-Partition = m
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\raid_log.csv"),[Delimiter=",", Columns=8, Encoding=1252, QuoteStyle=QuoteStyle.None]),
-				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}, {"Column8", type text}}),
-				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
-				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"RiskID", type text}, {"Type", type text}, {"Description", type text}, {"Impact", type text}, {"Probability", type text}, {"MitigationStrategy", type text}, {"Owner", type text}, {"Status", type text}})
+				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/raid_log.csv"),[Delimiter=",", Columns=8, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
 				in
-				    #"Changed Type1"
-
-	annotation PBI_ResultType = Table
-
-	annotation PBI_NavigationStepName = Navigation
-
+				    Headers

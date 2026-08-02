@@ -1,65 +1,33 @@
 table physical_progress
-	lineageTag: 45b8ad01-a178-45fd-948a-2b8781cfd221
 
 	column ProgressID
 		dataType: string
-		lineageTag: acbdeb86-d7e5-46f9-991f-116491e250f4
-		summarizeBy: none
 		sourceColumn: ProgressID
-
-		annotation SummarizationSetBy = Automatic
 
 	column WBS_ID
 		dataType: string
-		lineageTag: 66db9fb8-9a9e-4cde-8ed4-ec8c4e384a44
-		summarizeBy: none
 		sourceColumn: WBS_ID
-
-		annotation SummarizationSetBy = Automatic
 
 	column RecordDate
 		dataType: dateTime
-		formatString: Long Date
-		lineageTag: f6a2e726-1239-4ac7-838d-218091d78bf1
-		summarizeBy: none
+		formatString: "yyyy-MM-dd"
 		sourceColumn: RecordDate
-
-		variation Variation
-			isDefault
-			relationship: 14e07ce1-61bc-4dc2-9ee8-5eba2be7bca1
-			defaultHierarchy: LocalDateTable_232bb450-0792-4163-807f-75670889b5b0.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation UnderlyingDateTimeDataType = Date
 
 	column PercentComplete
 		dataType: double
-		lineageTag: d8734e30-7b83-4237-adb5-b4440df5415b
-		summarizeBy: sum
+		formatString: "0.00%"
 		sourceColumn: PercentComplete
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column ReportedBy
 		dataType: string
-		lineageTag: a20ba068-d902-4219-9255-4a9325cb2471
-		summarizeBy: none
 		sourceColumn: ReportedBy
 
-		annotation SummarizationSetBy = Automatic
-
-	partition physical_progress = m
+	partition physical_progress-Partition = m
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\physical_progress.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
-				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ProgressID", type text}, {"WBS_ID", type text}, {"RecordDate", type date}, {"PercentComplete", type number}, {"ReportedBy", type text}})
+				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/physical_progress.csv"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+                        Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+                        Typed = Table.TransformColumnTypes(Headers, {{"ProgressID", type text}, {"WBS_ID", type text}, {"RecordDate", type datetime}, {"PercentComplete", type number}, {"ReportedBy", type text}}, "en-US")
 				in
-				    #"Changed Type"
-
-	annotation PBI_ResultType = Table
-
+                        Typed

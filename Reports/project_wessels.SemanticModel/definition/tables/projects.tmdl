@@ -1,205 +1,42 @@
 table projects
-	lineageTag: 02221ddf-deff-4d29-b95b-e7c8e9b83726
 
 	column ProjectID
 		dataType: string
-		lineageTag: 6b354251-0890-4f11-bfa0-87aa3f951655
-		summarizeBy: none
 		sourceColumn: ProjectID
-
-		annotation SummarizationSetBy = Automatic
 
 	column ProjectName
 		dataType: string
-		lineageTag: 851fce5c-0f77-40d6-8024-e8f7bab768ca
-		summarizeBy: none
 		sourceColumn: ProjectName
-
-		annotation SummarizationSetBy = Automatic
 
 	column ProjectManager
 		dataType: string
-		lineageTag: 088e4ee2-6971-42c6-a1c6-7f65ff1a4c2b
-		summarizeBy: none
 		sourceColumn: ProjectManager
 
-		annotation SummarizationSetBy = Automatic
-
 	column BudgetAtCompletion_BAC
-		dataType: int64
-		formatString: 0
-		lineageTag: e6a4d958-5beb-4bce-9e4f-ae097a355cac
-		summarizeBy: sum
+		dataType: double
+		formatString: "$#,##0.00"
 		sourceColumn: BudgetAtCompletion_BAC
-
-		annotation SummarizationSetBy = Automatic
 
 	column StartDate
 		dataType: dateTime
-		formatString: Long Date
-		lineageTag: 74d6ccb2-1644-4b67-9869-3e5c648ce163
-		summarizeBy: none
+		formatString: "yyyy-MM-dd"
 		sourceColumn: StartDate
-
-		variation Variation
-			isDefault
-			relationship: 9b5b2d4e-23a4-478c-9810-c5f1c79668ad
-			defaultHierarchy: LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation UnderlyingDateTimeDataType = Date
 
 	column EndDate
 		dataType: dateTime
-		formatString: Long Date
-		lineageTag: 3f4ff2b4-d65d-48cf-a579-2e548cc40441
-		summarizeBy: none
+		formatString: "yyyy-MM-dd"
 		sourceColumn: EndDate
-
-		variation Variation
-			isDefault
-			relationship: db5a71fe-670a-4a9c-834b-f167e60b35f4
-			defaultHierarchy: LocalDateTable_bf72194c-77a7-451a-a50b-2500ed598415.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-		annotation UnderlyingDateTimeDataType = Date
 
 	column Status
 		dataType: string
-		lineageTag: 529ead10-2414-40d0-90e2-e47561709f3d
-		summarizeBy: none
 		sourceColumn: Status
 
-		annotation SummarizationSetBy = Automatic
-
-	measure 'Labor Actual Cost' = SUMX(timesheets, timesheets[HoursWorked] * RELATED(resources[HourlyRate]))
-		formatString: #,0
-		lineageTag: f2c47a50-6a2c-473d-9d41-3b7c8df59f10
-
-	measure 'Material Actual Cost' = SUM(material_costs[TotalActualCost])
-		formatString: #,0
-		lineageTag: a7e3d81b-52c6-419b-bf74-2de37c4e5111
-
-	measure 'Actual Cost (AC)' = [Labor Actual Cost] + [Material Actual Cost]
-		formatString: #,0
-		lineageTag: c9e3b8d1-d2c6-4d2c-80fd-127e9ca911c1
-
-	measure 'Earned Value (EV)' = 
-			SUMX(
-				wbs_elements,
-				VAR WbsId = wbs_elements[WBS_ID]
-				VAR MaxDate = CALCULATE(MAX(physical_progress[RecordDate]), physical_progress[WBS_ID] = WbsId)
-				VAR LatestVal = CALCULATE(
-					MAX(physical_progress[PercentComplete]),
-					physical_progress[WBS_ID] = WbsId,
-					physical_progress[RecordDate] = MaxDate
-				)
-				RETURN wbs_elements[PlannedCost] * COALESCE(LatestVal, 0)
-			)
-		formatString: #,0
-		lineageTag: b3c8d9e2-d4d7-40ad-bcde-2e92c2fd88e2
-
-	measure 'Planned Value (PV)' = 
-			SUMX(
-				projects,
-				VAR StartDt = projects[StartDate]
-				VAR EndDt = projects[EndDate]
-				VAR ProjectDuration = DATEDIFF(StartDt, EndDt, DAY)
-				VAR CurrentDate = MAX(LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date])
-				VAR DaysElapsed = MIN(MAX(DATEDIFF(StartDt, CurrentDate, DAY), 0), ProjectDuration)
-				RETURN SUMX(wbs_elements, wbs_elements[PlannedCost]) * DIVIDE(DaysElapsed, ProjectDuration, 0)
-			)
-		formatString: #,0
-		lineageTag: a8b6c5d4-e9e1-4c12-88f1-39c2d1b849c2
-
-	measure 'Cost Performance Index (CPI)' = DIVIDE([Earned Value (EV)], [Actual Cost (AC)], BLANK())
-		formatString: 0.00
-		lineageTag: d8e1c5a2-c3d6-4071-88f2-39c2f5d911e3
-
-	measure 'Schedule Performance Index (SPI)' = DIVIDE([Earned Value (EV)], [Planned Value (PV)], BLANK())
-		formatString: 0.00
-		lineageTag: b2c8e1d4-1a2d-45de-9be1-38c29db4295e
-
-	measure 'Cost Variance (CV)' = [Earned Value (EV)] - [Actual Cost (AC)]
-		formatString: #,0
-		lineageTag: a1c9b2d3-c4e5-4d6a-8bfe-2e18ca39f41b
-
-	measure 'Schedule Variance (SV)' = [Earned Value (EV)] - [Planned Value (PV)]
-		formatString: #,0
-		lineageTag: e8d7c2a1-e3f4-4a5e-8b10-2e92c7ca8d20
-
-	measure 'Estimate at Completion (EAC)' = DIVIDE(SUM(wbs_elements[PlannedCost]), [Cost Performance Index (CPI)], SUM(wbs_elements[PlannedCost]))
-		formatString: #,0
-		lineageTag: c9d8e7a1-c2e3-4f51-b810-2e92c7ca82df
-
-	measure 'Variance at Completion (VAC)' = SUM(wbs_elements[PlannedCost]) - [Estimate at Completion (EAC)]
-		formatString: #,0
-		lineageTag: f8a7c2b3-d2d4-42f1-a8b0-2e92c1cd81ff
-
-	measure 'Cost Status' = IF(ISBLANK([Cost Performance Index (CPI)]), "No Data", IF([Cost Performance Index (CPI)] < 0.95, "🔴 Overrun", IF([Cost Performance Index (CPI)] < 1.0, "🟡 Under Watch", "🟢 On Track")))
-		lineageTag: b9a7c2d1-e2f4-41d1-a7b0-2e92c9ca81ef
-
-	measure 'Schedule Status' = IF(ISBLANK([Schedule Performance Index (SPI)]), "No Data", IF([Schedule Performance Index (SPI)] < 0.90, "🔴 Overrun", IF([Schedule Performance Index (SPI)] < 1.0, "🟡 Under Watch", "🟢 On Track")))
-		lineageTag: a7c2d8b1-d3e4-42d1-b8b0-2e92c4cd82ef
-
-	measure 'Cumulative PV' = 
-			VAR MaxDate = MAX(LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date])
-			RETURN
-			CALCULATE(
-				[Planned Value (PV)],
-				FILTER(
-					ALLSELECTED(LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date]),
-					LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date] <= MaxDate
-				)
-			)
-		formatString: #,0
-		lineageTag: d1a9c3d4-b2e3-4f51-a7b0-2e92c4cd82ef
-
-	measure 'Cumulative EV' = 
-			VAR MaxDate = MAX(LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date])
-			RETURN
-			CALCULATE(
-				[Earned Value (EV)],
-				FILTER(
-					ALLSELECTED(LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date]),
-					LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date] <= MaxDate
-				)
-			)
-		formatString: #,0
-		lineageTag: c2b8d4e5-a3d4-4f51-b810-2e92c4cd82ef
-
-	measure 'Cumulative AC' = 
-			VAR MaxDate = MAX(LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date])
-			RETURN
-			CALCULATE(
-				[Actual Cost (AC)],
-				FILTER(
-					ALLSELECTED(LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date]),
-					LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a[Date] <= MaxDate
-				)
-			)
-		formatString: #,0
-		lineageTag: b3c9d4e5-f2d4-4f51-a7b0-2e92c4cd82ef
-
-	measure 'Labor Cost Variance' = [Labor Actual Cost] - SUMX(wbs_elements, wbs_elements[PlannedCost] * 0.8)
-		formatString: #,0
-		lineageTag: a4d9c3e2-c3f4-4d51-b810-2e92c4cd82ef
-
-	measure 'Material Cost Variance' = [Material Actual Cost] - SUMX(wbs_elements, wbs_elements[PlannedCost] * 0.2)
-		formatString: #,0
-		lineageTag: c5b8d2e3-d1f4-4f51-a7b0-2e92c4cd82ef
-
-	partition projects = m
+	partition projects-Partition = m
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\projects.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
-				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ProjectID", type text}, {"ProjectName", type text}, {"ProjectManager", type text}, {"BudgetAtCompletion_BAC", Int64.Type}, {"StartDate", type date}, {"EndDate", type date}, {"Status", type text}})
+				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/projects.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"BudgetAtCompletion_BAC", type number}, {"StartDate", type datetime}, {"EndDate", type datetime}}, "en-US")
 				in
-				    #"Changed Type"
-
-	annotation PBI_ResultType = Table
-
+				    Typed
