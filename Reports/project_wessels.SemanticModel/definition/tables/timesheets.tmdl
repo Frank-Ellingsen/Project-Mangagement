@@ -35,7 +35,7 @@ table timesheets
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/timesheets.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("c:/Users/frank/Desktop/Project Mng/Data/CSV/timesheets.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
 				    Types = Table.TransformColumnTypes(Headers, {{"HoursWorked", type number}}, "en-US"),
 				    MergeRes = Table.NestedJoin(Types, {"ResourceID"}, resources, {"ResourceID"}, "res", JoinKind.LeftOuter),

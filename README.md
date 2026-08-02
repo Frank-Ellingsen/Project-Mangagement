@@ -1,4 +1,5 @@
 https://frank-ellingsen.github.io/Project-Mangagement/
+
 # Project Controlling Control Tower
 
 An automated, interactive **Project Controlling & Earned Value Management (EVM) Control Tower** designed for engineering, maritime, and defense sector projects. This workspace integrates analytical data processing, automated agentic auditing, Excel reporting, Power BI compilation, and a Streamlit web dashboard — all governed by **Edward Tufte's Data-Ink Ratio** principles and **PRINCE2** project management standards.
@@ -77,6 +78,14 @@ Project Mng/
 │   │   └── Vessel_Performance.Report/
 │   ├── excel_friendly/            # Excel-friendly flat files (semicolon-delimited)
 │   └── PRJ-001_Project_Initiation_Document.md  # PRINCE2 PID
+├── docs/
+│   ├── concepts/                  # AI and project-management concept notes
+│   ├── methodology/               # PM methodology references and glossaries
+│   ├── personal/                  # Career/CV notes (ignored from git tracking)
+│   ├── release/                   # Release and publication metadata
+│   ├── templates/                 # Template source documents
+│   ├── visuals/                   # Raw visual assets and mockups
+│   └── scratch/                   # Temporary planning notes
 ├── .agents/
 │   ├── skills/                    # 13 agent skill instruction folders
 │   └── rules/                     # Agent governance rules
@@ -320,6 +329,10 @@ The project uses a relational schema with 8 core tables. See [`AI_Controller/dat
 | [`AI_Controller/my_toolstack.md`](AI_Controller/my_toolstack.md)                                                     | AI research tool stack reference                                  |
 | [`AI_Controller/tools plus.md`](AI_Controller/tools%20plus.md)                                                       | Tool ecosystem mapping & upgrade path                             |
 | [`Data/PRJ-001_Project_Initiation_Document.md`](Data/PRJ-001_Project_Initiation_Document.md)                         | PRINCE2 Project Initiation Document (PID)                         |
+| [`docs/concepts/`](docs/concepts)                                                                                    | Concept notes for AI and project-management strategy              |
+| [`docs/methodology/`](docs/methodology)                                                                              | Methodology references and glossaries                             |
+| [`docs/release/RELEASE_NOTES_v0.1.0.md`](docs/release/RELEASE_NOTES_v0.1.0.md)                                       | Current public release notes                                      |
+| [`docs/release/GITHUB_PUBLICATION_METADATA.md`](docs/release/GITHUB_PUBLICATION_METADATA.md)                         | GitHub repository/release publishing metadata                     |
 
 ---
 

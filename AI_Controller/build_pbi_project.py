@@ -481,7 +481,7 @@ def build_project_files():
                 "tabOrder": tab_order
             },
             "visual": {
-                "visualType": "pivotTable",
+                "visualType": "matrix",
                 "query": {
                     "queryState": {
                         "Rows": {
@@ -761,22 +761,40 @@ def build_project_files():
                 "tabOrder": tab_order
             },
             "visual": {
-                "visualType": "gantt",
+                "visualType": "tableEx",
                 "query": {
                     "queryState": {
-                        "Task": {
-                            "projections": [column_projection(task_entity, task_column)]
-                        },
-                        "StartDate": {
-                            "projections": [column_projection(task_entity, start_column)]
-                        },
-                        "EndDate": {
-                            "projections": [column_projection(task_entity, end_column)]
-                        },
-                        "PercentComplete": {
-                            "projections": [measure_projection(percent_complete_measure)]
+                        "Values": {
+                            "projections": [
+                                column_projection(task_entity, task_column),
+                                column_projection(task_entity, start_column),
+                                column_projection(task_entity, end_column),
+                                measure_projection(percent_complete_measure)
+                            ]
                         }
                     }
+                },
+                "objects": {
+                    "columnHeaders": [
+                        {
+                            "properties": {
+                                "columnAdjustment": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "'growToFit'"
+                                        }
+                                    }
+                                },
+                                "autoSizeColumnWidth": {
+                                    "expr": {
+                                        "Literal": {
+                                            "Value": "true"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
                 },
                 "visualContainerObjects": {
                     "title": [

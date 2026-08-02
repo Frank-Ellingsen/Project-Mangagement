@@ -35,7 +35,7 @@ table material_costs
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/material_costs.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("c:/Users/frank/Desktop/Project Mng/Data/CSV/material_costs.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
 				    Typed = Table.TransformColumnTypes(Headers, {{"Quantity", Int64.Type}, {"UnitPrice", type number}, {"TotalActualCost", type number}}, "en-US")
 				in

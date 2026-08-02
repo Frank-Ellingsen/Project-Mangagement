@@ -1,0 +1,93 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "6b41b695c9024ef00002",
+  "position": {
+    "x": 20,
+    "y": 84,
+    "z": 1001,
+    "height": 110,
+    "width": 900,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "BAC"
+                }
+              },
+              "queryRef": "_Measures.BAC",
+              "nativeQueryRef": "BAC"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "AC"
+                }
+              },
+              "queryRef": "_Measures.AC",
+              "nativeQueryRef": "AC"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "EV"
+                }
+              },
+              "queryRef": "_Measures.EV",
+              "nativeQueryRef": "EV"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "CV"
+                }
+              },
+              "queryRef": "_Measures.CV",
+              "nativeQueryRef": "CV"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "SV"
+                }
+              },
+              "queryRef": "_Measures.SV",
+              "nativeQueryRef": "SV"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

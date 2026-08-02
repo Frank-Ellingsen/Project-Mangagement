@@ -35,7 +35,7 @@ table projects
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/projects.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("c:/Users/frank/Desktop/Project Mng/Data/CSV/projects.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
 				    Typed = Table.TransformColumnTypes(Headers, {{"BudgetAtCompletion_BAC", type number}, {"StartDate", type datetime}, {"EndDate", type datetime}}, "en-US")
 				in

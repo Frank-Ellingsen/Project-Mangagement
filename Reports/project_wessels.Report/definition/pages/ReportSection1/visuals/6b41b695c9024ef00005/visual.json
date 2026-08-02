@@ -1,0 +1,151 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "6b41b695c9024ef00005",
+  "position": {
+    "x": 800,
+    "y": 214,
+    "z": 1004,
+    "height": 420,
+    "width": 460,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "wbs_elements"
+                    }
+                  },
+                  "Property": "WBS_Code"
+                }
+              },
+              "queryRef": "wbs_elements.WBS_Code",
+              "nativeQueryRef": "WBS_Code"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "wbs_elements"
+                    }
+                  },
+                  "Property": "ElementName"
+                }
+              },
+              "queryRef": "wbs_elements.ElementName",
+              "nativeQueryRef": "ElementName"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "BAC"
+                }
+              },
+              "queryRef": "_Measures.BAC",
+              "nativeQueryRef": "BAC"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "AC"
+                }
+              },
+              "queryRef": "_Measures.AC",
+              "nativeQueryRef": "AC"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "EV"
+                }
+              },
+              "queryRef": "_Measures.EV",
+              "nativeQueryRef": "EV"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "CPI"
+                }
+              },
+              "queryRef": "_Measures.CPI",
+              "nativeQueryRef": "CPI"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "columnAdjustment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'WBS element performance'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

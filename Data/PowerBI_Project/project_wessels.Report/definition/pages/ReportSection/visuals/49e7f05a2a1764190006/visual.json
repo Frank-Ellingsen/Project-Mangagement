@@ -1,0 +1,78 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "49e7f05a2a1764190006",
+  "position": {
+    "x": 20,
+    "y": 214,
+    "z": 1005,
+    "height": 486,
+    "width": 620,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "projects"
+                    }
+                  },
+                  "Property": "ProjectName"
+                }
+              },
+              "queryRef": "projects.ProjectName",
+              "nativeQueryRef": "ProjectName",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Latest Percent Complete"
+                }
+              },
+              "queryRef": "_Measures.Latest Percent Complete",
+              "nativeQueryRef": "Latest Percent Complete"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Project status completion'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

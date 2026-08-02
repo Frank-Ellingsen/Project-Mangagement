@@ -36,7 +36,7 @@ table raid_log
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/raid_log.csv"),[Delimiter=",", Columns=8, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("c:/Users/frank/Desktop/Project Mng/Data/CSV/raid_log.csv"),[Delimiter=",", Columns=8, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true])
 				in
 				    Headers

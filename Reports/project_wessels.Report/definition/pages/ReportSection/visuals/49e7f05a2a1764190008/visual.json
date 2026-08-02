@@ -1,0 +1,123 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "49e7f05a2a1764190008",
+  "position": {
+    "x": 20,
+    "y": 530,
+    "z": 1007,
+    "height": 180,
+    "width": 620,
+    "tabOrder": 7
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "projects"
+                    }
+                  },
+                  "Property": "ProjectName"
+                }
+              },
+              "queryRef": "projects.ProjectName",
+              "nativeQueryRef": "ProjectName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "projects"
+                    }
+                  },
+                  "Property": "StartDate"
+                }
+              },
+              "queryRef": "projects.StartDate",
+              "nativeQueryRef": "StartDate"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "projects"
+                    }
+                  },
+                  "Property": "EndDate"
+                }
+              },
+              "queryRef": "projects.EndDate",
+              "nativeQueryRef": "EndDate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Latest Percent Complete"
+                }
+              },
+              "queryRef": "_Measures.Latest Percent Complete",
+              "nativeQueryRef": "Latest Percent Complete"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "columnAdjustment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Gantt of Gantts (Project Timeline Overview)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

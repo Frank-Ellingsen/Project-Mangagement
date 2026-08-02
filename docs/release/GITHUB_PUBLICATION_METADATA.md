@@ -32,14 +32,14 @@ If you deploy or host docs later, add the URL in the repository "Website" field.
 ## Social Preview Image Suggestion
 
 Use a clean screenshot of the Streamlit front page KPI row + Gantt view.
-Recommended filename: `Visuals/social-preview-control-tower.png`
+Recommended filename: `docs/visuals/social-preview-control-tower.png`
 
 ## First Release Settings
 
 - **Tag**: `v0.1.0`
 - **Title**: `Project Controlling Control Tower v0.1.0`
 - **Target branch**: `main`
-- **Description source**: `RELEASE_NOTES_v0.1.0.md`
+- **Description source**: `docs/release/RELEASE_NOTES_v0.1.0.md`
 
 ## Short Release Blurb (for top of release)
 

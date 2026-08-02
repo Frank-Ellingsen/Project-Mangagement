@@ -27,12 +27,11 @@ Data/vessel_construction_report.xlsx
 *.pbit
 
 # --- Personal / Career / Methodology Files (Not required for the app to run) ---
-Career/
-Methodology/
-Templates/
-Visuals/
-kompetanse_krav.md
-next.md
+docs/personal/
+docs/methodology/
+docs/templates/
+docs/visuals/
+docs/scratch/next.md
 
 # --- OS specific files ---
 .DS_Store

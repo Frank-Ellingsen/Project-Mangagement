@@ -1,0 +1,106 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "6b41b695c9024ef00004",
+  "position": {
+    "x": 20,
+    "y": 214,
+    "z": 1003,
+    "height": 350,
+    "width": 760,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "physical_progress"
+                    }
+                  },
+                  "Property": "RecordDate"
+                }
+              },
+              "queryRef": "physical_progress.RecordDate",
+              "nativeQueryRef": "RecordDate",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "PV"
+                }
+              },
+              "queryRef": "_Measures.PV",
+              "nativeQueryRef": "PV"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "EV"
+                }
+              },
+              "queryRef": "_Measures.EV",
+              "nativeQueryRef": "EV"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "AC"
+                }
+              },
+              "queryRef": "_Measures.AC",
+              "nativeQueryRef": "AC"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Cost and value trend'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

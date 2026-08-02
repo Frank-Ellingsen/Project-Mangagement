@@ -1,0 +1,78 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "8ed314e6a2da43fd0010",
+  "position": {
+    "x": 20,
+    "y": 84,
+    "z": 1001,
+    "height": 200,
+    "width": 400,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "donutChart",
+    "query": {
+      "queryState": {
+        "Legend": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "raid_log"
+                    }
+                  },
+                  "Property": "Type"
+                }
+              },
+              "queryRef": "raid_log.Type",
+              "nativeQueryRef": "Type",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Risk Count"
+                }
+              },
+              "queryRef": "_Measures.Risk Count",
+              "nativeQueryRef": "Risk Count"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'RAID Items by Type'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

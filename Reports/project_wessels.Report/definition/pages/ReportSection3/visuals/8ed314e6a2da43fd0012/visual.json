@@ -1,0 +1,151 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "8ed314e6a2da43fd0012",
+  "position": {
+    "x": 20,
+    "y": 300,
+    "z": 1003,
+    "height": 400,
+    "width": 1240,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "raid_log"
+                    }
+                  },
+                  "Property": "Status"
+                }
+              },
+              "queryRef": "raid_log.Status",
+              "nativeQueryRef": "Status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "raid_log"
+                    }
+                  },
+                  "Property": "Type"
+                }
+              },
+              "queryRef": "raid_log.Type",
+              "nativeQueryRef": "Type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "raid_log"
+                    }
+                  },
+                  "Property": "RiskID"
+                }
+              },
+              "queryRef": "raid_log.RiskID",
+              "nativeQueryRef": "RiskID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "raid_log"
+                    }
+                  },
+                  "Property": "Description"
+                }
+              },
+              "queryRef": "raid_log.Description",
+              "nativeQueryRef": "Description"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "raid_log"
+                    }
+                  },
+                  "Property": "MitigationStrategy"
+                }
+              },
+              "queryRef": "raid_log.MitigationStrategy",
+              "nativeQueryRef": "MitigationStrategy"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "raid_log"
+                    }
+                  },
+                  "Property": "Owner"
+                }
+              },
+              "queryRef": "raid_log.Owner",
+              "nativeQueryRef": "Owner"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "columnAdjustment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'growToFit'"
+                }
+              }
+            },
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'RAID Item Mitigation & Assumptions Log'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

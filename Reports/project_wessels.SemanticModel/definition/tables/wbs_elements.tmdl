@@ -29,7 +29,7 @@ table wbs_elements
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/wbs_elements.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("c:/Users/frank/Desktop/Project Mng/Data/CSV/wbs_elements.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
 				    Typed = Table.TransformColumnTypes(Headers, {{"PlannedCost", type number}, {"PlannedHours", type number}}, "en-US")
 				in

@@ -26,7 +26,7 @@ table physical_progress
 		mode: import
 		source =
 				let
-				    Source = Csv.Document(File.Contents("C:/Users/frank/Desktop/Project Mng/Data/CSV/physical_progress.csv"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    Source = Csv.Document(File.Contents("c:/Users/frank/Desktop/Project Mng/Data/CSV/physical_progress.csv"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),
                         Headers = Table.PromoteHeaders(Source, [PromoteAllScalarTypes=true]),
                         Typed = Table.TransformColumnTypes(Headers, {{"ProgressID", type text}, {"WBS_ID", type text}, {"RecordDate", type datetime}, {"PercentComplete", type number}, {"ReportedBy", type text}}, "en-US")
 				in
