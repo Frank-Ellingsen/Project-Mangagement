@@ -1,0 +1,66 @@
+table wbs_elements
+	lineageTag: ed9f19aa-7382-4156-99b8-0975fb62dcf9
+
+	column WBS_ID
+		dataType: string
+		lineageTag: 8dc7b3a9-77dd-4dff-b264-4391d4e1b44f
+		summarizeBy: none
+		sourceColumn: WBS_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProjectID
+		dataType: string
+		lineageTag: 70d5800b-b422-42d0-9c26-e033623e8d5d
+		summarizeBy: none
+		sourceColumn: ProjectID
+
+		annotation SummarizationSetBy = Automatic
+
+	column WBS_Code
+		dataType: int64
+		formatString: 0
+		lineageTag: c3b9672d-1c18-4441-80dc-40a749804d3f
+		summarizeBy: count
+		sourceColumn: WBS_Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column ElementName
+		dataType: string
+		lineageTag: 1eb69dcb-7d7b-4894-a738-5ae849f914c9
+		summarizeBy: none
+		sourceColumn: ElementName
+
+		annotation SummarizationSetBy = Automatic
+
+	column PlannedCost
+		dataType: int64
+		formatString: 0
+		lineageTag: 260e3c1c-e77a-4430-8e7b-0b96b6a621ed
+		summarizeBy: sum
+		sourceColumn: PlannedCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column PlannedHours
+		dataType: int64
+		formatString: 0
+		lineageTag: e5be2072-ac01-4b43-9e8a-9811f78cb221
+		summarizeBy: sum
+		sourceColumn: PlannedHours
+
+		annotation SummarizationSetBy = Automatic
+
+	partition wbs_elements = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\wbs_elements.csv"),[Delimiter=",", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"WBS_ID", type text}, {"ProjectID", type text}, {"WBS_Code", Int64.Type}, {"ElementName", type text}, {"PlannedCost", Int64.Type}, {"PlannedHours", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

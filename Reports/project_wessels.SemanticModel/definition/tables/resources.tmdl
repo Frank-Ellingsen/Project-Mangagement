@@ -1,0 +1,48 @@
+table resources
+	lineageTag: ff553c24-20af-416a-b2d8-57e70ebcb020
+
+	column ResourceID
+		dataType: string
+		lineageTag: def0d2c8-7f1d-4773-b94a-a42851f0d02d
+		summarizeBy: none
+		sourceColumn: ResourceID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ResourceName
+		dataType: string
+		lineageTag: 7391be89-36d7-4314-9143-2ea562ca440f
+		summarizeBy: none
+		sourceColumn: ResourceName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Role
+		dataType: string
+		lineageTag: 02b4fdc7-a55d-4a14-8e23-7e1efefc957e
+		summarizeBy: none
+		sourceColumn: Role
+
+		annotation SummarizationSetBy = Automatic
+
+	column HourlyRate
+		dataType: int64
+		formatString: 0
+		lineageTag: 2aaea89f-3c18-4e09-bfda-5a5ec1a08722
+		summarizeBy: sum
+		sourceColumn: HourlyRate
+
+		annotation SummarizationSetBy = Automatic
+
+	partition resources = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\resources.csv"),[Delimiter=",", Columns=4, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"ResourceID", type text}, {"ResourceName", type text}, {"Role", type text}, {"HourlyRate", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

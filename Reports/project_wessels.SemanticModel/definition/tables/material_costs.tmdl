@@ -1,0 +1,82 @@
+table material_costs
+	lineageTag: 2ec2f99e-6c8e-4a6f-a68c-97bfa9c4bd19
+
+	column PurchaseID
+		dataType: string
+		lineageTag: f207b8b6-a8a4-4665-bc96-f2e18cf057a4
+		summarizeBy: none
+		sourceColumn: PurchaseID
+
+		annotation SummarizationSetBy = Automatic
+
+	column WBS_ID
+		dataType: string
+		lineageTag: 0bbb3d3f-f66b-4579-8d2a-e9a0bd2ad34f
+		summarizeBy: none
+		sourceColumn: WBS_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PurchaseDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4fb873dc-79bb-4d13-81f4-3d639536be9b
+		summarizeBy: none
+		sourceColumn: PurchaseDate
+
+		variation Variation
+			isDefault
+			relationship: 8c0e5698-2a52-44bc-a6e3-4f56b078263c
+			defaultHierarchy: LocalDateTable_89a78e20-cebc-4de5-8973-aae4471d1bd6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Description
+		dataType: string
+		lineageTag: 4216e8c0-1fb7-4b32-8c49-1348a0e9edf7
+		summarizeBy: none
+		sourceColumn: Description
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: e7d199ce-9278-4668-90b7-83e3e919b3e5
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: int64
+		formatString: 0
+		lineageTag: f1915c15-686c-4c91-964e-37a3a8173de5
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalActualCost
+		dataType: int64
+		formatString: 0
+		lineageTag: 3a98b0db-2a73-443b-b492-637e609da1ee
+		summarizeBy: sum
+		sourceColumn: TotalActualCost
+
+		annotation SummarizationSetBy = Automatic
+
+	partition material_costs = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\frank\Desktop\Project Mng\Data\CSV\material_costs.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"PurchaseID", type text}, {"WBS_ID", type text}, {"PurchaseDate", type date}, {"Description", type text}, {"Quantity", Int64.Type}, {"UnitPrice", Int64.Type}, {"TotalActualCost", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

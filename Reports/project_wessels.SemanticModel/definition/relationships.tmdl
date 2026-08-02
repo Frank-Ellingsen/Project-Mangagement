@@ -1,0 +1,53 @@
+relationship 8c0e5698-2a52-44bc-a6e3-4f56b078263c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: material_costs.PurchaseDate
+	toColumn: LocalDateTable_89a78e20-cebc-4de5-8973-aae4471d1bd6.Date
+
+relationship 14e07ce1-61bc-4dc2-9ee8-5eba2be7bca1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: physical_progress.RecordDate
+	toColumn: LocalDateTable_232bb450-0792-4163-807f-75670889b5b0.Date
+
+relationship 9b5b2d4e-23a4-478c-9810-c5f1c79668ad
+	joinOnDateBehavior: datePartOnly
+	fromColumn: projects.StartDate
+	toColumn: LocalDateTable_34c7336c-2d41-4191-8334-535655a6f30a.Date
+
+relationship db5a71fe-670a-4a9c-834b-f167e60b35f4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: projects.EndDate
+	toColumn: LocalDateTable_bf72194c-77a7-451a-a50b-2500ed598415.Date
+
+relationship AutoDetected_a33191b2-32bc-41f6-b81f-fb422786bc62
+	fromColumn: resource_assignments.ResourceID
+	toColumn: resources.ResourceID
+
+relationship 497f12a1-abb8-4cd8-bfa7-ff85623b97a2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: timesheets.WorkDate
+	toColumn: LocalDateTable_4d534e28-6860-422d-88ab-bfbd4a58ad66.Date
+
+relationship AutoDetected_ae797307-86cf-4720-977c-f30880a13407
+	fromColumn: timesheets.ResourceID
+	toColumn: resources.ResourceID
+
+relationship AutoDetected_40d91dda-ed77-47ff-ba19-c3f771a94107
+	fromColumn: material_costs.WBS_ID
+	toColumn: wbs_elements.WBS_ID
+
+relationship AutoDetected_9cdb2725-95f4-4e07-8d06-c7ebe7de1a3a
+	fromColumn: physical_progress.WBS_ID
+	toColumn: wbs_elements.WBS_ID
+
+relationship AutoDetected_39a658ae-7873-475f-8471-2d37400fab8f
+	fromColumn: resource_assignments.WBS_ID
+	toColumn: wbs_elements.WBS_ID
+
+relationship AutoDetected_6eb75cd7-7093-4089-93a9-2dc28ea62c7f
+	fromColumn: timesheets.WBS_ID
+	toColumn: wbs_elements.WBS_ID
+
+relationship AutoDetected_19603893-29b3-4b51-9e2f-6770da23dbe0
+	fromColumn: wbs_elements.ProjectID
+	toColumn: projects.ProjectID
+

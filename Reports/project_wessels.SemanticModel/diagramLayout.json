@@ -1,0 +1,126 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 46.25,
+            "y": 487
+          },
+          "nodeIndex": "material_costs",
+          "nodeLineageTag": "2ec2f99e-6c8e-4a6f-a68c-97bfa9c4bd19",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 434,
+            "y": 474.75
+          },
+          "nodeIndex": "physical_progress",
+          "nodeLineageTag": "45b8ad01-a178-45fd-948a-2b8781cfd221",
+          "size": {
+            "height": 261.25,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 124.25,
+            "y": 15.75
+          },
+          "nodeIndex": "projects",
+          "nodeLineageTag": "02221ddf-deff-4d29-b95b-e7c8e9b83726",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 1538.25,
+            "y": 202.5
+          },
+          "nodeIndex": "raid_log",
+          "nodeLineageTag": "21690dc0-7f38-40db-a51b-e6ba0c51b41b",
+          "size": {
+            "height": 427,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 924.75,
+            "y": 694.25
+          },
+          "nodeIndex": "resource_assignments",
+          "nodeLineageTag": "7425fdfe-c724-4c13-a044-dcb8d22175c8",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 873.75,
+            "y": 400.5
+          },
+          "nodeIndex": "resources",
+          "nodeLineageTag": "ff553c24-20af-416a-b2d8-57e70ebcb020",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 1165.25,
+            "y": 164
+          },
+          "nodeIndex": "timesheets",
+          "nodeLineageTag": "672df3da-6530-437e-82d2-9fee653310f4",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 658,
+            "y": 44
+          },
+          "nodeIndex": "wbs_elements",
+          "nodeLineageTag": "ed9f19aa-7382-4156-99b8-0975fb62dcf9",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 7
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 80,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}
