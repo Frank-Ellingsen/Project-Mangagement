@@ -538,6 +538,12 @@
         <div class="nav-item" onclick="switchView('execution', this)">
           🤖 Live Crew Execution
         </div>
+        <div class="nav-item" onclick="switchView('readme', this)">
+          📖 Workspace README
+        </div>
+        <div class="nav-item" onclick="switchView('userguide', this)">
+          🧭 User Guide & Navigation
+        </div>
       </div>
 
       <div class="sidebar-select-wrapper">
@@ -1773,6 +1779,27 @@
 
       <!-- VIEW PANEL: SKILLS -->
       <div id="panel-skills" class="view-panel">
+        <div style="margin-bottom: 24px">
+          <label
+            for="page-skill-select"
+            style="font-size: 13px; font-weight: 600; margin-right: 12px"
+            >Select Agent Skill to Inspect:</label
+          >
+          <select
+            id="page-skill-select"
+            class="sidebar-select"
+            style="
+              max-width: 400px;
+              display: inline-block;
+              color: var(--text-primary);
+              border-color: var(--border-color);
+              background-color: #ffffff;
+            "
+            onchange="loadFocusedSkill(this.value)"
+          >
+            <!-- populated by JS -->
+          </select>
+        </div>
         <div class="section-card">
           <div class="markdown-body" id="skill-content-area">
             <!-- markdown code printed here -->
@@ -1803,6 +1830,156 @@
               Console idle. Click button to begin audit execution loop...
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- VIEW PANEL: README -->
+      <div id="panel-readme" class="view-panel">
+        <div class="section-card" style="border-left: 4px solid var(--color-slate); padding-left: 20px; margin-bottom: 24px;">
+          <h2>📋 Project Controlling Control Tower Overview</h2>
+          <p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            An automated, interactive <strong>Project Controlling &amp; Earned Value Management (EVM) Control Tower</strong> designed for engineering, maritime, and defense sector projects. This workspace integrates analytical data processing, automated agentic auditing, Excel reporting, Power BI compilation, and a Streamlit web dashboard.
+          </p>
+        </div>
+
+        <div class="section-card" style="margin-bottom: 24px;">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; margin-bottom: 12px;">📊 Portfolio Scope &amp; Health Snapshot</h3>
+          <table class="tufte-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th class="align-right">Value</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Total Portfolio BAC</strong></td>
+                <td class="align-right">7,100,000 USD</td>
+                <td>Baseline budget (6 active projects)</td>
+              </tr>
+              <tr>
+                <td><strong>Total Portfolio AC</strong></td>
+                <td class="align-right">5,220,810 USD</td>
+                <td>Active spend logged to date</td>
+              </tr>
+              <tr>
+                <td><strong>Total Portfolio EV</strong></td>
+                <td class="align-right">4,752,500 USD</td>
+                <td>Physical value earned</td>
+              </tr>
+              <tr>
+                <td><strong>Portfolio CPI</strong></td>
+                <td class="align-right text-danger">0.91</td>
+                <td><span class="text-danger">🔴 9% Budget Overrun (Threshold: 0.95)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Portfolio Cost Variance (CV)</strong></td>
+                <td class="align-right text-danger">-468,310 USD</td>
+                <td>Net overrun difference</td>
+              </tr>
+              <tr>
+                <td><strong>Overall Portfolio Progress</strong></td>
+                <td class="align-right">66.9%</td>
+                <td>Weighted physical completion progress</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-card" style="margin-bottom: 24px;">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; margin-bottom: 12px;">🏗️ Workspace Architecture</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+            The system is organized into a data layer, a CLI automation layer, a web dashboard layer, and an agent skill framework:
+          </p>
+          <ul style="padding-left: 20px; font-size: 13px; line-height: 1.8; color: var(--text-secondary);">
+            <li><strong>AI_Controller/</strong>: Contains database compilers, multi-agent audits, Excel report writers, and Streamlit dashboards.</li>
+            <li><strong>Data/CSV/</strong>: Contains the 8 core relational CSV files (projects, WBS elements, timesheets, material costs, progress, raid log, etc.).</li>
+            <li><strong>Data/DuckDB/</strong>: Analytical database engine for high-speed aggregations and views.</li>
+            <li><strong>Data/SQLite/</strong>: Transactional database engine for log audits and RAID logs.</li>
+            <li><strong>.agents/skills/</strong>: Registry of 13 domain-specific agent instructions and rules.</li>
+          </ul>
+        </div>
+
+        <div class="section-card">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; margin-bottom: 12px;">📐 EVM Terminology &amp; Formulas</h3>
+          <table class="tufte-table">
+            <thead>
+              <tr>
+                <th>KPI Metric</th>
+                <th>Equation</th>
+                <th>Interpretation &amp; Thresholds</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>CPI</strong> (Cost Performance Index)</td>
+                <td><code>EV / AC</code></td>
+                <td>Measure of cost efficiency. Values &lt; 0.95 generate early warnings.</td>
+              </tr>
+              <tr>
+                <td><strong>SPI</strong> (Schedule Performance Index)</td>
+                <td><code>EV / PV</code></td>
+                <td>Measure of schedule efficiency. Values &lt; 0.90 indicate critical path delays.</td>
+              </tr>
+              <tr>
+                <td><strong>EAC (Typical)</strong></td>
+                <td><code>BAC / CPI</code></td>
+                <td>Forecasted final cost assuming current cost trends persist.</td>
+              </tr>
+              <tr>
+                <td><strong>EAC (Atypical)</strong></td>
+                <td><code>AC + (BAC - EV)</code></td>
+                <td>Forecasted final cost assuming remaining work runs at planned budget rate.</td>
+              </tr>
+              <tr>
+                <td><strong>VAC</strong> (Variance at Completion)</td>
+                <td><code>BAC - EAC</code></td>
+                <td>Projected surplus or deficit at project end.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VIEW PANEL: USER GUIDE -->
+      <div id="panel-userguide" class="view-panel">
+        <div class="section-card" style="border-left: 4px solid var(--color-slate); padding-left: 20px; margin-bottom: 24px;">
+          <h2>🧭 Dashboard Navigation Guide</h2>
+          <p style="font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin-top: 8px;">
+            This browser-ready dashboard provides a comprehensive window into the workspace. Below are instructions on how to use the interactive elements:
+          </p>
+        </div>
+
+        <div class="section-card" style="margin-bottom: 24px;">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; margin-bottom: 12px;">🖱️ Interactive Dashboard Controls</h3>
+          <ul style="padding-left: 20px; font-size: 13px; line-height: 2; color: var(--text-secondary);">
+            <li><strong>Project Context Gantt Selector</strong>: In the Gantt chart card, toggle the project context dropdown to filter scheduling details down to individual projects (e.g. PRJ-001) or aggregate them at the portfolio level.</li>
+            <li><strong>Gantt Metric Deviation Focus</strong>: Toggle between Schedule, Cost, and Hours metrics to visualize task variances and overruns on the bar tracks.</li>
+            <li><strong>What-If Corrective Simulator</strong>: Navigate to the bottom tab of the Control Tower Dashboard. Adjust sliders for labor or material savings and toggle schedule crashing to view simulated CPI and EAC results.</li>
+            <li><strong>Stakeholder Reports Selector</strong>: Click "Stakeholder Reports" in the sidebar, then use the dropdown to customize metrics for steering committees, project managers, engineers, yard operators, procurement, or quality inspectors.</li>
+            <li><strong>Skill Inspector Selector</strong>: Click "Skill Inspector" or select an option from the "Focus Agent Skill" sidebar dropdown to inspect prompt guidelines for any of the 13 agents.</li>
+            <li><strong>Live Agent Audit Runner</strong>: Click "Live Crew Execution" in the sidebar and run the auditor console simulator to watch timesheet, material, and RAID log integrity checks execute dynamically.</li>
+          </ul>
+        </div>
+
+        <div class="section-card">
+          <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; margin-bottom: 12px;">🚀 Executing Scripts &amp; the PowerShell Orchestrator</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+            The backend engine runs on SQLite, DuckDB, and Python. To rebuild reports or run active audits locally:
+          </p>
+          <ol style="padding-left: 20px; font-size: 13px; line-height: 1.8; color: var(--text-secondary);">
+            <li>Open a PowerShell terminal in the workspace folder: <code>c:\Users\frank\Desktop\Project Mng</code></li>
+            <li>Launch the master menu orchestrator: <code>./run_all.ps1</code></li>
+            <li>Choose from 10 automated tasks, including:
+              <ul style="padding-left: 20px; margin-top: 4px; margin-bottom: 4px;">
+                <li>Option <strong>1</strong>: Recompile and sync SQLite and DuckDB relational tables.</li>
+                <li>Option <strong>4</strong>: Generate the formula-driven Excel report (OpenPyXL).</li>
+                <li>Option <strong>8</strong>: Launch the interactive Streamlit web dashboard.</li>
+                <li>Option <strong>9</strong>: Run the entire data processing and reporting pipeline in sequence.</li>
+              </ul>
+            </li>
+          </ol>
         </div>
       </div>
     </div>
@@ -4973,6 +5150,7 @@
     <script>
       // Initialize focus agent dropdown
       const focusSkillSelect = document.getElementById('focus-skill-select');
+      const pageSkillSelect = document.getElementById('page-skill-select');
       Object.keys(APP_DATA.skills).forEach((skillKey) => {
         const opt = document.createElement('option');
         opt.value = skillKey;
@@ -4981,6 +5159,9 @@
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(' ');
         focusSkillSelect.appendChild(opt);
+        if (pageSkillSelect) {
+          pageSkillSelect.appendChild(opt.cloneNode(true));
+        }
       });
 
       // 1. Sidebar Switcher
@@ -5021,6 +5202,14 @@
           execution: [
             '🤖 Live Agent Crew Audit Runner',
             'Executes Python agent audit routines directly against DuckDB & SQLite database backends.',
+          ],
+          readme: [
+            '📖 Workspace README',
+            'Project overview, portfolio status, system architecture, database views, and tech stack details.',
+          ],
+          userguide: [
+            '🧭 Dashboard & Workspace Guide',
+            'Interactive instructions on how to navigate this dashboard and execute python routines.',
           ],
         };
 
@@ -5696,8 +5885,9 @@
       function loadFocusedSkill(skillName) {
         switchView('skills', null, true);
 
-        // Mark corresponding sidebar select
-        focusSkillSelect.value = skillName;
+        // Synchronize corresponding selectors
+        if (focusSkillSelect) focusSkillSelect.value = skillName;
+        if (pageSkillSelect) pageSkillSelect.value = skillName;
 
         const rawContent = APP_DATA.skills[skillName] || 'Skill not found.';
         const container = document.getElementById('skill-content-area');
