@@ -6,6 +6,7 @@ from pathlib import Path
 import openpyxl
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.formatting.rule import CellIsRule
 
 # Define directories
 BASE_DIR = Path(__file__).resolve().parent
@@ -206,9 +207,9 @@ def build_workbook():
         ws_dash.cell(row=row_idx, column=3, value=w_type).alignment = Alignment(horizontal="left")
 
         ws_dash.cell(row=row_idx, column=4, value=f"=VLOOKUP(A{row_idx}, Dim_WBS!$A:$E, 5, FALSE)").number_format = "#,##0.00"
-        ws_dash.cell(row=row_idx, column=5, value=f"=SUMIFS(Fact_Baseline_PV!$C:$C, Fact_Baseline_PV!$B:$B, A{row_idx}, Fact_Baseline_PV!$A:$A, "<="&$B$4)").number_format = "#,##0.00"
+        ws_dash.cell(row=row_idx, column=5, value=f'=SUMIFS(Fact_Baseline_PV!$C:$C, Fact_Baseline_PV!$B:$B, A{row_idx}, Fact_Baseline_PV!$A:$A, "<="&$B$4)').number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=6, value=f"=SUMIFS(Fact_Actual_Costs!$D:$D, Fact_Actual_Costs!$B:$B, A{row_idx})").number_format = "#,##0.00"
-        ws_dash.cell(row=row_idx, column=7, value=f"=IFERROR(MAXIFS(Fact_Physical_Progress!$C:$C, Fact_Physical_Progress!$B:$B, A{row_idx}, Fact_Physical_Progress!$A:$A, "<="&$B$4), 0)").number_format = "0.0%"
+        ws_dash.cell(row=row_idx, column=7, value=f'=IFERROR(_xlfn.MAXIFS(Fact_Physical_Progress!$C:$C, Fact_Physical_Progress!$B:$B, A{row_idx}, Fact_Physical_Progress!$A:$A, "<="&$B$4), 0)').number_format = "0.0%"
         ws_dash.cell(row=row_idx, column=8, value=f"=D{row_idx}*G{row_idx}").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=9, value=f"=H{row_idx}-F{row_idx}").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=10, value=f"=H{row_idx}-E{row_idx}").number_format = "#,##0.00"
@@ -217,7 +218,7 @@ def build_workbook():
         ws_dash.cell(row=row_idx, column=13, value=f"=IF(K{row_idx}>0, D{row_idx}/K{row_idx}, D{row_idx})").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=14, value=f"=M{row_idx}-F{row_idx}").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=15, value=f"=D{row_idx}-M{row_idx}").number_format = "#,##0.00"
-        ws_dash.cell(row=row_idx, column=16, value=f"=IF(K{row_idx}<0.95, \"Overrun\", IF(K{row_idx}<1.0, \"Warning\", \"On Track\"))").alignment = Alignment(horizontal="center")
+        ws_dash.cell(row=row_idx, column=16, value=f'=IF(K{row_idx}<0.95, "Overrun", IF(K{row_idx}<1.0, "Warning", "On Track"))').alignment = Alignment(horizontal="center")
 
         for col_idx in range(1, 17):
             cell = ws_dash.cell(row=row_idx, column=col_idx)
@@ -300,7 +301,7 @@ def build_workbook():
         ws_dash.cell(row=row_idx, column=4, value=f"=SUM(C$36:C{row_idx})").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=5, value=f"=SUMIFS(Fact_Actual_Costs!$D:$D, Fact_Actual_Costs!$A:$A, ">="&B{row_idx}, Fact_Actual_Costs!$A:$A, "<="&B{row_idx}+6)").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=6, value=f"=SUM(E$36:E{row_idx})").number_format = "#,##0.00"
-        ws_dash.cell(row=row_idx, column=7, value=f"=SUMPRODUCT(Dim_WBS!$E$2:$E$13, SUMIFS(Fact_Physical_Progress!$C$2:$C$100, Fact_Physical_Progress!$B$2:$B$100, Dim_WBS!$A$2:$A$13, Fact_Physical_Progress!$A$2:$A$100, "<="&B{row_idx}+4))").number_format = "#,##0.00"
+        ws_dash.cell(row=row_idx, column=7, value=f'=SUMPRODUCT(Dim_WBS!$E$2:$E$13, SUMIFS(Fact_Physical_Progress!$C$2:$C$100, Fact_Physical_Progress!$B$2:$B$100, Dim_WBS!$A$2:$A$13, Fact_Physical_Progress!$A$2:$A$100, "<="&B{row_idx}+4))').number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=8, value=f"=G{row_idx}-F{row_idx}").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=9, value=f"=G{row_idx}-D{row_idx}").number_format = "#,##0.00"
         ws_dash.cell(row=row_idx, column=10, value=f"=IF(F{row_idx}>0, G{row_idx}/F{row_idx}, 1.00)").number_format = "0.00"
@@ -335,6 +336,24 @@ def build_workbook():
         "P": 14,
     }.items():
         ws_dash.column_dimensions[column_letter].width = width
+
+    # Apply Tufte-compliant conditional formatting for active variances/risks
+    cf_red_fill = PatternFill(start_color="FADBD8", end_color="FADBD8", fill_type="solid")
+    cf_red_font = Font(name=font_family, size=10, color="78281F", bold=True)
+    cf_yellow_fill = PatternFill(start_color="FCF3CF", end_color="FCF3CF", fill_type="solid")
+    cf_yellow_font = Font(name=font_family, size=10, color="7E5109", bold=True)
+
+    # 1. Status Column (P18:P30)
+    ws_dash.conditional_formatting.add("P18:P30", CellIsRule(operator="equal", formula=['"Overrun"'], fill=cf_red_fill, font=cf_red_font))
+    ws_dash.conditional_formatting.add("P18:P30", CellIsRule(operator="equal", formula=['"Warning"'], fill=cf_yellow_fill, font=cf_yellow_font))
+
+    # 2. CPI Column (K18:K30) - Overrun if < 0.95, Warning if < 1.0
+    ws_dash.conditional_formatting.add("K18:K30", CellIsRule(operator="lessThan", formula=["0.95"], fill=cf_red_fill, font=cf_red_font))
+    ws_dash.conditional_formatting.add("K18:K30", CellIsRule(operator="between", formula=["0.95", "0.9999"], fill=cf_yellow_fill, font=cf_yellow_font))
+
+    # 3. SPI Column (L18:L30) - Overrun/Critical if < 0.90, Warning if < 1.0
+    ws_dash.conditional_formatting.add("L18:L30", CellIsRule(operator="lessThan", formula=["0.90"], fill=cf_red_fill, font=cf_red_font))
+    ws_dash.conditional_formatting.add("L18:L30", CellIsRule(operator="between", formula=["0.90", "0.9999"], fill=cf_yellow_fill, font=cf_yellow_font))
 
     wb.properties.creator = "Project Controlling Workspace"
     wb.properties.title = "Project Controlling App"
