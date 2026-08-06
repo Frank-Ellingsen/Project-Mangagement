@@ -1,0 +1,12 @@
+﻿Resource_ID,Resource_Name,Role,Hourly_Rate
+R01,Project Manager,Management,1500
+R02,Lead Engineer,Engineering,2400
+R03,Electrician,Trades,2600
+R04,Demolition Crew,Labor,2200
+R05,Testing Engineer,QA,2100
+R06,Closeout Specialist,QA,1800
+R07,Materials Vendor,Vendor,0
+R08,HVAC Contractor,Contractor,0
+R09,Drywall Contractor,Contractor,0
+R10,Flooring Supplier,Vendor,0
+R11,Furniture Supplier,Vendor,0

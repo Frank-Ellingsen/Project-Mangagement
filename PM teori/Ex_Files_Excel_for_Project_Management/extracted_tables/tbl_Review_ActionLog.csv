@@ -1,0 +1,6 @@
+﻿BETTER / ACTION LOG,Owner,Due date,Decision required?,RAG,Linked workbook evidence
+Investigate schedule slippage driving SPI below 1.0,Project Controls,,Yes,Red,EVM Dashboard!J10 / Task Plan!O17
+Review cost efficiency and current EAC forecast,Project Controls,,Yes,Red,EVM Dashboard!G10 / Task Plan!Q17
+Confirm mitigation for red WBS activities in Gantt,Project Manager,,Yes,Red,EVM Charts!Gantt Schedule
+Check future material/subcontractor dependencies,Planner,,No,Amber,Task Plan / Resource Grid
+Capture lessons from completed WBS items,Project Team,,No,Amber,Task Capture / Review

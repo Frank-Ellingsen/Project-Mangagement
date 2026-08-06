@@ -1,0 +1,35 @@
+﻿Category,Term,Abbrev.,Definition,Workbook reference
+Project setup,Project Start,,Approved start date for the project control baseline.,Setup!B7 / Dim_Project!C2
+Project setup,Project End,,Approved planned end date for the project.,Setup!B8 / Dim_Project!D2
+Project setup,Status Date,,"Cut-off date for reported progress, actual costs, and EVM metrics.",Setup!B9 / EVM Dashboard!B4
+Scope / WBS,Work Breakdown Structure,WBS,Hierarchical breakdown of project scope into controllable work packages or activities.,Dim_WBS / Task Plan
+Scope / WBS,WBS ID,,"Unique identifier used to connect WBS activities to baseline PV, actual costs, and progress facts.",Dim_WBS!A:A
+Scope / WBS,Activity / Task,,"A controllable unit of project work with budget, schedule, progress, and cost tracking.",Task Plan!C:C
+Schedule,Baseline Start,,Planned start date for a WBS activity from the approved baseline.,Task Plan!E:E
+Schedule,Baseline Finish,,Planned finish date for a WBS activity from the approved baseline.,Task Plan!F:F
+Schedule,Duration Days,,Calendar-day span between baseline start and finish dates.,Task Plan!G:G
+Schedule,Gantt Chart,,Timeline chart showing planned activity timing and duration by WBS activity.,EVM Charts!Gantt Schedule
+Cost / EVM,Budget at Completion,BAC,Approved total budget for the project or WBS activity.,Setup!B11 / Task Plan!H:H
+Cost / EVM,Planned Value,PV,Budgeted value of work planned to be complete by a given date.,Task Plan!I:I / EVM!C:C
+Cost / EVM,Actual Cost,AC,Actual cost incurred by a given date.,Task Plan!J:J / EVM!D:D
+Cost / EVM,Physical Progress,Progress %,Latest reported percent complete for each WBS activity as of the status date.,Task Plan!K:K
+Cost / EVM,Earned Value,EV,Budgeted value of the work actually completed; calculated as BAC × progress.,Task Plan!L:L / EVM!E:E
+Variance,Schedule Variance,SV,EV minus PV; negative means less work completed than planned.,Task Plan!M:M / EVM!F:F
+Variance,Cost Variance,CV,EV minus AC; negative means cost overrun for completed work.,Task Plan!N:N / EVM!G:G
+Performance index,Schedule Performance Index,SPI,EV divided by PV; below 1.0 indicates unfavorable schedule efficiency.,Task Plan!O:O / EVM!H:H
+Performance index,Cost Performance Index,CPI,EV divided by AC; below 1.0 indicates unfavorable cost efficiency.,Task Plan!P:P / EVM!I:I
+Forecast,Estimate at Completion,EAC,"Forecast final project or WBS cost, typically BAC divided by CPI.",Task Plan!Q:Q / EVM!K:K
+Forecast,Estimate to Complete,ETC,Forecast remaining cost to complete the work; EAC minus AC.,Task Plan!R:R / EVM!L:L
+Forecast,Variance at Completion,VAC,Expected budget variance at completion; BAC minus EAC.,Task Plan!S:S / EVM!M:M
+Chart,EVM S-Curve,,"Line chart comparing cumulative PV, EV, and AC over time.",EVM Charts!EVM S-Curve
+RAG,Green,,"Good condition: on/above plan, favorable variance, or acceptable performance threshold.",Setup!A18:D18
+RAG,Amber,,Watch condition: close to threshold or mid-progress; monitor closely.,Setup!A19:D19
+RAG,Red,,"Action condition: negative variance, low progress, CPI/SPI below threshold, or overrun.",Setup!A20:D20
+Reporting,Dashboard,,"Management summary view showing KPIs, WBS performance, trend data, and RAG status.",EVM Dashboard!A1:P47
+Reporting,Tie-out,,Validation that dashboard KPIs match the detailed EVM reporting table at the status date.,EVM!H19:M25
+Data model,Dimension Table,Dim,"Reference table describing projects, WBS, resources, or calendar dates.",Dim_Project / Dim_WBS / Dim_Resource / Dim_Calendar
+Data model,Fact Table,Fact,"Transaction or event table containing planned values, actual costs, or progress observations.",Fact_Baseline_PV / Fact_Actual_Costs / Fact_Physical_Progress
+,,,,
+Workbook classification,Input,,Source data or user-entered content that feeds project calculations and reports.,Cover!D13:H39
+Workbook classification,Control,,"Assumptions, thresholds, validation, governance, and planning logic used to interpret inputs.",Cover!D13:H39
+Workbook classification,Output,,"Reports, charts, dashboards, and references produced from the input data and control logic.",Cover!D13:H39

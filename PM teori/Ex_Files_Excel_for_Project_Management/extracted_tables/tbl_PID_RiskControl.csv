@@ -1,0 +1,7 @@
+﻿Project Risk,Containment Measures,Owner,Due Date,RAG
+Schedule slippage,Monitor SPI and Gantt status line; escalate red WBS tasks.,Project Controls,,Red
+Cost overrun,Monitor CPI/CV/EAC and review WBS cost drivers.,Project Controls,,Red
+Resource availability,Use weekly Resource Grid to identify conflicts.,Resource Manager,,Amber
+Scope creep,Confirm in/out of scope and change-control route in PID.,Project Manager,,Amber
+Quality issue,Define acceptance criteria and quality checks by task.,Project Manager,,Amber
+Supplier delay,Track procurement/material activities and delivery milestones.,Project Manager,,Amber

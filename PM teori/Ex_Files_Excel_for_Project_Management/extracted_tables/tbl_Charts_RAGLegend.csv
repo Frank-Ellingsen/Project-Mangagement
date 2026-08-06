@@ -1,0 +1,6 @@
+﻿RAG Legend,Rule,Used in charts
+Green,Good / baseline target,Gantt good bars; PV line
+Amber,Watch / earned progress,Gantt watch bars; EV line
+Red,Action / cost exposure,Gantt action bars; AC line
+White,Hidden helper,Gantt start-offset series
+Red dotted,Status date,Vertical marker at 2026-06-30

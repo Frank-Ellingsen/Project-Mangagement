@@ -1,0 +1,13 @@
+﻿WBS ID,Activity,Baseline Start,Baseline Finish,Duration,Progress,SPI,CPI,RAG,Inferred predecessor(s)
+WBS-01,Project Management,2026-05-04 00:00:00,2026-07-26 00:00:00,84,0.5,0.67,0.94,Red,START
+WBS-02,Site Survey & Mobilization,2026-05-04 00:00:00,2026-05-10 00:00:00,7,1,1,0.98,Red,START
+WBS-03,Design & Engineering,2026-05-04 00:00:00,2026-05-24 00:00:00,21,1,1,1.06,Green,START
+WBS-04,Procurement - Materials,2026-05-11 00:00:00,2026-06-07 00:00:00,28,1,1,1.02,Green,WBS-02 / WBS-03
+WBS-05,Demolition & Prep,2026-05-11 00:00:00,2026-05-31 00:00:00,21,1,1,0.98,Red,WBS-02 / WBS-03
+WBS-06,Electrical Rough-In,2026-05-25 00:00:00,2026-06-14 00:00:00,21,0.7,0.7,0.69,Red,WBS-04 / WBS-05
+WBS-07,HVAC Installation,2026-06-01 00:00:00,2026-06-28 00:00:00,28,0.4,0.4,0.82,Red,WBS-06
+WBS-08,Partitions & Drywall,2026-06-08 00:00:00,2026-07-05 00:00:00,28,0.249,0.25,0.98,Red,WBS-06
+WBS-09,Flooring,2026-06-22 00:00:00,2026-07-12 00:00:00,21,0,0,1,Red,WBS-07 / WBS-08
+WBS-10,Fixtures & Furniture,2026-06-29 00:00:00,2026-07-19 00:00:00,21,0,0,1,Red,WBS-07 / WBS-08
+WBS-11,Testing / Commissioning,2026-07-13 00:00:00,2026-07-26 00:00:00,14,0,1,1,Green,WBS-09 / WBS-10
+WBS-12,Handover & Closeout,2026-07-20 00:00:00,2026-07-26 00:00:00,7,0,1,1,Green,WBS-11

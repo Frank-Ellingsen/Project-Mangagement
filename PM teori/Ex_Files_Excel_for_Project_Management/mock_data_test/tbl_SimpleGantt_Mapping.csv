@@ -1,0 +1,3 @@
+﻿Template element,Implemented as,Source table,Meaning,Classification
+My hours,Weekly hours grid,Fact_Actual_Costs[Hours_Worked],Actual hours by WBS and week; o = planned week with no actual hours yet.,Control
+Total costs,Weekly cost grid,Fact_Actual_Costs[Actual_Cost],Actual cost by WBS and week; o = planned week with no actual cost yet.,Control

@@ -1,0 +1,18 @@
+﻿Sheet,Purpose
+Setup,"Project-level controls: project metadata, status date, reporting period, and RAG thresholds."
+Task Plan,"Integrated WBS/task control table linking baseline dates, BAC, progress, AC, EV, variances, forecasts, and RAG status."
+EVM,"Weekly EVM reporting table with cumulative PV, AC, EV, SV, CV, SPI, CPI, EAC, ETC, and VAC."
+EVM Charts,"Baseline Gantt schedule and EVM S-curve generated from the same WBS, budget, progress, and actual-cost data."
+EVM Dashboard,"Management view with KPI tiles, WBS performance breakdown, trends, and RAG coloring."
+PM-EVM Compliance,Checklist mapping the workbook to the attached PM-EVM guideline.
+Dim_* / Fact_*,Star-schema source data used by the live formulas and charts.
+Glossary,"Definitions for the EVM, WBS, Gantt, schedule, cost, RAG, and data-model terms used in the workbook."
+Method Roadmap,12-step project management method mapped to workbook sheets and current project controls.
+PID,"Project Initiation Document template with business case, scope, controls, risk and financial sections."
+Task Capture,"Task-list brainstorming sheet based on the attached list-the-tasks method, linked to current WBS."
+Resource Grid,Weekly hours/cost resource allocation grid adapted from the attached Gantt template.
+Review,GOOD / BAD / BETTER review template and action log.
+Garden Gantt Model,Attached garden-office Gantt template implemented with current project weekly hours and cost data.
+PERT Diagram,"Visio-style PERT network diagram reflecting the current WBS, schedule, progress and RAG status."
+Red Actions,Recommended recovery actions for all current red RAG WBS items and control risks.
+Pivot Summary,"High-level PivotTables and descriptive statistics for project cost, schedule, EVM, and RAG performance."

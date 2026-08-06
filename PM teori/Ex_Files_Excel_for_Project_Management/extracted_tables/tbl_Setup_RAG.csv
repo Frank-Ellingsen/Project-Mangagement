@@ -1,0 +1,4 @@
+﻿RAG,Metric,Rule,Interpretation
+Green,CPI/SPI,>= 1.00,On or above plan
+Amber,CPI/SPI,0.95 to < 1.00,Near threshold / watch
+Red,CPI/SPI,< 0.95,Action required

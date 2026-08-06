@@ -1,0 +1,4 @@
+﻿WBS_ID,Task Name,Start Date,End Date,Duration,Predecessors,Resources,Status,A,B,C,D,E,F,G,H,I,J,K,L
+WBS001,Design Phase,2026-09-01,2026-09-14,14,,RES101,Complete,,,,,,,,,,,,
+WBS002,Structural Steel Work,2026-09-15,2026-09-28,14,WBS001,RES101,In Progress,,,,,,,,,,,,
+WBS003,Electrical & Outfitting,2026-09-29,2026-10-12,14,WBS002,RES102,Not Started,,,,,,,,,,,,

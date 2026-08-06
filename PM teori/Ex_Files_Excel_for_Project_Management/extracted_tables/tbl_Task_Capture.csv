@@ -1,0 +1,15 @@
+﻿Phase / Area,Task,WBS ID,Type,Included?,Event / Milestone?,Owner,Notes,Source / next action,Mapped to Task Plan
+Labor,Project Management,WBS-01,Labor,Yes,,,,Imported from current WBS,5
+Labor,Site Survey & Mobilization,WBS-02,Labor,Yes,,,,Imported from current WBS,6
+Labor,Design & Engineering,WBS-03,Labor,Yes,,,,Imported from current WBS,7
+Material,Procurement - Materials,WBS-04,Material,Yes,,,,Imported from current WBS,8
+Labor,Demolition & Prep,WBS-05,Labor,Yes,,,,Imported from current WBS,9
+Labor,Electrical Rough-In,WBS-06,Labor,Yes,,,,Imported from current WBS,10
+Subcontractor,HVAC Installation,WBS-07,Subcontractor,Yes,,,,Imported from current WBS,11
+Subcontractor,Partitions & Drywall,WBS-08,Subcontractor,Yes,,,,Imported from current WBS,12
+Material,Flooring,WBS-09,Material,Yes,,,,Imported from current WBS,13
+Material,Fixtures & Furniture,WBS-10,Material,Yes,,,,Imported from current WBS,14
+Labor,Testing / Commissioning,WBS-11,Labor,Yes,,,,Imported from current WBS,15
+Labor,Handover & Closeout,WBS-12,Labor,Yes,,,,Imported from current WBS,16
+Brainstorm / new,,,,,,,,Add new tasks here before sequencing,
+Brainstorm / new,,,,,,,,Add new tasks here before sequencing,

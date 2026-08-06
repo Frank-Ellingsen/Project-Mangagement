@@ -1,0 +1,7 @@
+﻿Formula,Workbook implementation,Guideline meaning,Current status-date value,Check,Source,Column1,Status tie-out,Dashboard value,Task Plan value,Variance,Check2,Source3
+SV = EV - PV,#N/A,Schedule variance at status date,#N/A,Live,PM-EVM.md lines 145-150,,PV,220233.34,220233.34,0,OK,Task Plan!I17
+CV = EV - AC,#N/A,Cost variance at status date,#N/A,Live,PM-EVM.md lines 145-150,,AC,141985.44,141985.44,0,OK,Task Plan!J17
+SPI = EV / PV,#N/A,Schedule efficiency,#N/A,Live,PM-EVM.md lines 145-150,,EV,131467.996,131467.996,0,OK,Task Plan!L17
+CPI = EV / AC,#N/A,Cost efficiency,#N/A,Live,PM-EVM.md lines 145-150,,SPI,0.5969486545497608,0.5969486545497608,0,OK,Task Plan!O17
+EAC = BAC / CPI,#N/A,Forecast final cost,#N/A,Live,PM-EVM.md lines 203-214,,CPI,0.9259258977540233,0.9259258977540233,0,OK,Task Plan!P17
+VAC = BAC - EAC,#N/A,Expected budget variance at completion,#N/A,Live,PM-EVM.md lines 203-214,,VAC,-21492.008827760583,-21492.008827760583,0,OK,Task Plan!S17

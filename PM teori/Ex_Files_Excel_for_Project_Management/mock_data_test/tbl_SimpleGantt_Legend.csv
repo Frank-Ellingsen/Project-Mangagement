@@ -1,0 +1,5 @@
+﻿Legend,Meaning,Applied to
+Red dotted vertical line,Status date 2026-06-30,My hours and Total costs grids
+Green row,CPI/SPI >= 1.00 and favorable variance,Summary + task totals
+Amber row,Near threshold,Summary + task totals
+Red row,Behind plan / cost overrun / low index,Summary + task totals

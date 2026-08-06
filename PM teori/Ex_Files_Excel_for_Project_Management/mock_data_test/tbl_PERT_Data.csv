@@ -1,0 +1,3 @@
+﻿Activity ID,Description,Optimistic,Most Likely,Pessimistic,Expected,Predecessors,ES,EF,Slack
+A1,Conceptual Design,5.0,7.0,9.0,7.0,,0.0,7.0,0.0
+A2,Detail Drafting,4.0,7.0,10.0,7.0,A1,7.0,14.0,0.0

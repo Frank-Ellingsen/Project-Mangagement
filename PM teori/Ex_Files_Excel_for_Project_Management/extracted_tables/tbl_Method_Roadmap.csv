@@ -1,0 +1,13 @@
+﻿Step,Method step,Purpose,Workbook implementation,Primary sheet / range,Owner,Status,Source
+1,Define the project,Create the project definition and controls.,PID template added with live project metadata.,PID!A1:H50,Project Manager,Active,1.2 12 Step Process / 2.1.2 PID template
+2,List the tasks,"Capture all tasks without initially worrying about order, cost, or time.",Task Capture sheet added; WBS imported from current Dim_WBS and grouped by type.,Task Capture!A4:J18,Project Team,Active,3.1.5 List the Tasks / 4.1 List of Tasks
+3,Establish task order,Convert brainstormed tasks into planned sequencing.,Task Plan and Gantt use WBS order and baseline dates.,Task Plan!A4:T17,Planner,Active,1.2 12 Step Process
+4,Estimate time,Estimate duration by task.,"Baseline start, finish, and duration calculated per WBS.",Task Plan!E5:G17,Planner,Active,1.2 12 Step Process
+5,Margin check & reality check,"Check whether dates, budget, and resource assumptions are feasible.","Status tie-out, EVM checks, and RAG indicators added.",EVM!H19:M25,Project Controls,Active,1.2 12 Step Process
+6,Gantt Chart,Show planned timing and status.,Gantt chart with RAG bars and status-date marker exists.,EVM Charts!Gantt Schedule,Project Controls,Active,8.1.2 Gantt templates
+7,Resource allocation,Map tasks to people/resources and weekly loading.,Resource Grid added with weekly hours and costs by WBS.,Resource Grid!A4:Z35,Resource Manager,Active,8.1.2 Gantt template from garden office
+8,Predicting & reducing risk,Identify project risks and containment measures.,PID risk-control register added.,PID!A63:E70,Project Manager,Template ready,2.1.2 PID template
+9,Monitoring progress,Track completion against plan.,Progress is linked from Fact_Physical_Progress to Task Plan and dashboard.,Task Plan!K5:K17,Project Controls,Active,1.2 12 Step Process
+10,Monitoring cost,Track actual cost and forecast.,"EVM reporting monitors AC, CV, CPI, EAC, ETC, VAC.",EVM!A4:N16,Project Controls,Active,1.2 12 Step Process
+11,Adjusting the plan,Use EVM and RAG exceptions to trigger decisions.,Decision/action log added to Review.,Review!A20:F28,Project Board,Template ready,1.2 12 Step Process
+12,Review & lessons,"Capture good, bad, better after delivery.",Review sheet added with GOOD / BAD / BETTER structure.,Review!A4:F17,Project Team,Template ready,13.1.2 Review Template

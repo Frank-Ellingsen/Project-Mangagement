@@ -1,0 +1,31 @@
+﻿Task/Item,My Hours,My Cost (£50/hour),Subcontractor Cost (£),Purchase Cost (£),Total Cost (£)
+Clear the space in the garden,,,,,
+Demolish old shed,6,300,0,0,300
+Cut foliage back,10,500,0,0,500
+Tree surgeon,0,0,300,0,300
+Foundations,,,,,
+Dig trench - myself,4,200,0,0,200
+Hire little digger,0,0,0,150,150
+Fill with concrete,2,100,300,300,700
+Level,0,0,100,0,100
+Buy the shed,,,,,
+Find suppliers,3,150,0,0,150
+Ask friends,3,150,0,0,150
+Get quotes,1,50,0,0,50
+See a finished one,3,150,0,0,150
+Choose (event),0,0,0,8000,8000
+Lead time (no resource),0,0,0,0,0
+Install shed,,,,,
+Delivery,0,0,0,0,0
+Assembly of structure,0,0,500,0,500
+Put in the furniture,20,1000,0,0,1000
+"Buy furniture (Desk, chair, sofa, smoothie fridge, curtains)",10,500,0,3000,3500
+Set up computers,4,200,0,2000,2200
+Wiring down the garden,8,400,0,0,400
+Power - electrician to connect,0,0,150,0,150
+Music system,0,0,0,300,300
+Painting,0,0,300,200,500
+Legal,,,,,
+Check if I need planning permission,5,250,0,0,250
+Check I've got enough money,1,50,0,0,50
+TOTALS,80,4000,1650,13950,19600

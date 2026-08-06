@@ -1,0 +1,4 @@
+﻿WBS_ID,WBS_Code,Activity_Name,Type,Total_Budget
+WBS001,1.0,Design Phase,Summary Task,20000.0
+WBS002,1.1,Structural Steel Work,Activity,25000.0
+WBS003,1.2,Electrical & Outfitting,Activity,15000.0

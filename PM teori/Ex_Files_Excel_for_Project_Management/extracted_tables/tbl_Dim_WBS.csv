@@ -1,0 +1,13 @@
+﻿WBS_ID,WBS_Code,Activity_Name,Type,Total_Budget
+WBS-01,1,Project Management,Labor,18000
+WBS-02,2,Site Survey & Mobilization,Labor,8500
+WBS-03,3,Design & Engineering,Labor,19200
+WBS-04,4,Procurement - Materials,Material,42000
+WBS-05,5,Demolition & Prep,Labor,13200
+WBS-06,6,Electrical Rough-In,Labor,26000
+WBS-07,7,HVAC Installation,Subcontractor,36000
+WBS-08,8,Partitions & Drywall,Subcontractor,28000
+WBS-09,9,Flooring,Material,35750
+WBS-10,10,Fixtures & Furniture,Material,30000
+WBS-11,11,Testing / Commissioning,Labor,8400
+WBS-12,12,Handover & Closeout,Labor,3600

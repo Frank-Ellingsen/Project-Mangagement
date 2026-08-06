@@ -1,0 +1,5 @@
+﻿Visio-style PERT Legend,Column1,Column2
+Green,On track,CPI/SPI/variance favorable
+Amber,Watch,Near threshold
+Red,Action,Behind plan / overrun
+Gray,Start / Finish,Network endpoints

@@ -1,0 +1,13 @@
+﻿WBS ID,Activity,Start,Finish,Start Offset,Duration Days,Progress %,RAG
+WBS-01,Project Management,2026-05-04 00:00:00,2026-07-26 00:00:00,0,84,0.5,Amber
+WBS-02,Site Survey & Mobilization,2026-05-04 00:00:00,2026-05-10 00:00:00,0,7,1,Green
+WBS-03,Design & Engineering,2026-05-04 00:00:00,2026-05-24 00:00:00,0,21,1,Green
+WBS-04,Procurement - Materials,2026-05-11 00:00:00,2026-06-07 00:00:00,7,28,1,Green
+WBS-05,Demolition & Prep,2026-05-11 00:00:00,2026-05-31 00:00:00,7,21,1,Green
+WBS-06,Electrical Rough-In,2026-05-25 00:00:00,2026-06-14 00:00:00,21,21,0.7,Amber
+WBS-07,HVAC Installation,2026-06-01 00:00:00,2026-06-28 00:00:00,28,28,0.4,Red
+WBS-08,Partitions & Drywall,2026-06-08 00:00:00,2026-07-05 00:00:00,35,28,0.248857,Red
+WBS-09,Flooring,2026-06-22 00:00:00,2026-07-12 00:00:00,49,21,0,Red
+WBS-10,Fixtures & Furniture,2026-06-29 00:00:00,2026-07-19 00:00:00,56,21,0,Red
+WBS-11,Testing / Commissioning,2026-07-13 00:00:00,2026-07-26 00:00:00,70,14,0,Red
+WBS-12,Handover & Closeout,2026-07-20 00:00:00,2026-07-26 00:00:00,77,7,0,Red

@@ -1,0 +1,24 @@
+﻿Task ID,Task Name,Predecessor Tasks,Duration (Weeks)
+1,Check funds,,
+2,Check if I need planning permission,,6
+3,Wait for planning permission,Check if I need planning permission,10
+4,Demolish old shed,Wait for planning permission,1
+5,Cut foliage back,Demolish old shed,2
+6,Tree surgeon,Cut foliage back,4
+7,Dig trench,Tree surgeon,2
+8,Hire digger,Dig trench,12
+9,Fill with concrete,Hire digger,1
+10,Level the base,Fill with concrete,1
+11,Find suppliers,,1
+12,Ask friends,,1
+13,See a finished one,,1
+14,Get quotes,"Find suppliers, Ask friends, See a finished one",3
+15,Buy the shed,Get quotes,
+16,Delivery time,Buy the shed,6
+17,Wire down the garden,,1
+18,Assembly of structure,"Level the base, Delivery time, Wire down the garden",1
+19,Painting outside,Assembly of structure,2
+20,Painting inside,Assembly of structure,1
+21,Put in furniture,"Painting outside, Painting inside",1
+22,Set up computers,Put in furniture,1
+23,Install music system,Put in furniture,1

@@ -1,0 +1,10 @@
+﻿Guideline requirement,Workbook implementation,Location,Status,Evidence
+"Setup controls: project metadata, status date, reporting period, rates/thresholds",Added setup control sheet with live project metadata and thresholds,Setup!A4:D20,Compliant,PM-EVM.md lines 117-126
+Task Plan as integrated WBS/task control view,"Added live task table combining WBS, dates, BAC, PV, AC, progress, EV, variances, forecasts and RAG",Task Plan!A4:T17,Compliant,PM-EVM.md lines 120-125
+Gantt display tied to WBS baseline dates,"Existing EVM Charts Gantt uses WBS activities, baseline start/finish and duration",EVM Charts!Gantt Schedule,Compliant,PM-EVM.md lines 122-125
+"EVM by reporting period with PV, EV, AC, SV, CV, SPI, CPI, BAC, EAC, ETC, VAC",Added EVM reporting table with weekly live formulas,EVM!A4:N16,Compliant,PM-EVM.md lines 123-124
+"S-curve shows cumulative PV, EV, and AC over time",Existing EVM S-curve chart is sourced from weekly cumulative helper table,EVM Charts!EVM S-Curve,Compliant,PM-EVM.md lines 50-54
+Dashboard summarizes management KPIs and top WBS exceptions,"Existing dashboard has KPI tiles, WBS table, RAG, variance/status fields",EVM Dashboard!A1:P47,Compliant,PM-EVM.md lines 781-785
+Exception-focused reporting with RAG / traffic-light indicators,"RAG rules applied across performance indices, progress, variances, and status cells","EVM Dashboard, Task Plan, EVM",Compliant,PM-EVM.md lines 781-785
+"Consistent WBS codes, budgets, dates, and actuals across views","Task Plan, EVM, Gantt and dashboard all reference Dim_WBS and fact tables",Dim_WBS / Fact_*,Compliant,PM-EVM.md lines 270-274
+Validate formulas and totals,Added formula validation and status-date tie-out to dashboard KPIs,EVM!H19:M25,Compliant,PM-EVM.md lines 783-785

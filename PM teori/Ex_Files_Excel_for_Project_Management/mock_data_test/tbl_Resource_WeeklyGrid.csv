@@ -1,0 +1,25 @@
+﻿WBS ID,Activity,Resource / Role,Measure,Wk1,Wk2,Wk3,Wk4,Wk5,Wk6,Wk7,Wk8,Wk9,Wk10,Wk11,Wk12,Total,BAC,Actual @ Status,Remaining BAC,CPI,RAG,Template source,Notes
+WBS-01,Project Management,Labor,Hours,1.05,1.05,1.05,1.05,1.05,1.05,0,0,0,0,0,0,6.3,18000,9600,8400,0.9375,Red,8.1.2 Gantt template from garden office,Hours row
+WBS-01,Project Management,Labor,Cost,1600,1600,1600,1600,1600,1600,0,0,0,0,0,0,9600,18000,9600,8400,0.9375,Red,8.1.2 Gantt template from garden office,Cost row
+WBS-02,Site Survey & Mobilization,Labor,Hours,3.95,0,0,0,0,0,0,0,0,0,0,0,3.95,8500,8700,-200,0.9770114942528736,Amber,8.1.2 Gantt template from garden office,Hours row
+WBS-02,Site Survey & Mobilization,Labor,Cost,8700,0,0,0,0,0,0,0,0,0,0,0,8700,8500,8700,-200,0.9770114942528736,Amber,8.1.2 Gantt template from garden office,Cost row
+WBS-03,Design & Engineering,Labor,Hours,2.5,2.5,2.6,0,0,0,0,0,0,0,0,0,7.6,19200,18195.04,1004.9599999999991,1.055232634827953,Green,8.1.2 Gantt template from garden office,Hours row
+WBS-03,Design & Engineering,Labor,Cost,5995.04,6000,6200,0,0,0,0,0,0,0,0,0,18195.04,19200,18195.04,1004.9599999999991,1.055232634827953,Green,8.1.2 Gantt template from garden office,Cost row
+WBS-04,Procurement - Materials,Material,Hours,0,0,0,0,0,0,0,0,0,0,0,0,0,42000,41300,700,1.0169491525423728,Green,8.1.2 Gantt template from garden office,Hours row
+WBS-04,Procurement - Materials,Material,Cost,0,10500,10200,10200,10400,0,0,0,0,0,0,0,41300,42000,41300,700,1.0169491525423728,Green,8.1.2 Gantt template from garden office,Cost row
+WBS-05,Demolition & Prep,Labor,Hours,0,2.05,2.1,1.9,0,0,0,0,0,0,0,0,6.050000000000001,13200,13408.159999999998,-208.15999999999804,0.9844751255951601,Amber,8.1.2 Gantt template from garden office,Hours row
+WBS-05,Demolition & Prep,Labor,Cost,0,4554.08,4654.08,4200,0,0,0,0,0,0,0,0,13408.16,13200,13408.159999999998,-208.15999999999804,0.9844751255951601,Amber,8.1.2 Gantt template from garden office,Cost row
+WBS-06,Electrical Rough-In,Labor,Hours,0,0,0,3.4499999999999997,3.4000000000000004,3.25,0,0,0,0,0,0,10.1,26000,26206.239999999998,-206.23999999999796,0.6944910830397646,Red,8.1.2 Gantt template from garden office,Hours row
+WBS-06,Electrical Rough-In,Labor,Cost,0,0,0,8906.24,8800,8500,0,0,0,0,0,0,26206.239999999998,26000,26206.239999999998,-206.23999999999796,0.6944910830397646,Red,8.1.2 Gantt template from garden office,Cost row
+WBS-07,HVAC Installation,Subcontractor,Hours,0,0,0,0,0,0,0,0,0,0,0,0,0,36000,17476.8,18523.2,0.8239494644328481,Red,8.1.2 Gantt template from garden office,Hours row
+WBS-07,HVAC Installation,Subcontractor,Cost,0,0,0,0,8676.8,8800,0,0,0,0,0,0,17476.8,36000,17476.8,18523.2,0.8239494644328481,Red,8.1.2 Gantt template from garden office,Cost row
+WBS-08,Partitions & Drywall,Subcontractor,Hours,0,0,0,0,0,0,0,0,0,0,0,0,0,28000,7099.2,20900.8,0.9815184809556007,Amber,8.1.2 Gantt template from garden office,Hours row
+WBS-08,Partitions & Drywall,Subcontractor,Cost,0,0,0,0,0,7099.2,0,0,0,0,0,0,7099.2,28000,7099.2,20900.8,0.9815184809556007,Amber,8.1.2 Gantt template from garden office,Cost row
+WBS-09,Flooring,Material,Hours,0,0,0,0,0,0,0,0,0,0,0,0,0,35750,0,35750,1,Green,8.1.2 Gantt template from garden office,Hours row
+WBS-09,Flooring,Material,Cost,0,0,0,0,0,0,0,0,0,0,0,0,0,35750,0,35750,1,Green,8.1.2 Gantt template from garden office,Cost row
+WBS-10,Fixtures & Furniture,Material,Hours,0,0,0,0,0,0,0,0,0,0,0,0,0,30000,0,30000,1,Green,8.1.2 Gantt template from garden office,Hours row
+WBS-10,Fixtures & Furniture,Material,Cost,0,0,0,0,0,0,0,0,0,0,0,0,0,30000,0,30000,1,Green,8.1.2 Gantt template from garden office,Cost row
+WBS-11,Testing / Commissioning,Labor,Hours,0,0,0,0,0,0,0,0,0,0,0,0,0,8400,0,8400,1,Green,8.1.2 Gantt template from garden office,Hours row
+WBS-11,Testing / Commissioning,Labor,Cost,0,0,0,0,0,0,0,0,0,0,0,0,0,8400,0,8400,1,Green,8.1.2 Gantt template from garden office,Cost row
+WBS-12,Handover & Closeout,Labor,Hours,0,0,0,0,0,0,0,0,0,0,0,0,0,3600,0,3600,1,Green,8.1.2 Gantt template from garden office,Hours row
+WBS-12,Handover & Closeout,Labor,Cost,0,0,0,0,0,0,0,0,0,0,0,0,0,3600,0,3600,1,Green,8.1.2 Gantt template from garden office,Cost row
