@@ -36,3 +36,5 @@ docs/scratch/next.md
 # --- OS specific files ---
 .DS_Store
 Thumbs.db
+.env
+configure.yaml
